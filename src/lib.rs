@@ -1,6 +1,7 @@
 use std::io::stdout;
 use std::io::stdin;
 use std::io::Write;
+use std::collections::HashMap;
 
 
 pub struct Loop { }
@@ -19,10 +20,14 @@ impl Loop {
             let mut input = String::new();
             stdin().read_line(&mut input).unwrap();
 
-            let command = input.trim();
+            let line = input.trim();
 
-            println!("{}", command);
+            self.one_line(line.split(" ").collect());
         }
+    }
+
+    pub fn one_line(&self, line: Vec<&str>) {
+        println!("{}", line[0]);
     }
 }
 

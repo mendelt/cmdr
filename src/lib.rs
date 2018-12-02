@@ -4,31 +4,23 @@ use std::io::Write;
 use std::collections::HashMap;
 
 
-pub struct Loop { }
+pub fn cmd_loop(context: &Context) {
+    loop {
+        print!("{} ", context.prompt());
+        stdout().flush();
 
+        let mut input = String::new();
+        stdin().read_line(&mut input).unwrap();
 
-impl Loop {
-    pub fn new() -> Loop {
-        Loop { }
+        let line = input.trim();
+
+        one_line(line.split(" ").collect());
     }
+}
 
-    pub fn run(&self, context: &Context) {
-        loop {
-            print!("{} ", context.prompt());
-            stdout().flush();
 
-            let mut input = String::new();
-            stdin().read_line(&mut input).unwrap();
-
-            let line = input.trim();
-
-            self.one_line(line.split(" ").collect());
-        }
-    }
-
-    pub fn one_line(&self, line: Vec<&str>) {
-        println!("{}", line[0]);
-    }
+pub fn one_line(line: Vec<&str>) {
+    println!("{}", line[0]);
 }
 
 

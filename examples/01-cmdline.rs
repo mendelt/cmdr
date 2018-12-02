@@ -1,4 +1,5 @@
-use cmdr::{Loop, Context};
+use cmdr::{cmd_loop, Context};
+
 
 struct MyContext { }
 
@@ -12,5 +13,5 @@ impl Context for MyContext {
 
 fn main(){
     let context = MyContext {};
-    Loop::new().run(&context);
+    cmd_loop(&context);
 }

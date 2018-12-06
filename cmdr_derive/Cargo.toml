@@ -1,0 +1,12 @@
+[package]
+name = "cmdr_derive"
+version = "0.1.0"
+authors = ["Mendelt Siebenga <mendelt@siebenga.com>"]
+edition = "2018"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+syn = "0.15"
+quote = "0.6"

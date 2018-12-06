@@ -2,6 +2,7 @@ use std::io::stdout;
 use std::io::stdin;
 use std::io::Write;
 
+pub use cmdr_derive::*;
 
 pub fn cmd_loop(context: &mut Context) -> CommandResult {
     let mut last_result = CommandResult::Succes;
@@ -59,4 +60,9 @@ pub trait Context {
         println!("Unknown command");
         CommandResult::Succes
     }
+}
+
+
+pub trait ContextMacro {
+    fn do_stuff(&self);
 }

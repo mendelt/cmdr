@@ -1,7 +1,5 @@
-[package]
-name = "cmdr"
-version = "0.1.0"
-authors = ["Mendelt Siebenga <msiebenga@lely.com>"]
-edition = "2018"
-
-[dependencies]
+[workspace]
+members = [
+  "cmdr",
+  "cmdr_derive",
+]

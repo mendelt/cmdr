@@ -13,6 +13,7 @@ The following features need to be implemented for an intial release
 - [X] Show configurable prompt
 - [ ] Command history
 - [ ] Auto complete commands
+- [ ] Help function
 
 Write more examples
 - [ ] A small mud

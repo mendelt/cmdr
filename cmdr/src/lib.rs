@@ -4,7 +4,7 @@ use std::io::Write;
 
 pub use cmdr_derive::*;
 
-pub fn cmd_loop(context: &mut Context) -> CommandResult {
+pub fn cmd_loop(context: &mut Scope) -> CommandResult {
     let mut last_result = CommandResult::Succes;
 
     while last_result == CommandResult::Succes {
@@ -44,7 +44,7 @@ fn parse_line<'a>(line: &'a str) -> Line<'a> {
 }
 
 
-pub trait Context {
+pub trait Scope {
     fn prompt(&self) -> String {
         ">".to_string()
     }

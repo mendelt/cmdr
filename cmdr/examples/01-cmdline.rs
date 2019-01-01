@@ -1,27 +1,29 @@
-use cmdr::{cmd_loop, Context, Line};
+use cmdr::{cmd_loop, Scope, Line};
 use cmdr::CommandResult;
 
 
-struct MyContext { }
+struct ExampleScope { }
 
 
-impl MyContext {
-    pub fn quit(&self, args: Vec<&str>) -> CommandResult {
+impl ExampleScope {
+    pub fn do_greet(&self, args: Vec<&str>) -> CommandResult {
+        println!("Hello {}", args[0]);
+        CommandResult::Succes
+    }
+
+    pub fn do_quit(&self, args: Vec<&str>) -> CommandResult {
         println!("Quitting");
         CommandResult::Quit
     }
 }
 
 
-impl Context for MyContext {
-    fn prompt(&self) -> String {
-        "#".to_string()
-    }
-
+impl Scope for ExampleScope {
     fn command(&mut self, line: Line) -> CommandResult {
         match line {
             Line::Empty => self.empty(),
-            Line::Command("quit", args) => self.quit(args),
+            Line::Command("greet", args) => self.do_greet(args),
+            Line::Command("quit", args) => self.do_quit(args),
             _ => self.default(line)
         }
     }
@@ -29,6 +31,6 @@ impl Context for MyContext {
 
 
 fn main(){
-    let mut context = MyContext {};
+    let mut context = ExampleScope {};
     cmd_loop(&mut context);
 }

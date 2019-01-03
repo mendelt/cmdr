@@ -6,14 +6,14 @@ edition = "2018"
 authors = ["Mendelt Siebenga <msiebenga@lely.com>"]
 license = "Apache-2.0"
 description = "Create line-oriented text based interfaces"
-repository = "https://github.com/mendelt/cmdr"
+repository = "https://github.com/Mendelt/cmdr"
 categories = ["command-line-interface"]
 keywords = ["cmdr", "cli", "text", "command-line"]
 readme = "../README.md"
 include = ["Cargo.toml", "src/**/*.rs", "../README.md", "../LICENSE"]
 
 [badges]
-travis-ci = { repository = "mendelt/cmdr" }
+travis-ci = { repository = "Mendelt/cmdr" }
 
 [dependencies]
 cmdr_macro = { version = "0.1", path = "../cmdr_macro" }

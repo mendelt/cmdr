@@ -2,7 +2,7 @@ use std::io::stdout;
 use std::io::stdin;
 use std::io::Write;
 
-pub use cmdr_derive::cmdr;
+pub use cmdr_macro::cmdr;
 
 pub fn cmd_loop(context: &mut Scope) -> CommandResult {
     let mut last_result = CommandResult::Succes;

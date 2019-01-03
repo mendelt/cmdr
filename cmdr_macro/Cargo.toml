@@ -1,8 +1,19 @@
 [package]
 name = "cmdr_macro"
 version = "0.1.0"
-authors = ["Mendelt Siebenga <mendelt@siebenga.com>"]
 edition = "2018"
+
+authors = ["Mendelt Siebenga <mendelt@siebenga.com>"]
+license = "Apache-2.0"
+description = "Macros for use with cmdr crate"
+repository = "https://github.com/mendelt/cmdr"
+categories = ["command-line-interface"]
+keywords = ["cmdr", "cli", "text", "command-line"]
+readme = "../README.md"
+include = ["Cargo.toml", "src/**/*.rs", "../README.md", "../LICENSE"]
+
+[badges]
+travis-ci = { repository = "mendelt/cmdr" }
 
 [lib]
 proc-macro = true

@@ -56,7 +56,7 @@ pub trait Scope {
     fn empty(&mut self) -> CommandResult { CommandResult::Succes }
 
     // Unknown command, shows an error by default
-    fn default(&mut self, line: Line) -> CommandResult {
+    fn default(&mut self, _line: Line) -> CommandResult {
         println!("Unknown command");
         CommandResult::Succes
     }

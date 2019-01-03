@@ -1,5 +1,4 @@
-use cmdr::{cmd_loop, Scope, Line};
-use cmdr::CommandResult;
+use cmdr::*;
 
 
 struct ExampleScope { }

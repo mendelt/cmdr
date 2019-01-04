@@ -4,14 +4,12 @@
 
 use cmdr::*;
 
-/// Example Cmdr scope
 struct GreeterScope { }
 
-
-
+/// Example scope that implements two commands, greet and quit
 #[cmdr]
 impl GreeterScope {
-    /// Cmdr command to greet someone.
+    /// Cmdr command to greet someone. Takes one parameter and prints a greeting
     pub fn do_greet(&self, args: Vec<&str>) -> CommandResult {
         println!("Hello {}", args[0]);
         CommandResult::Succes

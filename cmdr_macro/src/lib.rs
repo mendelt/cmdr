@@ -9,7 +9,7 @@ use syn::*;
 
 
 #[proc_macro_attribute]
-pub fn cmdr(meta: TokenStream, code: TokenStream) -> TokenStream {
+pub fn cmdr(_meta: TokenStream, code: TokenStream) -> TokenStream {
     let input = parse_macro_input!(code as ItemImpl);
     let command_matches = format_command_match(&get_methods(&input));
 

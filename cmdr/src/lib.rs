@@ -9,7 +9,7 @@ pub fn cmd_loop(context: &mut Scope) -> CommandResult {
 
     while last_result == CommandResult::Succes {
         print!("{} ", context.prompt());
-        stdout().flush();
+        stdout().flush().unwrap();
 
         let mut input = String::new();
         stdin().read_line(&mut input).unwrap();

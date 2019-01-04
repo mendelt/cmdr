@@ -5,7 +5,7 @@
 [Latest Version]: https://img.shields.io/crates/v/cmdr.svg
 [crates.io]: https://crates.io/crates/cmdr
 
-**Cmdr_macro contains the cmdr macrofor use with the cmdr crate.**
+**Cmdr_macro contains macro's for use with the cmdr crate.**
 
 The cmdr_macro crate should not be used separately. The cmdr crate can
 be found here:

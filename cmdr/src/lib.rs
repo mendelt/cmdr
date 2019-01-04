@@ -1,22 +1,18 @@
-//! #CMDR
-//!
 //! **Cmdr is a library for building line-oriented text-based user interfaces.**
 //!
-//! This can be done by implementing one or more objects that implement the Cmdr::Scope trait. These
-//! Scope objects can then be run by the Cmdr::cmd_loop executing commands.
+//! This can be done by implementing one or more objects that implement the Cmdr::Scope trait. A
+//! command loop can then be started on a scope with the cmdr::cmd_loop function. The command loop
+//! will await user input, parse commands and execute them by running the appropriate functions on
+//! the supplied scope object.
 //!
-//! Implementing the scope trait can be done by hand by implementing the command method and
-//! optionally overriding other methods to provide additional functionality. Or you can implement
-//! leave the Scope trait up to us and just use the cmdr macro to do the heavy lifting.
+//! Implementing a scope is as easy as creating an object with a few methods that take a vector of
+//! &str as their input and resturn a CommandResult. By annotating the impl block of that object
+//! the cmdr macro all functions starting with do_ in that block will be picked up and transformed
+//! into functions.
 //!
-//! Any scope implements one or more command methods. Command methods names look like this:
-//! ```do_<command>``` where the do_ prefix makes sure the cmdr macro recognizes the function as a
-//! command and <command> will be how a user will invoke a command. Command methods take a mutable
-//! reference to self (the scope) so they can change the scope when needed, a vector of &str
-//! containing any parameters passed on the command line. And they return a CommandResult. This
-//! allows the command to specify any follow-up actions to be performed (like quitting the program
-//! for example).
-//!
+//! For additional functionality like setting custom prompts or setting hooks to catch unknown or
+//! empty commands additional methods can be added to the impl block. These correspond to
+//! overridable functions in the Scope trait.
 
 use std::io::stdout;
 use std::io::stdin;

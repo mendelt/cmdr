@@ -1,8 +1,6 @@
-//! Example for the cmdr crate.
-//!
-//! Implements a simple cmdr application that does not use the cmdr macro.
-//! It provides two commands, One that gives a greeting to someone depending on the supplied
-//!   parameter and one to quit the application
+//! Manual implementation of a cmdr application.
+//! This example shows how to implement the Scope trait by hand. Normally you'd use the cmdr macro
+//! to do the heavy lifting
 
 use cmdr::*;
 

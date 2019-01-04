@@ -1,6 +1,5 @@
-//! Example for the cmdr crate.
-//!
-//! Same as the first example but this uses the cmdr macro.
+//! GreeterScope implements two commands, one greets the user with the supplied name. The other
+//! returns CommandResult::Quit to quit the application.
 
 use cmdr::*;
 

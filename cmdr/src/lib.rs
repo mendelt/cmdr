@@ -4,17 +4,17 @@ use std::io::Write;
 
 pub use cmdr_macro::cmdr;
 
-pub fn cmd_loop(context: &mut Scope) -> CommandResult {
-    let mut last_result = CommandResult::Succes;
+pub fn cmd_loop(scope: &mut Scope) -> CommandResult {
+    let mut last_result = CommandResult::Ok;
 
-    while last_result == CommandResult::Succes {
-        print!("{} ", context.prompt());
+    while last_result == CommandResult::Ok {
+        print!("{} ", scope.prompt());
         stdout().flush().unwrap();
 
         let mut input = String::new();
         stdin().read_line(&mut input).unwrap();
 
-        last_result = context.command(parse_line(&input));
+        last_result = scope.command(parse_line(&input));
     }
 
     last_result
@@ -29,7 +29,7 @@ pub enum Line<'a> {
 
 #[derive(PartialEq)]
 pub enum CommandResult {
-    Succes,
+    Ok,
     Quit
 }
 
@@ -53,11 +53,11 @@ pub trait Scope {
     fn command(&mut self, line: Line) -> CommandResult;
 
     // Execute an empty line, does nothing by default
-    fn empty(&mut self) -> CommandResult { CommandResult::Succes }
+    fn empty(&mut self) -> CommandResult { CommandResult::Ok }
 
     // Unknown command, shows an error by default
     fn default(&mut self, _line: Line) -> CommandResult {
         println!("Unknown command");
-        CommandResult::Succes
+        CommandResult::Ok
     }
 }

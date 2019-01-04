@@ -32,7 +32,7 @@ impl GreeterScope {
     /// Cmdr command to greet someone. Takes one parameter and prints a greeting
     pub fn do_greet(&self, args: Vec<&str>) -> CommandResult {
         println!("Hello {}", args[0]);
-        CommandResult::Succes
+        CommandResult::Ok
     }
 
     /// Cmdr command to quit the application by returning CommandResult::Quit

@@ -8,6 +8,13 @@ use quote::quote;
 use syn::*;
 
 
+/// Macro that implements the cmdr::Scope trait for you.
+///
+/// The macro can be used to annotate any plain impl block it will then generate an additional
+/// impl block to implement Scope for the same type.
+///
+/// Right now it will search the impl block for methods starting with do_ and call them in a
+/// generated Scope::command method when the right command is received.
 #[proc_macro_attribute]
 pub fn cmdr(_meta: TokenStream, code: TokenStream) -> TokenStream {
     let input = parse_macro_input!(code as ItemImpl);

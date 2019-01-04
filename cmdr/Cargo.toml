@@ -4,7 +4,7 @@ version = "0.1.1"
 edition = "2018"
 
 authors = ["Mendelt Siebenga <msiebenga@lely.com>"]
-license = "Apache-2.0"
+license = "MIT/Apache-2.0"
 description = "Cmdr is a library for building line-oriented text-based user interfaces"
 repository = "https://github.com/Mendelt/cmdr"
 categories = ["command-line-interface"]

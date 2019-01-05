@@ -18,6 +18,9 @@ use std::io::stdin;
 use std::io::stdout;
 use std::io::Write;
 
+mod line;
+
+pub use crate::line::*;
 pub use cmdr_macro::cmdr;
 
 /// Execute a command loop for a scope. This is the main entry point to the cmdr library
@@ -39,32 +42,14 @@ pub fn cmd_loop(scope: &mut Scope) -> CommandResult {
     last_result
 }
 
-/// A parsed line from the user
-pub enum Line<'a> {
-    /// An empty line
-    Empty,
-
-    /// A user command made up of a command and a series of attributes
-    Command(&'a str, Vec<&'a str>),
-}
-
 /// A command result. returned by one of the client-implemented command methods
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 pub enum CommandResult {
     /// Result Ok, ready to go on to the next command
     Ok,
 
     /// Result Quit, close the application and stop
     Quit,
-}
-
-fn parse_line<'a>(line: &'a str) -> Line<'a> {
-    let mut split_line = line.trim().split(" ");
-
-    match split_line.next() {
-        None => Line::Empty,
-        Some(command) => Line::Command(command, split_line.collect()),
-    }
 }
 
 /// Trait for implementing a Scope object. This trait can be implemented by a client but will most

@@ -19,7 +19,7 @@ pub fn cmdr(_meta: TokenStream, code: TokenStream) -> TokenStream {
     let command_matches = format_command_match(&get_methods(&input));
 
     if let Type::Path(self_type) = &*input.self_ty {
-        let output = TokenStream::from(quote!(
+        TokenStream::from(quote!(
             #input
 
             impl cmdr::Scope for #self_type {
@@ -31,15 +31,13 @@ pub fn cmdr(_meta: TokenStream, code: TokenStream) -> TokenStream {
                     }
                 }
             }
-        ));
-
-        output
+        ))
     } else {
         panic!("Unable to parse impl type")
     }
 }
 
-fn format_command_match(methods: &Vec<(Ident, String)>) -> Vec<TokenStream2> {
+fn format_command_match(methods: &[(Ident, String)]) -> Vec<TokenStream2> {
     let mut result: Vec<TokenStream2> = Vec::new();
 
     for (method, name) in methods {

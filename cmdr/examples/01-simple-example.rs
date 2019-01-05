@@ -3,7 +3,7 @@
 
 use cmdr::*;
 
-struct GreeterScope { }
+struct GreeterScope {}
 
 /// Example scope that implements two commands, greet and quit
 #[cmdr]
@@ -22,7 +22,7 @@ impl GreeterScope {
 }
 
 /// Main function that creates the scope and starts a command loop for it
-fn main(){
+fn main() {
     let mut scope = GreeterScope {};
     cmd_loop(&mut scope);
 }

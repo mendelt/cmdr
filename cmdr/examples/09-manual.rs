@@ -5,7 +5,7 @@
 use cmdr::*;
 
 /// Example Cmdr scope
-struct GreeterScope { }
+struct GreeterScope {}
 
 impl GreeterScope {
     /// Cmdr command to greet someone.
@@ -29,13 +29,13 @@ impl Scope for GreeterScope {
             Line::Empty => self.empty(),
             Line::Command("greet", args) => self.do_greet(args),
             Line::Command("quit", args) => self.do_quit(args),
-            _ => self.default(line)
+            _ => self.default(line),
         }
     }
 }
 
 /// Main function that creates the scope and starts a command loop for it
-fn main(){
+fn main() {
     let mut scope = GreeterScope {};
     cmd_loop(&mut scope);
 }

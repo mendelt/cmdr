@@ -14,8 +14,8 @@
 //! empty commands additional methods can be added to the impl block. These correspond to
 //! overridable functions in the Scope trait.
 
-use std::io::stdout;
 use std::io::stdin;
+use std::io::stdout;
 use std::io::Write;
 
 pub use cmdr_macro::cmdr;
@@ -45,7 +45,7 @@ pub enum Line<'a> {
     Empty,
 
     /// A user command made up of a command and a series of attributes
-    Command(&'a str, Vec<&'a str>)
+    Command(&'a str, Vec<&'a str>),
 }
 
 /// A command result. returned by one of the client-implemented command methods
@@ -55,7 +55,7 @@ pub enum CommandResult {
     Ok,
 
     /// Result Quit, close the application and stop
-    Quit
+    Quit,
 }
 
 fn parse_line<'a>(line: &'a str) -> Line<'a> {
@@ -70,7 +70,6 @@ fn parse_line<'a>(line: &'a str) -> Line<'a> {
 /// Trait for implementing a Scope object. This trait can be implemented by a client but will most
 /// likely be implemented for you by the cmdr macro.
 pub trait Scope {
-
     /// Return the prompt for this scope. The default implementation returns > as a prompt but thus
     /// can be overridden to return other strings or implement dynamically generated prompts
     fn prompt(&self) -> String {
@@ -83,7 +82,9 @@ pub trait Scope {
     /// Execute an empty line.
     /// The default implentation does nothing but this can be overridden by a client-application
     /// to implement other behaviour
-    fn empty(&mut self) -> CommandResult { CommandResult::Ok }
+    fn empty(&mut self) -> CommandResult {
+        CommandResult::Ok
+    }
 
     /// A user entered an unknown command.
     /// The default implementation prints an error to the user and returns ok to go on. Can be

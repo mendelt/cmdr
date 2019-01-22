@@ -36,7 +36,7 @@ pub fn cmd_loop(scope: &mut Scope) -> CommandResult {
         let mut input = String::new();
         stdin().read_line(&mut input).unwrap();
 
-        last_result = scope.command(parse_line(&input));
+        last_result = scope.one_line(input[..].into());
     }
 
     last_result
@@ -62,7 +62,15 @@ pub trait Scope {
     }
 
     /// Execute a single line
-    fn command(&mut self, line: Line) -> CommandResult;
+    fn one_line(&mut self, line: Line) -> CommandResult {
+        match line {
+            Line::Empty => self.empty(),
+            Line::Command(command) => self.command(command),
+        }
+    }
+
+    /// Execute a single command
+    fn command(&mut self, command: CommandLine) -> CommandResult;
 
     /// Execute an empty line.
     /// The default implentation does nothing but this can be overridden by a client-application
@@ -74,7 +82,7 @@ pub trait Scope {
     /// A user entered an unknown command.
     /// The default implementation prints an error to the user and returns ok to go on. Can be
     /// overridden by a client-application to implement other behaviour
-    fn default(&mut self, _line: Line) -> CommandResult {
+    fn default(&mut self, _command: CommandLine) -> CommandResult {
         println!("Unknown command");
         CommandResult::Ok
     }

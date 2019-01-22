@@ -5,15 +5,27 @@ pub enum Line<'a> {
     Empty,
 
     /// A user command made up of a command and a series of attributes
-    Command(&'a str, Vec<&'a str>),
+    Command(CommandLine<'a>),
 }
 
-pub fn parse_line(line: &str) -> Line {
-    let mut parts = line.trim().split(' ').filter(|part| !part.is_empty());
+/// A parsed command, optionally with arguments
+#[derive(Debug, PartialEq)]
+pub struct CommandLine<'a> {
+    pub command: &'a str,
+    pub args: Vec<&'a str>,
+}
 
-    match parts.next() {
-        None => Line::Empty,
-        Some(command) => Line::Command(command, parts.collect()),
+impl<'a> From<&'a str> for Line<'a> {
+    fn from(line: &'a str) -> Self {
+        let mut parts = line.trim().split(' ').filter(|part| !part.is_empty());
+
+        match parts.next() {
+            None => Line::Empty,
+            Some(command) => Line::Command(CommandLine {
+                command,
+                args: parts.collect(),
+            }),
+        }
     }
 }
 
@@ -24,21 +36,36 @@ mod tests {
     #[test]
     // Test parsing an empty line
     fn test_parse_empty_line() {
-        assert_eq!(parse_line(""), Line::Empty);
+        let line: Line = "".into();
+
+        assert_eq!(line, Line::Empty);
     }
 
     #[test]
     // Test parsing an empty line
     fn test_parse_command() {
-        assert_eq!(parse_line("command"), Line::Command("command", [].to_vec()));
+        let line: Line = "command".into();
+
+        assert_eq!(
+            line,
+            Line::Command(CommandLine {
+                command: "command",
+                args: [].to_vec()
+            })
+        );
     }
 
     #[test]
     // Test parsing an empty line
     fn test_parse_command_with_arguments() {
+        let line: Line = "command with arguments".into();
+
         assert_eq!(
-            parse_line("command with arguments"),
-            Line::Command("command", ["with", "arguments"].to_vec())
+            line,
+            Line::Command(CommandLine {
+                command: "command",
+                args: ["with", "arguments"].to_vec()
+            })
         );
     }
 

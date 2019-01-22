@@ -23,11 +23,10 @@ pub fn cmdr(_meta: TokenStream, code: TokenStream) -> TokenStream {
             #input
 
             impl cmdr::Scope for #self_type {
-                fn command(&mut self, line: Line) -> CommandResult {
-                    match line {
-                        Line::Empty => self.empty(),
+                fn command(&mut self, command: CommandLine) -> CommandResult {
+                    match command.command {
                         #(#command_matches),*,
-                        _ => self.default(line)
+                        _ => self.default(command)
                     }
                 }
             }
@@ -41,7 +40,7 @@ fn format_command_match(methods: &[(Ident, String)]) -> Vec<TokenStream2> {
     let mut result: Vec<TokenStream2> = Vec::new();
 
     for (method, name) in methods {
-        result.push(quote!(Line::Command(#name, args) => self.#method(args)));
+        result.push(quote!(#name => self.#method(command.args)));
     }
 
     result

@@ -4,6 +4,7 @@ extern crate proc_macro2;
 use self::proc_macro::TokenStream;
 use self::proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
+use syn::TypePath;
 use syn::{parse_macro_input, Ident, ImplItem, ItemImpl, Type};
 
 /// Implements the cmdr::Scope trait on any impl block.
@@ -19,6 +20,8 @@ pub fn cmdr(_meta: TokenStream, code: TokenStream) -> TokenStream {
     let command_matches = format_command_match(&get_methods(&input));
 
     if let Type::Path(self_type) = &*input.self_ty {
+        let prompt_override = format_prompt_override(&input, self_type);
+
         TokenStream::from(quote!(
             #input
 
@@ -29,6 +32,8 @@ pub fn cmdr(_meta: TokenStream, code: TokenStream) -> TokenStream {
                         _ => self.default(command)
                     }
                 }
+
+                #prompt_override
             }
         ))
     } else {
@@ -46,6 +51,32 @@ fn format_command_match(methods: &[(Ident, String)]) -> Vec<TokenStream2> {
     result
 }
 
+fn format_prompt_override(input: &ItemImpl, self_type: &TypePath) -> TokenStream2 {
+    if contains_method(&input, "prompt") {
+        quote!(
+            fn prompt(&self) -> String {
+                OverrideScope::prompt(&self)
+            }
+        )
+    } else {
+        quote!()
+    }
+}
+
+fn contains_method(input: &ItemImpl, method_name: &str) -> bool {
+    for item in &input.items {
+        if let ImplItem::Method(method) = item {
+            let ident = &method.sig.ident;
+            let name = ident.to_string();
+
+            if name == method_name {
+                return true;
+            }
+        }
+    }
+    false
+}
+
 fn get_methods(input: &ItemImpl) -> Vec<(Ident, String)> {
     let mut result: Vec<(Ident, String)> = Vec::new();
 
@@ -61,4 +92,30 @@ fn get_methods(input: &ItemImpl) -> Vec<(Ident, String)> {
     }
 
     result
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn test_itemimpl() -> ItemImpl {
+        syn::parse_str(
+            r###"
+            impl SomeImpl {
+                fn prompt() { }
+            }
+            "###,
+        )
+        .unwrap()
+    }
+
+    #[test]
+    fn test_contains_method_returns_true_when_method_found() {
+        assert!(contains_method(&test_itemimpl(), "prompt"));
+    }
+
+    #[test]
+    fn test_contains_method_returns_false_when_method_not_found() {
+        assert!(!contains_method(&test_itemimpl(), "fn_not_there"));
+    }
 }

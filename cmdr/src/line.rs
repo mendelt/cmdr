@@ -1,5 +1,3 @@
-use std::fmt::Display;
-
 /// A parsed line from the user
 #[derive(Debug, PartialEq)]
 pub enum Line<'a> {

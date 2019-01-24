@@ -10,9 +10,9 @@
 All you have to do is implement the functions you want a user to be able to execute as methods on a *Scope*
 object. Add the cmdr macro annotation and let Cmdr handle the rest;
 - Command line parsing
-- Command history (not implemented)
-- Auto completion (not implemented)
-- Help functions and discoverability (not implemented)
+- Command history (not yet implemented)
+- Auto completion (not yet implemented)
+- Help functions and discoverability (not yet implemented)
 
 Cargo.toml
 ```toml
@@ -45,7 +45,7 @@ impl GreeterScope {
 /// Main function that creates the scope and starts a command loop for it
 fn main(){
     let mut scope = GreeterScope {};
-    cmd_loop(&mut scope);
+    scope.cmd_loop();
 }
 ```
 
@@ -69,4 +69,3 @@ at your option.
 Unless you explicitly state otherwise, any contribution intentionally submitted
 for inclusion in the work by you, as defined in the Apache-2.0 license, shall be dual licensed as above, without any
 additional terms or conditions.
-

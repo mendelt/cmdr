@@ -31,5 +31,5 @@ impl OverrideScope {
 /// Main function that creates the scope and starts a command loop for it
 fn main() {
     let mut scope = OverrideScope {};
-    cmd_loop(&mut scope);
+    scope.cmd_loop();
 }

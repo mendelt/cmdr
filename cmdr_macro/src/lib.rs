@@ -21,6 +21,8 @@ pub fn cmdr(_meta: TokenStream, code: TokenStream) -> TokenStream {
 
     if let Type::Path(self_type) = &*input.self_ty {
         let prompt_override = format_prompt_override(&input, self_type);
+        let empty_override = format_empty_override(&input, self_type);
+        let default_override = format_default_override(&input, self_type);
 
         TokenStream::from(quote!(
             #input
@@ -33,6 +35,8 @@ pub fn cmdr(_meta: TokenStream, code: TokenStream) -> TokenStream {
                 }
 
                 #prompt_override
+                #empty_override
+                #default_override
             }
         ))
     } else {
@@ -58,7 +62,31 @@ fn format_prompt_override(input: &ItemImpl, self_type: &TypePath) -> TokenStream
     if contains_method(&input, "prompt") {
         quote!(
             fn prompt(&self) -> String {
-                OverrideScope::prompt(&self)
+                #self_type::prompt(&self)
+            }
+        )
+    } else {
+        quote!()
+    }
+}
+
+fn format_empty_override(input: &ItemImpl, self_type: &TypePath) -> TokenStream2 {
+    if contains_method(&input, "empty") {
+        quote!(
+            fn empty(&mut self) -> CommandResult {
+                #self_type::empty(&self)
+            }
+        )
+    } else {
+        quote!()
+    }
+}
+
+fn format_default_override(input: &ItemImpl, self_type: &TypePath) -> TokenStream2 {
+    if contains_method(&input, "default") {
+        quote!(
+            fn default(&mut self, command: CommandLine) -> CommandResult {
+                #self_type::default(self, command)
             }
         )
     } else {

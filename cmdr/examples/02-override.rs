@@ -6,13 +6,25 @@ use cmdr::*;
 struct OverrideScope {}
 
 /// Example scope that overrides prompt
-/// TODO: override empty and default
-/// TODO: remove do_ methods
 #[cmdr]
 impl OverrideScope {
     /// I reject your prompt and substitute my own
     fn prompt(&self) -> String {
         "#".to_string()
+    }
+
+    /// Passive agressive empty line handler override
+    fn empty(&self) -> CommandResult {
+        println!("If you don't want to talk to me I'll just go then...");
+
+        CommandResult::Quit
+    }
+
+    /// Default line handler override
+    fn default(&mut self, command: CommandLine) -> CommandResult {
+        println!("{}? What does that even mean?", command.command);
+
+        CommandResult::Ok
     }
 }
 

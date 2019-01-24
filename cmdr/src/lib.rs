@@ -48,23 +48,24 @@ pub trait Scope {
 
             let mut input = String::new();
             stdin().read_line(&mut input).unwrap();
+            let mut line: Line = input[..].into();
 
-            last_result = self.one_line(input[..].into());
+            last_result = self.one_line(&line);
         }
 
         last_result
     }
 
     /// Execute a single line
-    fn one_line(&mut self, line: Line) -> CommandResult {
+    fn one_line(&mut self, line: &Line) -> CommandResult {
         match line {
             Line::Empty => self.empty(),
-            Line::Command(command) => self.command(command),
+            Line::Command(command) => self.command(&command),
         }
     }
 
     /// Execute a single command, must be implemented by trait implementors or by the cmdr macro
-    fn command(&mut self, command: CommandLine) -> CommandResult;
+    fn command(&mut self, command: &CommandLine) -> CommandResult;
 
     /// Return the prompt for this scope. The default implementation returns > as the prompt but
     /// this can be overridden to return other strings or implement dynamically generated prompts
@@ -82,7 +83,7 @@ pub trait Scope {
     /// A user entered an unknown command.
     /// The default implementation prints an error to the user and returns ok to go on. Can be
     /// overridden by a client-application to implement other behaviour
-    fn default(&mut self, _command: CommandLine) -> CommandResult {
+    fn default(&mut self, _command: &CommandLine) -> CommandResult {
         println!("Unknown command");
         CommandResult::Ok
     }

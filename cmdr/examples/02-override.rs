@@ -21,7 +21,7 @@ impl OverrideScope {
     }
 
     /// Default line handler override
-    fn default(&mut self, command: CommandLine) -> CommandResult {
+    fn default(&mut self, command: &CommandLine) -> CommandResult {
         println!("{}? What does that even mean?", command.command);
 
         CommandResult::Ok

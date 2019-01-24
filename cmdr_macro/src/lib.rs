@@ -28,7 +28,7 @@ pub fn cmdr(_meta: TokenStream, code: TokenStream) -> TokenStream {
             #input
 
             impl cmdr::Scope for #self_type {
-                fn command(&mut self, command: CommandLine) -> CommandResult {
+                fn command(&mut self, command: &CommandLine) -> CommandResult {
                     match command.command {
                         #(#command_matches)*
                     }
@@ -49,7 +49,7 @@ fn format_command_match(methods: &[(Ident, String)]) -> Vec<TokenStream2> {
 
     // Add match clauses for all do_methods
     for (method, name) in methods {
-        result.push(quote!(#name => self.#method(command.args),));
+        result.push(quote!(#name => self.#method(&command.args),));
     }
 
     // Add the catch all
@@ -85,7 +85,7 @@ fn format_empty_override(input: &ItemImpl, self_type: &TypePath) -> TokenStream2
 fn format_default_override(input: &ItemImpl, self_type: &TypePath) -> TokenStream2 {
     if contains_method(&input, "default") {
         quote!(
-            fn default(&mut self, command: CommandLine) -> CommandResult {
+            fn default(&mut self, command: &CommandLine) -> CommandResult {
                 #self_type::default(self, command)
             }
         )

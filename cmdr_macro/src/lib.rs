@@ -28,8 +28,7 @@ pub fn cmdr(_meta: TokenStream, code: TokenStream) -> TokenStream {
             impl cmdr::Scope for #self_type {
                 fn command(&mut self, command: CommandLine) -> CommandResult {
                     match command.command {
-                        #(#command_matches),*,
-                        _ => self.default(command)
+                        #(#command_matches)*
                     }
                 }
 
@@ -44,9 +43,13 @@ pub fn cmdr(_meta: TokenStream, code: TokenStream) -> TokenStream {
 fn format_command_match(methods: &[(Ident, String)]) -> Vec<TokenStream2> {
     let mut result: Vec<TokenStream2> = Vec::new();
 
+    // Add match clauses for all do_methods
     for (method, name) in methods {
-        result.push(quote!(#name => self.#method(command.args)));
+        result.push(quote!(#name => self.#method(command.args),));
     }
+
+    // Add the catch all
+    result.push(quote!(_ => self.default(command)));
 
     result
 }

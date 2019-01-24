@@ -5,7 +5,7 @@ use cmdr::*;
 
 struct OverrideScope {}
 
-/// Example scope that overrides prompt
+/// Example scope that demonstrates overriding prompt, empty and default
 #[cmdr]
 impl OverrideScope {
     /// I reject your prompt and substitute my own

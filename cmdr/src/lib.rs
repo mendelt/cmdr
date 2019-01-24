@@ -40,6 +40,8 @@ pub trait Scope {
     /// This method will take commands from the user and execute them until one of the commands
     /// returns CommandResult::Quit
     fn cmd_loop(&mut self) -> CommandResult {
+        self.before_loop();
+
         let mut last_result = CommandResult::Ok;
 
         while last_result == CommandResult::Ok {
@@ -50,9 +52,12 @@ pub trait Scope {
             stdin().read_line(&mut input).unwrap();
             let mut line: Line = input[..].into();
 
+            self.before_command(&line);
             last_result = self.one_line(&line);
+            last_result = self.after_command(&line, last_result);
         }
 
+        self.after_loop();
         last_result
     }
 
@@ -87,4 +92,18 @@ pub trait Scope {
         println!("Unknown command");
         CommandResult::Ok
     }
+
+    /// Hook that is called before the command loop starts, can be overridden
+    fn before_loop(&mut self) {}
+
+    /// Hook that is called before executing a command, can be overridden
+    fn before_command(&mut self, _line: &Line) {}
+
+    /// Hook that is called after command execution is finished, can be overridden
+    fn after_command(&mut self, _line: &Line, result: CommandResult) -> CommandResult {
+        result
+    }
+
+    /// Hook that is called after the command loop finishes, can be overridden
+    fn after_loop(&mut self) {}
 }

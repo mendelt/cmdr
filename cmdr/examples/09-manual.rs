@@ -1,6 +1,6 @@
 //! Manual implementation of a cmdr application.
 //! This example shows how to implement the Scope trait by hand. Normally you'd use the cmdr macro
-//! to do the heavy lifting
+//! to do the heavy lifting. But you can use cmdr without using macro's too.
 
 use cmdr::*;
 

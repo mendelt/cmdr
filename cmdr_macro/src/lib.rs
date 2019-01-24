@@ -24,6 +24,11 @@ pub fn cmdr(_meta: TokenStream, code: TokenStream) -> TokenStream {
         let empty_override = format_empty_override(&input, self_type);
         let default_override = format_default_override(&input, self_type);
 
+        let before_loop_override = format_before_loop_override(&input, self_type);
+        let before_command_override = format_before_command_override(&input, self_type);
+        let after_command_override = format_after_command_override(&input, self_type);
+        let after_loop_override = format_after_loop_override(&input, self_type);
+
         TokenStream::from(quote!(
             #input
 
@@ -37,6 +42,11 @@ pub fn cmdr(_meta: TokenStream, code: TokenStream) -> TokenStream {
                 #prompt_override
                 #empty_override
                 #default_override
+
+                #before_loop_override
+                #before_command_override
+                #after_loop_override
+                #after_command_override
             }
         ))
     } else {
@@ -87,6 +97,54 @@ fn format_default_override(input: &ItemImpl, self_type: &TypePath) -> TokenStrea
         quote!(
             fn default(&mut self, command: &CommandLine) -> CommandResult {
                 #self_type::default(self, command)
+            }
+        )
+    } else {
+        quote!()
+    }
+}
+
+fn format_before_loop_override(input: &ItemImpl, self_type: &TypePath) -> TokenStream2 {
+    if contains_method(&input, "before_loop") {
+        quote!(
+            fn before_loop(&mut self) {
+                #self_type::before_loop(self);
+            }
+        )
+    } else {
+        quote!()
+    }
+}
+
+fn format_before_command_override(input: &ItemImpl, self_type: &TypePath) -> TokenStream2 {
+    if contains_method(&input, "before_command") {
+        quote!(
+            fn before_command(&mut self, line: &Line) {
+                #self_type::before_command(self, line)
+            }
+        )
+    } else {
+        quote!()
+    }
+}
+
+fn format_after_command_override(input: &ItemImpl, self_type: &TypePath) -> TokenStream2 {
+    if contains_method(&input, "after_command") {
+        quote!(
+            fn after_command(&mut self, line: &Line, result: CommandResult) -> CommandResult {
+                #self_type::after_command(self, line, result)
+            }
+        )
+    } else {
+        quote!()
+    }
+}
+
+fn format_after_loop_override(input: &ItemImpl, self_type: &TypePath) -> TokenStream2 {
+    if contains_method(&input, "after_loop") {
+        quote!(
+            fn after_loop(&mut self) {
+                #self_type::after_loop(self)
             }
         )
     } else {

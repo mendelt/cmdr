@@ -10,18 +10,6 @@ struct OverrideScope {}
 /// TODO: remove do_ methods
 #[cmdr]
 impl OverrideScope {
-    /// Cmdr command to greet someone. Takes one parameter and prints a greeting
-    pub fn do_greet(&self, args: Vec<&str>) -> CommandResult {
-        println!("Hello {}", args[0]);
-        CommandResult::Ok
-    }
-
-    /// Cmdr command to quit the application by returning CommandResult::Quit
-    pub fn do_quit(&self, _args: Vec<&str>) -> CommandResult {
-        println!("Quitting");
-        CommandResult::Quit
-    }
-
     /// I reject your prompt and substitute my own
     fn prompt(&self) -> String {
         "#".to_string()

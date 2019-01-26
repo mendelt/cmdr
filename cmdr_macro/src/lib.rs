@@ -119,7 +119,7 @@ fn format_before_loop_override(input: &ItemImpl, self_type: &TypePath) -> TokenS
 fn format_before_command_override(input: &ItemImpl, self_type: &TypePath) -> TokenStream2 {
     if contains_method(&input, "before_command") {
         quote!(
-            fn before_command(&mut self, line: &Line) {
+            fn before_command(&mut self, line: Line) -> Line {
                 #self_type::before_command(self, line)
             }
         )

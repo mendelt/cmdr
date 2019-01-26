@@ -8,14 +8,24 @@ struct ScopeWithHooks {}
 /// Example scope that shows how to use the different hooks
 #[cmdr]
 impl ScopeWithHooks {
+    fn do_stuff(&self, _args: &Vec<String>) -> CommandResult {
+        println!("Stuff done");
+
+        CommandResult::Ok
+    }
+
     fn before_loop(&mut self) {
         println!("This could be a good place to print a hello message for your user")
     }
 
-    fn before_command(&mut self, _line: &Line) {
+    fn before_command(&mut self, _line: Line) -> Line {
         println!("Code that gets executed before each command can go here.");
-        println!("For now changing the line is not supported");
-        // line = Line::Command(CommandLine {command, = "stuff" args: vec![]});
+        println!("You can even change what the user typed");
+
+        Line::Command(CommandLine {
+            command: "stuff".to_string(),
+            args: vec![],
+        })
     }
 
     fn after_command(&mut self, _line: &Line, _result: CommandResult) -> CommandResult {

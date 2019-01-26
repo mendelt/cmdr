@@ -52,8 +52,10 @@ pub trait Scope {
             stdin().read_line(&mut input).unwrap();
             let mut line: Line = input[..].into();
 
-            self.before_command(&line);
+            line = self.before_command(line);
+
             last_result = self.one_line(&line);
+
             last_result = self.after_command(&line, last_result);
         }
 
@@ -97,7 +99,9 @@ pub trait Scope {
     fn before_loop(&mut self) {}
 
     /// Hook that is called before executing a command, can be overridden
-    fn before_command(&mut self, _line: &Line) {}
+    fn before_command(&mut self, line: Line) -> Line {
+        line
+    }
 
     /// Hook that is called after command execution is finished, can be overridden
     fn after_command(&mut self, _line: &Line, result: CommandResult) -> CommandResult {

@@ -1,15 +1,16 @@
 language: rust
-
 cache: cargo
-
 rust:
   - stable
   - beta
   - nightly
-
 script:
   - rustup component add rustfmt
   - cargo fmt --all -- --check
-
   - cargo build --verbose --all
   - cargo test --verbose --all
+
+deploy:
+  provider: cargo
+  token:
+    secure: XtXiCBVIL9J9oSLuYjzXMT1sRMgxXa4bRZy3AkmDlda0S3b2Q8Lo6m55b1sLIuV644XiALoi7v58yhFnk6hbwKY4fEqTbLWy5/qka086wxRW8p31mbGQwEWa0hrIvGBq5f8cVXZaaGPQY3XJ9omFKfF3JAHPtEzgqAoh5pUVovSrJSsraBdnUeSMuHRzwpmMmGuABW4+UD4e3VKS9sMJie2P4shE6QVpsV3J8C5xkQDQULOoHCG0L5+TVMY0Dri0TQEZnToLTHMEDXHWZo6XSr8LcEMJAF/YY88Mkb0yoqq84PB+ot1u1uGT1U0smCXeKH5vJxGOy4wZ7K2ye/HevA+Y4IG+WFOOuDC4DZzHJ1FTh78LKIHh4qJdzjIdVhFF3RVWLWuHKkGhumBRiO4sG9GmJml+JGvIoToZAXYOCut2jf8O5NgBIBw0Xs51fywOdXvte5o2l+QBf/VLCT4o9yTetFnMLNi63ZcdSGXvly3XJyumjzaP/r4U1BriORJzc5c4SaQQhKSw2b6WUyrIgYmGoNJ5gMRjCu7bvMV2hu5vEl8wSwb+c3Q5860xyxR+S22km4NWnogrTKQgDglDuQaBKezl/Qb85z53A9kuVt0U3xxidL+Qsfcv459nv/hdEqIiUtjBRSkBZ5/8GQ7n9ELE3yRQ8OLH6jsWSK2jPUg=

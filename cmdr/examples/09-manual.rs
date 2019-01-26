@@ -9,13 +9,13 @@ struct GreeterScope {}
 
 impl GreeterScope {
     /// Cmdr command to greet someone.
-    pub fn do_greet(&self, args: &Vec<&str>) -> CommandResult {
+    pub fn do_greet(&self, args: &Vec<String>) -> CommandResult {
         println!("Hello {}", args[0]);
         CommandResult::Ok
     }
 
     /// Cmdr command to quit the application by returning CommandResult::Quit
-    pub fn do_quit(&self, _args: &Vec<&str>) -> CommandResult {
+    pub fn do_quit(&self, _args: &Vec<String>) -> CommandResult {
         println!("Quitting");
         CommandResult::Quit
     }
@@ -25,7 +25,7 @@ impl GreeterScope {
 /// the command method that dispatches commands to functions implemented above.
 impl Scope for GreeterScope {
     fn command(&mut self, command: &CommandLine) -> CommandResult {
-        match command.command {
+        match &command.command[..] {
             "greet" => self.do_greet(&command.args),
             "quit" => self.do_quit(&command.args),
             _ => self.default(&command),

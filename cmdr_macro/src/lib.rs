@@ -34,7 +34,7 @@ pub fn cmdr(_meta: TokenStream, code: TokenStream) -> TokenStream {
 
             impl cmdr::Scope for #self_type {
                 fn command(&mut self, command: &CommandLine) -> CommandResult {
-                    match command.command {
+                    match &command.command[..] {
                         #(#command_matches)*
                     }
                 }

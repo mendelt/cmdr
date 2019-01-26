@@ -1,29 +1,31 @@
 /// A parsed line from the user
 #[derive(Debug, PartialEq)]
-pub enum Line<'a> {
+pub enum Line {
     /// An empty line
     Empty,
 
     /// A user command made up of a command and a series of attributes
-    Command(CommandLine<'a>),
+    Command(CommandLine),
 }
 
 /// A parsed command, optionally with arguments
 #[derive(Debug, PartialEq)]
-pub struct CommandLine<'a> {
-    pub command: &'a str,
-    pub args: Vec<&'a str>,
+pub struct CommandLine {
+    pub command: String,
+    pub args: Vec<String>,
 }
 
-impl<'a> From<&'a str> for Line<'a> {
-    fn from(line: &'a str) -> Self {
+impl From<&str> for Line {
+    fn from(line: &str) -> Self {
         let mut parts = line.trim().split(' ').filter(|part| !part.is_empty());
 
-        match parts.next() {
+        let first = parts.next();
+
+        match first {
             None => Line::Empty,
             Some(command) => Line::Command(CommandLine {
-                command,
-                args: parts.collect(),
+                command: command.to_string(),
+                args: parts.map(|arg| arg.to_string()).collect(),
             }),
         }
     }
@@ -49,7 +51,7 @@ mod tests {
         assert_eq!(
             line,
             Line::Command(CommandLine {
-                command: "command",
+                command: "command".to_string(),
                 args: [].to_vec()
             })
         );
@@ -63,8 +65,8 @@ mod tests {
         assert_eq!(
             line,
             Line::Command(CommandLine {
-                command: "command",
-                args: ["with", "arguments"].to_vec()
+                command: "command".to_string(),
+                args: ["with".to_string(), "arguments".to_string()].to_vec()
             })
         );
     }

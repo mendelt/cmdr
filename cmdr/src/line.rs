@@ -6,6 +6,15 @@ pub enum Line {
 
     /// A user command made up of a command and a series of attributes
     Command(CommandLine),
+
+    /// Ctrl-C was entered
+    CtrlC,
+
+    /// Ctrl-D was entered
+    CtrlD,
+
+    /// An error occurred collecting input
+    Error
 }
 
 /// A parsed command, optionally with arguments

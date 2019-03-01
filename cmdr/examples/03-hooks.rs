@@ -43,6 +43,5 @@ impl ScopeWithHooks {
 
 /// Main function that creates the scope and starts a command loop for it
 fn main() {
-    let mut scope = ScopeWithHooks {};
-    scope.cmd_loop();
+    cmd_loop(&mut ScopeWithHooks {});
 }

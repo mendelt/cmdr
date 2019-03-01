@@ -14,14 +14,12 @@
 //! empty commands additional methods can be added to the impl block. These correspond to
 //! overridable functions in the Scope trait.
 
-use rustyline::Editor;
-use std::io::stdin;
-use std::io::stdout;
-use std::io::Write;
-
 mod line;
+mod line_reader;
 
 pub use crate::line::*;
+use crate::line_reader::LineReader;
+use crate::line_reader::RustyLineReader;
 pub use cmdr_macro::cmdr;
 
 /// A command result. returned by one of the client-implemented command methods
@@ -34,38 +32,29 @@ pub enum CommandResult {
     Quit,
 }
 
+pub fn cmd_loop(scope: &mut Scope) {
+    let mut reader = RustyLineReader::new();
+    scope.run_lines(&mut reader);
+}
+
 /// Trait for implementing a Scope object. This trait can be implemented by a client but will most
 /// likely be implemented for you by the cmdr macro.
 pub trait Scope {
     /// Execute a command loop for a scope. This is the main entry point to the cmdr library
     /// This method will take commands from the user and execute them until one of the commands
     /// returns CommandResult::Quit
-    fn cmd_loop(&mut self) -> CommandResult {
-        let mut editor = Editor::<()>::new();
-
+    fn run_lines(&mut self, reader: &mut LineReader) -> CommandResult {
         self.before_loop();
 
         let mut last_result = CommandResult::Ok;
 
         while last_result == CommandResult::Ok {
-            print!("{} ", self.prompt());
-            stdout().flush().unwrap();
+            let mut line = reader.read_line(self.prompt().as_ref());
+            line = self.before_command(line);
 
-            let input = editor.readline(format!("{} ", self.prompt()).as_ref());
-            match input {
-                Ok(line_string) => {
-                    let mut line: Line = line_string[..].into();
-                    editor.add_history_entry(line_string.as_ref());
-                    line = self.before_command(line);
+            last_result = self.run_line(&line);
 
-                    last_result = self.one_line(&line);
-
-                    last_result = self.after_command(&line, last_result);
-                }
-                Err(error) => {
-                    last_result = CommandResult::Quit;
-                }
-            }
+            last_result = self.after_command(&line, last_result);
         }
 
         self.after_loop();
@@ -73,7 +62,7 @@ pub trait Scope {
     }
 
     /// Execute a single line
-    fn one_line(&mut self, line: &Line) -> CommandResult {
+    fn run_line(&mut self, line: &Line) -> CommandResult {
         match line {
             Line::Empty => self.empty(),
             Line::Command(command) => self.command(&command),

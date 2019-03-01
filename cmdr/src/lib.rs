@@ -49,12 +49,7 @@ pub trait Scope {
         let mut last_result = CommandResult::Ok;
 
         while last_result == CommandResult::Ok {
-            let mut line = reader.read_line(self.prompt().as_ref());
-            line = self.before_command(line);
-
-            last_result = self.run_line(&line);
-
-            last_result = self.after_command(&line, last_result);
+            last_result = self.run_line(reader.read_line(self.prompt().as_ref()));
         }
 
         self.after_loop();
@@ -62,11 +57,15 @@ pub trait Scope {
     }
 
     /// Execute a single line
-    fn run_line(&mut self, line: &Line) -> CommandResult {
-        match line {
+    fn run_line(&mut self, line: Line) -> CommandResult {
+        let line = self.before_command(line);
+        let result = match line {
             Line::Empty => self.empty(),
-            Line::Command(command) => self.command(&command),
-        }
+            Line::CtrlC | Line::CtrlD | Line::Error => CommandResult::Quit,
+            Line::Command(ref command) => self.command(command),
+        };
+
+        self.after_command(&line, result)
     }
 
     /// Execute a single command, must be implemented by trait implementors or by the cmdr macro

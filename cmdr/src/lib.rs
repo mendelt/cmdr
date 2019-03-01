@@ -14,6 +14,7 @@
 //! empty commands additional methods can be added to the impl block. These correspond to
 //! overridable functions in the Scope trait.
 
+use rustyline::Editor;
 use std::io::stdin;
 use std::io::stdout;
 use std::io::Write;
@@ -40,6 +41,8 @@ pub trait Scope {
     /// This method will take commands from the user and execute them until one of the commands
     /// returns CommandResult::Quit
     fn cmd_loop(&mut self) -> CommandResult {
+        let mut editor = Editor::<()>::new();
+
         self.before_loop();
 
         let mut last_result = CommandResult::Ok;
@@ -48,15 +51,21 @@ pub trait Scope {
             print!("{} ", self.prompt());
             stdout().flush().unwrap();
 
-            let mut input = String::new();
-            stdin().read_line(&mut input).unwrap();
-            let mut line: Line = input[..].into();
+            let input = editor.readline(format!("{} ", self.prompt()).as_ref());
+            match input {
+                Ok(line_string) => {
+                    let mut line: Line = line_string[..].into();
+                    editor.add_history_entry(line_string.as_ref());
+                    line = self.before_command(line);
 
-            line = self.before_command(line);
+                    last_result = self.one_line(&line);
 
-            last_result = self.one_line(&line);
-
-            last_result = self.after_command(&line, last_result);
+                    last_result = self.after_command(&line, last_result);
+                }
+                Err(error) => {
+                    last_result = CommandResult::Quit;
+                }
+            }
         }
 
         self.after_loop();

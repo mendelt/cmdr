@@ -35,6 +35,5 @@ impl Scope for GreeterScope {
 
 /// Main function that creates the scope and starts a command loop for it
 fn main() {
-    let mut scope = GreeterScope {};
-    scope.cmd_loop();
+    cmd_loop(&mut GreeterScope {});
 }

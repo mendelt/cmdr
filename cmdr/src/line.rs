@@ -14,7 +14,7 @@ pub enum Line {
     CtrlD,
 
     /// An error occurred collecting input
-    Error
+    Error,
 }
 
 /// A parsed command, optionally with arguments

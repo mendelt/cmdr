@@ -1,6 +1,6 @@
 use crate::line::*;
-use rustyline::Editor;
 use rustyline::error::ReadlineError;
+use rustyline::Editor;
 
 pub trait LineReader {
     fn read_line(&mut self, prompt: &str) -> Line;

@@ -1,8 +1,8 @@
 //! **Cmdr is a library for building line-oriented text-based user interfaces.**
 //!
 //! This can be done by implementing one or more objects that implement the Cmdr::Scope trait. A
-//! command loop can then be started on a scope by calling the cmd_loop method. The command loop
-//! will await user input, parse commands and execute them by running the appropriate functions on
+//! command loop can then be started on a scope by calling the cmd_loop function. The command loop
+//! uses a line reader to get user input and executes them by running the appropriate functions on
 //! the supplied scope object.
 //!
 //! Implementing a scope is as easy as creating an object with a few methods that take a vector of

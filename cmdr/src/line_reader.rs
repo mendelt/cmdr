@@ -2,10 +2,13 @@ use crate::line::*;
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
 
+/// Linereader trait, a line reader gets lines from a user, for example from the command line and
+/// parses them.
 pub trait LineReader {
     fn read_line(&mut self, prompt: &str) -> Line;
 }
 
+/// Implementation of the LineReader trait using the rustyline library
 pub struct RustyLineReader {
     editor: Editor<()>,
 }

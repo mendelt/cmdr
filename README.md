@@ -10,42 +10,44 @@
 All you have to do is implement the functions you want a user to be able to execute as methods on a *Scope*
 object. Add the cmdr macro annotation and let Cmdr handle the rest;
 - Command line parsing
-- Command history (not yet implemented)
+- Command history
 - Auto completion (not yet implemented)
 - Help functions and discoverability (not yet implemented)
 
 Cargo.toml
 ```toml
 [dependencies]
-cmdr = "0.1"
+cmdr = "0.3"
 ```
 
 main.rs
 ```rust
+//! GreeterScope implements two commands, one greets the user with the supplied name. The other
+//! returns CommandResult::Quit to quit the application.
+
 use cmdr::*;
 
-struct GreeterScope { }
+struct GreeterScope {}
 
 /// Example scope that implements two commands, greet and quit
 #[cmdr]
 impl GreeterScope {
     /// Cmdr command to greet someone. Takes one parameter and prints a greeting
-    pub fn do_greet(&self, args: Vec<&str>) -> CommandResult {
+    fn do_greet(&self, args: &Vec<String>) -> CommandResult {
         println!("Hello {}", args[0]);
         CommandResult::Ok
     }
 
     /// Cmdr command to quit the application by returning CommandResult::Quit
-    pub fn do_quit(&self, _args: Vec<&str>) -> CommandResult {
+    fn do_quit(&self, _args: &Vec<String>) -> CommandResult {
         println!("Quitting");
         CommandResult::Quit
     }
 }
 
 /// Main function that creates the scope and starts a command loop for it
-fn main(){
-    let mut scope = GreeterScope {};
-    scope.cmd_loop();
+fn main() {
+    cmd_loop(&mut GreeterScope {});
 }
 ```
 

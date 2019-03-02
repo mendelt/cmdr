@@ -16,95 +16,16 @@
 
 mod line;
 mod line_reader;
+mod scope;
 
-pub use crate::line::*;
 use crate::line_reader::LineReader;
 use crate::line_reader::RustyLineReader;
+
+pub use crate::line::{CommandLine, Line};
+pub use crate::scope::{CommandResult, Scope};
 pub use cmdr_macro::cmdr;
-
-/// A command result. returned by one of the client-implemented command methods
-#[derive(Debug, PartialEq)]
-pub enum CommandResult {
-    /// Result Ok, ready to go on to the next command
-    Ok,
-
-    /// Result Quit, close the application and stop
-    Quit,
-}
 
 pub fn cmd_loop(scope: &mut Scope) {
     let mut reader = RustyLineReader::new();
     scope.run_lines(&mut reader);
-}
-
-/// Trait for implementing a Scope object. This trait can be implemented by a client but will most
-/// likely be implemented for you by the cmdr macro.
-pub trait Scope {
-    /// Execute a command loop for a scope. This is the main entry point to the cmdr library
-    /// This method will take commands from the user and execute them until one of the commands
-    /// returns CommandResult::Quit
-    fn run_lines(&mut self, reader: &mut LineReader) -> CommandResult {
-        self.before_loop();
-
-        let mut last_result = CommandResult::Ok;
-
-        while last_result == CommandResult::Ok {
-            last_result = self.run_line(reader.read_line(self.prompt().as_ref()));
-        }
-
-        self.after_loop();
-        last_result
-    }
-
-    /// Execute a single line
-    fn run_line(&mut self, line: Line) -> CommandResult {
-        let line = self.before_command(line);
-        let result = match line {
-            Line::Empty => self.empty(),
-            Line::CtrlC | Line::CtrlD | Line::Error => CommandResult::Quit,
-            Line::Command(ref command) => self.command(command),
-        };
-
-        self.after_command(&line, result)
-    }
-
-    /// Execute a single command, must be implemented by trait implementors or by the cmdr macro
-    fn command(&mut self, command: &CommandLine) -> CommandResult;
-
-    /// Return the prompt for this scope. The default implementation returns > as the prompt but
-    /// this can be overridden to return other strings or implement dynamically generated prompts
-    fn prompt(&self) -> String {
-        ">".to_string()
-    }
-
-    /// Execute an empty line.
-    /// The default implentation does nothing but this can be overridden by a client-application
-    /// to implement other behaviour
-    fn empty(&mut self) -> CommandResult {
-        CommandResult::Ok
-    }
-
-    /// A user entered an unknown command.
-    /// The default implementation prints an error to the user and returns ok to go on. Can be
-    /// overridden by a client-application to implement other behaviour
-    fn default(&mut self, _command: &CommandLine) -> CommandResult {
-        println!("Unknown command");
-        CommandResult::Ok
-    }
-
-    /// Hook that is called before the command loop starts, can be overridden
-    fn before_loop(&mut self) {}
-
-    /// Hook that is called before executing a command, can be overridden
-    fn before_command(&mut self, line: Line) -> Line {
-        line
-    }
-
-    /// Hook that is called after command execution is finished, can be overridden
-    fn after_command(&mut self, _line: &Line, result: CommandResult) -> CommandResult {
-        result
-    }
-
-    /// Hook that is called after the command loop finishes, can be overridden
-    fn after_loop(&mut self) {}
 }

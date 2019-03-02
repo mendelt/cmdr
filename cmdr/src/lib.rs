@@ -18,7 +18,6 @@ mod line;
 mod line_reader;
 mod scope;
 
-use crate::line_reader::LineReader;
 use crate::line_reader::RustyLineReader;
 
 pub use crate::line::{CommandLine, Line};

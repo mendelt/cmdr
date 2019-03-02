@@ -1,6 +1,6 @@
 [package]
 name = "cmdr_macro"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2018"
 
 authors = ["Mendelt Siebenga <mendelt@siebenga.com>"]

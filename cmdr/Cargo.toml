@@ -1,6 +1,6 @@
 [package]
 name = "cmdr"
-version = "0.1.3"
+version = "0.2.0"
 edition = "2018"
 
 authors = ["Mendelt Siebenga <msiebenga@lely.com>"]
@@ -16,5 +16,5 @@ include = ["Cargo.toml", "src/**/*.rs", "../README.md", "../LICENSE"]
 travis-ci = { repository = "Mendelt/cmdr" }
 
 [dependencies]
-cmdr_macro = { version = "0.1", path = "../cmdr_macro" }
+cmdr_macro = { version = "0.2", path = "../cmdr_macro" }
 rustyline = { version = "3" }

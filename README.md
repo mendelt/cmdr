@@ -17,7 +17,7 @@ object. Add the cmdr macro annotation and let Cmdr handle the rest;
 Cargo.toml
 ```toml
 [dependencies]
-cmdr = "0.3"
+cmdr = "0.2"
 ```
 
 main.rs

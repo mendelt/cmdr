@@ -8,7 +8,7 @@ struct ScopeWithHooks {}
 /// Example scope that shows how to use the different hooks
 #[cmdr]
 impl ScopeWithHooks {
-    fn do_stuff(&self, _args: &Vec<String>) -> CommandResult {
+    fn do_stuff(&self, _args: &[String]) -> CommandResult {
         println!("Stuff done");
 
         CommandResult::Ok

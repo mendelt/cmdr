@@ -22,9 +22,6 @@ cmdr = "0.2"
 
 main.rs
 ```rust
-//! GreeterScope implements two commands, one greets the user with the supplied name. The other
-//! returns CommandResult::Quit to quit the application.
-
 use cmdr::*;
 
 struct GreeterScope {}
@@ -33,13 +30,15 @@ struct GreeterScope {}
 #[cmdr]
 impl GreeterScope {
     /// Cmdr command to greet someone. Takes one parameter and prints a greeting
-    fn do_greet(&self, args: &Vec<String>) -> CommandResult {
+    #[cmd]
+    fn do_greet(&self, args: &[String]) -> CommandResult {
         println!("Hello {}", args[0]);
         CommandResult::Ok
     }
 
     /// Cmdr command to quit the application by returning CommandResult::Quit
-    fn do_quit(&self, _args: &Vec<String>) -> CommandResult {
+    #[cmd]
+    fn do_quit(&self, _args: &[String]) -> CommandResult {
         println!("Quitting");
         CommandResult::Quit
     }

@@ -82,3 +82,41 @@ pub trait Scope {
     /// Hook that is called after the command loop finishes, can be overridden
     fn after_loop(&mut self) {}
 }
+
+/// List of command methods implemented by a scope
+pub struct CmdMethodList<T> {
+    methods: Vec<CmdMethod<T>>,
+}
+
+impl<T> CmdMethodList<T> {
+    /// Construct a command method list
+    pub fn new(methods: Vec<CmdMethod<T>>) -> Self {
+        CmdMethodList { methods }
+    }
+
+    /// Find a command method by it's command name
+    pub fn method_by_command(&self, name: &str) -> Option<&CmdMethod<T>> {
+        self.methods
+            .iter()
+            .filter(|method| method.name == name)
+            .next()
+    }
+}
+
+/// All information about a command method in one handy struct
+pub struct CmdMethod<T> {
+    name: String,
+    method: Box<Fn(&mut T, &CommandLine) -> CommandResult>,
+}
+
+impl<T> CmdMethod<T> {
+    /// Construct a CmdMethod from a command name and a command closure
+    pub fn new(name: String, method: Box<Fn(&mut T, &CommandLine) -> CommandResult>) -> Self {
+        CmdMethod { name, method }
+    }
+
+    /// Execute this command
+    pub fn execute(&self, scope: &mut T, command: &CommandLine) -> CommandResult {
+        (self.method)(scope, command)
+    }
+}

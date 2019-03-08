@@ -21,18 +21,16 @@ impl GreeterScope {
     }
 
     fn commands(&mut self) -> CmdMethodList<GreeterScope> {
-        CmdMethodList {
-            methods: vec![
-                CmdMethod {
-                    name: "greet".to_string(),
-                    method: Box::new(|scope, cmd_line| scope.do_greet(&cmd_line.args)),
-                },
-                CmdMethod {
-                    name: "quit".to_string(),
-                    method: Box::new(|scope, cmd_line| scope.do_quit(&cmd_line.args)),
-                },
-            ],
-        }
+        CmdMethodList::new(vec![
+            CmdMethod::new(
+                "greet".to_string(),
+                Box::new(|scope, cmd_line| scope.do_greet(&cmd_line.args)),
+            ),
+            CmdMethod::new(
+                "quit".to_string(),
+                Box::new(|scope, cmd_line| scope.do_quit(&cmd_line.args)),
+            ),
+        ])
     }
 }
 
@@ -40,8 +38,8 @@ impl GreeterScope {
 /// the command method that dispatches commands to functions implemented above.
 impl Scope for GreeterScope {
     fn command(&mut self, command: &CommandLine) -> CommandResult {
-        match self.commands().execute(self, command) {
-            Some(result) => result,
+        match self.commands().method_by_command(&command.command) {
+            Some(method) => method.execute(self, command),
             None => self.default(command),
         }
     }
@@ -50,29 +48,4 @@ impl Scope for GreeterScope {
 /// Main function that creates the scope and starts a command loop for it
 fn main() {
     cmd_loop(&mut GreeterScope {});
-}
-
-struct CmdMethodList<T> {
-    methods: Vec<CmdMethod<T>>,
-}
-
-impl<T> CmdMethodList<T> {
-    fn method_by_name(&self, name: &str) -> Option<&CmdMethod<T>> {
-        self.methods
-            .iter()
-            .filter(|method| method.name == name)
-            .next()
-    }
-
-    fn execute(&self, scope: &mut T, command: &CommandLine) -> Option<CommandResult> {
-        match self.method_by_name(&command.command) {
-            Some(method) => Some((method.method)(scope, command)),
-            None => None,
-        }
-    }
-}
-
-struct CmdMethod<T> {
-    name: String,
-    method: Box<Fn(&mut T, &CommandLine) -> CommandResult>,
 }

@@ -22,16 +22,16 @@ impl GreeterScope {
 
     fn commands(&mut self) -> CmdMethodList<GreeterScope> {
         CmdMethodList {
-            methods: vec!(
+            methods: vec![
                 CmdMethod {
                     name: "greet".to_string(),
-                    method: Box::new(|scope, cmd_line| scope.do_greet(&cmd_line.args))
+                    method: Box::new(|scope, cmd_line| scope.do_greet(&cmd_line.args)),
                 },
                 CmdMethod {
                     name: "quit".to_string(),
-                    method: Box::new(|scope, cmd_line| scope.do_quit(&cmd_line.args))
+                    method: Box::new(|scope, cmd_line| scope.do_quit(&cmd_line.args)),
                 },
-            )
+            ],
         }
     }
 }
@@ -42,14 +42,8 @@ impl Scope for GreeterScope {
     fn command(&mut self, command: &CommandLine) -> CommandResult {
         match self.commands().execute(self, command) {
             Some(result) => result,
-            None => self.default(command)
+            None => self.default(command),
         }
-
-//        match &command.command[..] {
-//            "greet" => self.do_greet(&command.args),
-//            "quit" => self.do_quit(&command.args),
-//            _ => self.default(&command),
-//        }
     }
 }
 
@@ -58,44 +52,22 @@ fn main() {
     cmd_loop(&mut GreeterScope {});
 }
 
-//
-//struct CmdMethodList<S> {
-//    methods: Vec<CmdMethod<S>>
-//}
-//
-//
-//impl<S> CmdMethodList<S> {
-//    fn method_by_name(&self, name: &str) -> Option<CmdMethod<S>> {
-//        self.methods.iter().filter(|method| method.name == name).next()
-//    }
-//
-//    fn execute(&mut self, command: &CommandLine) -> CmdResult {
-//        match self.method_by_name(&command.command) {
-//            Some(method) => method.method(self, &command.args),
-//            None => self.default(&command)
-//        }
-//    }
-//}
-
-//struct CmdMethod<S> {
-//    name: String,
-//    method: fn(&mut S, CommandLine) -> CommandResult
-//}
-
 struct CmdMethodList<T> {
-    methods: Vec<CmdMethod<T>>
+    methods: Vec<CmdMethod<T>>,
 }
-
 
 impl<T> CmdMethodList<T> {
     fn method_by_name(&self, name: &str) -> Option<&CmdMethod<T>> {
-        self.methods.iter().filter(|method| method.name == name).next()
+        self.methods
+            .iter()
+            .filter(|method| method.name == name)
+            .next()
     }
 
     fn execute(&self, scope: &mut T, command: &CommandLine) -> Option<CommandResult> {
         match self.method_by_name(&command.command) {
             Some(method) => Some((method.method)(scope, command)),
-            None => None
+            None => None,
         }
     }
 }

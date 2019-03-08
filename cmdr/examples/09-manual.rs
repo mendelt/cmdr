@@ -19,8 +19,12 @@ impl GreeterScope {
         println!("Quitting");
         CommandResult::Quit
     }
+}
 
-    fn commands(&mut self) -> CmdMethodList<GreeterScope> {
+/// Manual scope implementation for Cmdr. Normally you'd use the cmdr macro for this. Implements
+/// the command method that dispatches commands to functions implemented above.
+impl Scope for GreeterScope {
+    fn commands() -> CmdMethodList<GreeterScope> {
         CmdMethodList::new(vec![
             CmdMethod::new(
                 "greet".to_string(),
@@ -31,17 +35,6 @@ impl GreeterScope {
                 Box::new(|scope, cmd_line| scope.do_quit(&cmd_line.args)),
             ),
         ])
-    }
-}
-
-/// Manual scope implementation for Cmdr. Normally you'd use the cmdr macro for this. Implements
-/// the command method that dispatches commands to functions implemented above.
-impl Scope for GreeterScope {
-    fn command(&mut self, command: &CommandLine) -> CommandResult {
-        match self.commands().method_by_command(&command.command) {
-            Some(method) => method.execute(self, command),
-            None => self.default(command),
-        }
     }
 }
 

@@ -14,7 +14,7 @@ pub enum CommandResult {
 
 /// Trait for implementing a Scope object. This trait can be implemented by a client but will most
 /// likely be implemented for you by the cmdr macro.
-pub trait Scope {
+pub trait Scope: Sized {
     /// Execute commands in this scope. Uses a LineReader to get commands and executes them one by
     /// one until a command returns CommandResult::Quit
     fn run_lines(&mut self, reader: &mut LineReader) -> CommandResult {
@@ -42,8 +42,17 @@ pub trait Scope {
         self.after_command(&line, result)
     }
 
-    /// Execute a single command, must be implemented by trait implementors or by the cmdr macro
-    fn command(&mut self, command: &CommandLine) -> CommandResult;
+    /// Execute a single command
+    fn command(&mut self, command: &CommandLine) -> CommandResult {
+        match Self::commands().method_by_command(&command.command) {
+            Some(method) => method.execute(self, command),
+            None => self.default(command),
+        }
+    }
+
+    fn commands() -> CmdMethodList<Self> {
+        CmdMethodList::new(Vec::new())
+    }
 
     /// Return the prompt for this scope. The default implementation returns > as the prompt but
     /// this can be overridden to return other strings or implement dynamically generated prompts
@@ -84,11 +93,17 @@ pub trait Scope {
 }
 
 /// List of command methods implemented by a scope
-pub struct CmdMethodList<T> {
+pub struct CmdMethodList<T>
+where
+    T: Scope,
+{
     methods: Vec<CmdMethod<T>>,
 }
 
-impl<T> CmdMethodList<T> {
+impl<T> CmdMethodList<T>
+where
+    T: Scope,
+{
     /// Construct a command method list
     pub fn new(methods: Vec<CmdMethod<T>>) -> Self {
         CmdMethodList { methods }
@@ -104,12 +119,18 @@ impl<T> CmdMethodList<T> {
 }
 
 /// All information about a command method in one handy struct
-pub struct CmdMethod<T> {
+pub struct CmdMethod<T>
+where
+    T: Scope,
+{
     name: String,
     method: Box<Fn(&mut T, &CommandLine) -> CommandResult>,
 }
 
-impl<T> CmdMethod<T> {
+impl<T> CmdMethod<T>
+where
+    T: Scope,
+{
     /// Construct a CmdMethod from a command name and a command closure
     pub fn new(name: String, method: Box<Fn(&mut T, &CommandLine) -> CommandResult>) -> Self {
         CmdMethod { name, method }

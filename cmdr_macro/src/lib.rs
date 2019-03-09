@@ -55,7 +55,9 @@ pub fn cmdr(_meta: TokenStream, code: TokenStream) -> TokenStream {
 }
 
 #[proc_macro_attribute]
-pub fn cmd(_meta: TokenStream, code: TokenStream) -> TokenStream { code }
+pub fn cmd(_meta: TokenStream, code: TokenStream) -> TokenStream {
+    code
+}
 
 fn format_prompt_override(input: &ItemImpl, self_type: &TypePath) -> TokenStream2 {
     if contains_method(&input, "prompt") {
@@ -160,9 +162,7 @@ fn get_methods(input: &ItemImpl) -> Vec<(CmdMeta)> {
 
     for item in &input.items {
         if let ImplItem::Method(method) = item {
-            dbg!("Stuff");
             if let Some(metadata) = parse_cmd_attribute(method) {
-                println!("Stuff {}", metadata.method);
                 result.push(metadata)
             }
         }

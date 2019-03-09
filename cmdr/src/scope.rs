@@ -36,6 +36,7 @@ pub trait Scope: Sized {
         let result = match line {
             Line::Empty => self.empty(),
             Line::CtrlC | Line::CtrlD | Line::Error => CommandResult::Quit,
+            Line::Help => self.help(),
             Line::Command(ref command) => self.command(command),
         };
 
@@ -58,6 +59,17 @@ pub trait Scope: Sized {
     /// this can be overridden to return other strings or implement dynamically generated prompts
     fn prompt(&self) -> String {
         ">".to_string()
+    }
+
+    /// Execute a help command
+    fn help(&self) -> CommandResult {
+        println!("These are the valid commands in this scope:");
+
+        for command in Self::commands().methods {
+            println!("- {}", command.name)
+        }
+
+        CommandResult::Ok
     }
 
     /// Execute an empty line.

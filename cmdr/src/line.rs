@@ -7,6 +7,9 @@ pub enum Line {
     /// A user command made up of a command and a series of attributes
     Command(CommandLine),
 
+    /// A user help request
+    Help,
+
     /// Ctrl-C was entered
     CtrlC,
 
@@ -32,6 +35,7 @@ impl From<&str> for Line {
 
         match first {
             None => Line::Empty,
+            Some("help") => Line::Help,
             Some(command) => Line::Command(CommandLine {
                 command: command.to_string(),
                 args: parts.map(|arg| arg.to_string()).collect(),

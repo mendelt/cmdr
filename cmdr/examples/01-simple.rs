@@ -9,13 +9,15 @@ struct GreeterScope {}
 #[cmdr]
 impl GreeterScope {
     /// Cmdr command to greet someone. Takes one parameter and prints a greeting
-    fn do_greet(&self, args: &[String]) -> CommandResult {
+    #[cmd]
+    fn greet(&self, args: &[String]) -> CommandResult {
         println!("Hello {}", args[0]);
         CommandResult::Ok
     }
 
     /// Cmdr command to quit the application by returning CommandResult::Quit
-    fn do_quit(&self, _args: &[String]) -> CommandResult {
+    #[cmd]
+    fn quit(&self, _args: &[String]) -> CommandResult {
         println!("Quitting");
         CommandResult::Quit
     }

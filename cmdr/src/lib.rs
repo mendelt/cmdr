@@ -7,8 +7,8 @@
 //!
 //! Implementing a scope is as easy as creating an object with a few methods that take a vector of
 //! &str as their input and return a CommandResult. By annotating the impl block of that object
-//! the cmdr macro all functions starting with do_ in that block will be picked up and transformed
-//! into functions.
+//! the cmdr macro all functions starting annotated with #[cmd] in that block can be used as
+//! commands.
 //!
 //! For additional functionality like setting custom prompts or setting hooks to catch unknown or
 //! empty commands additional methods can be added to the impl block. These correspond to
@@ -22,7 +22,7 @@ use crate::line_reader::RustyLineReader;
 
 pub use crate::line::{CommandLine, Line};
 pub use crate::scope::{CmdMethod, CmdMethodList, CommandResult, Scope};
-pub use cmdr_macro::cmdr;
+pub use cmdr_macro::{cmdr, cmd};
 
 /// This is the main entry-point to the cmdr library.
 /// Creates a LineReader and executes its command on the scope that is passed to it.

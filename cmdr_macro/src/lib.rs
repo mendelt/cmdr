@@ -3,9 +3,9 @@ extern crate proc_macro2;
 
 use self::proc_macro::TokenStream;
 use self::proc_macro2::TokenStream as TokenStream2;
-use quote::quote;
-use syn::TypePath;
+use quote::{quote, ToTokens};
 use syn::{parse_macro_input, Ident, ImplItem, ItemImpl, Type};
+use syn::{ImplItemMethod, Meta, TypePath};
 
 /// Implements the cmdr::Scope trait on any impl block.
 ///
@@ -17,7 +17,7 @@ use syn::{parse_macro_input, Ident, ImplItem, ItemImpl, Type};
 #[proc_macro_attribute]
 pub fn cmdr(_meta: TokenStream, code: TokenStream) -> TokenStream {
     let input = parse_macro_input!(code as ItemImpl);
-    let command_matches = format_command_match(&get_methods(&input));
+    let command_methods = get_methods(&input);
 
     if let Type::Path(self_type) = &*input.self_ty {
         let prompt_override = format_prompt_override(&input, self_type);
@@ -33,10 +33,10 @@ pub fn cmdr(_meta: TokenStream, code: TokenStream) -> TokenStream {
             #input
 
             impl cmdr::Scope for #self_type {
-                fn command(&mut self, command: &CommandLine) -> CommandResult {
-                    match &command.command[..] {
-                        #(#command_matches)*
-                    }
+                fn commands() -> CmdMethodList<#self_type> {
+                    CmdMethodList::new(vec![
+                        #(#command_methods)*
+                    ])
                 }
 
                 #prompt_override
@@ -54,19 +54,8 @@ pub fn cmdr(_meta: TokenStream, code: TokenStream) -> TokenStream {
     }
 }
 
-fn format_command_match(methods: &[(Ident, String)]) -> Vec<TokenStream2> {
-    let mut result: Vec<TokenStream2> = Vec::new();
-
-    // Add match clauses for all do_methods
-    for (method, name) in methods {
-        result.push(quote!(#name => self.#method(&command.args),));
-    }
-
-    // Add the catch all
-    result.push(quote!(_ => self.default(command)));
-
-    result
-}
+#[proc_macro_attribute]
+pub fn cmd(_meta: TokenStream, code: TokenStream) -> TokenStream { code }
 
 fn format_prompt_override(input: &ItemImpl, self_type: &TypePath) -> TokenStream2 {
     if contains_method(&input, "prompt") {
@@ -166,21 +155,54 @@ fn contains_method(input: &ItemImpl, method_name: &str) -> bool {
     false
 }
 
-fn get_methods(input: &ItemImpl) -> Vec<(Ident, String)> {
-    let mut result: Vec<(Ident, String)> = Vec::new();
+fn get_methods(input: &ItemImpl) -> Vec<(CmdMeta)> {
+    let mut result = Vec::new();
 
     for item in &input.items {
         if let ImplItem::Method(method) = item {
-            let ident = &method.sig.ident;
-            let name = ident.to_string();
-
-            if name.starts_with("do_") {
-                result.push((ident.clone(), name[3..].to_owned()))
+            dbg!("Stuff");
+            if let Some(metadata) = parse_cmd_attribute(method) {
+                println!("Stuff {}", metadata.method);
+                result.push(metadata)
             }
         }
     }
 
     result
+}
+
+fn parse_cmd_attribute(method: &ImplItemMethod) -> Option<CmdMeta> {
+    let methodname = &method.sig.ident;
+
+    let cmd_attr = method
+        .attrs
+        .iter()
+        .map(|arg| arg.parse_meta())
+        .filter_map(Result::ok)
+        .filter(|meta| meta.name() == "cmd")
+        .next();
+
+    match cmd_attr {
+        Some(attr) => Some(CmdMeta {
+            command: methodname.to_string(),
+            method: methodname.to_owned(),
+        }),
+        None => None,
+    }
+}
+
+struct CmdMeta {
+    command: String,
+    method: Ident,
+}
+
+impl ToTokens for CmdMeta {
+    fn to_tokens(&self, tokens: &mut TokenStream2) {
+        let command = &self.command;
+        let method = &self.method;
+
+        tokens.extend(quote!(CmdMethod::new(#command.to_string(), Box::new(|scope, cmd_line| scope.#method(&cmd_line.args)),),))
+    }
 }
 
 #[cfg(test)]

@@ -162,8 +162,16 @@ where
     T: Scope,
 {
     /// Construct a CmdMethod from a command name and a command closure
-    pub fn new(name: String, method: Box<Fn(&mut T, &CommandLine) -> CommandResult>, help_text: Option<String>) -> Self {
-        CmdMethod { name, method, help_text }
+    pub fn new(
+        name: String,
+        method: Box<Fn(&mut T, &CommandLine) -> CommandResult>,
+        help_text: Option<String>,
+    ) -> Self {
+        CmdMethod {
+            name,
+            method,
+            help_text,
+        }
     }
 
     /// Execute this command

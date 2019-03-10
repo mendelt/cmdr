@@ -177,7 +177,9 @@ fn parse_cmd_attribute(method: &ImplItemMethod) -> Option<CmdMeta> {
         .attrs
         .iter()
         .map(|arg| arg.parse_meta())
-        .filter_map(Result::ok).filter(|meta| meta.name() == "cmd").next();
+        .filter_map(Result::ok)
+        .filter(|meta| meta.name() == "cmd")
+        .next();
 
     let help_text = parse_help_text(method);
 
@@ -197,7 +199,8 @@ fn parse_help_text(method: &ImplItemMethod) -> String {
         .iter()
         .map(|arg| arg.parse_meta())
         .filter_map(Result::ok)
-        .filter_map(parse_doc_string).collect();
+        .filter_map(parse_doc_string)
+        .collect();
 
     doc_attrs
 }

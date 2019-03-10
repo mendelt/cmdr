@@ -35,11 +35,10 @@ impl From<&str> for Line {
 
         match first {
             None => Line::Empty,
-            Some("help") => {
-                Line::Help(CommandLine {
-                    command: "help".to_string(),
-                    args: parts.map(|arg| arg.to_string()).collect()
-                })},
+            Some("help") => Line::Help(CommandLine {
+                command: "help".to_string(),
+                args: parts.map(|arg| arg.to_string()).collect(),
+            }),
             Some(command) => Line::Command(CommandLine {
                 command: command.to_string(),
                 args: parts.map(|arg| arg.to_string()).collect(),

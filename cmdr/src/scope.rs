@@ -36,7 +36,7 @@ pub trait Scope: Sized {
         let result = match line {
             Line::Empty => self.empty(),
             Line::CtrlC | Line::CtrlD | Line::Error => CommandResult::Quit,
-            Line::Help => self.help(),
+            Line::Help(ref command) => self.help(command),
             Line::Command(ref command) => self.command(command),
         };
 
@@ -62,11 +62,28 @@ pub trait Scope: Sized {
     }
 
     /// Execute a help command
-    fn help(&self) -> CommandResult {
-        println!("These are the valid commands in this scope:");
+    fn help(&self, line: &CommandLine) -> CommandResult {
+        if line.args.len() == 0 {
+            println!("These are the valid commands in this scope:");
 
-        for command in Self::commands().methods {
-            println!("- {}", command.name)
+            for command in Self::commands().methods {
+                println!("- {}", command.name)
+            }
+        } else if line.args.len() == 1 {
+            match Self::commands().method_by_command(&line.args[0]) {
+                Some(command) => {
+                    // TODO: Handle commands without help better
+                    for line in command.get_help_text() {
+                        print!("{}", line)
+                    }
+                }
+                None => {
+                    println!("No command with name {}", line.args[0]);
+                }
+            }
+        } else {
+            // TODO: Handle errors like wrong number of args with commandresults?
+            println!("Too many arguments, help expects 0 or 1")
         }
 
         CommandResult::Ok
@@ -137,6 +154,7 @@ where
 {
     name: String,
     method: Box<Fn(&mut T, &CommandLine) -> CommandResult>,
+    help_text: Option<String>,
 }
 
 impl<T> CmdMethod<T>
@@ -144,12 +162,16 @@ where
     T: Scope,
 {
     /// Construct a CmdMethod from a command name and a command closure
-    pub fn new(name: String, method: Box<Fn(&mut T, &CommandLine) -> CommandResult>) -> Self {
-        CmdMethod { name, method }
+    pub fn new(name: String, method: Box<Fn(&mut T, &CommandLine) -> CommandResult>, help_text: Option<String>) -> Self {
+        CmdMethod { name, method, help_text }
     }
 
     /// Execute this command
     pub fn execute(&self, scope: &mut T, command: &CommandLine) -> CommandResult {
         (self.method)(scope, command)
+    }
+
+    pub fn get_help_text(&self) -> &Option<String> {
+        &self.help_text
     }
 }

@@ -8,7 +8,7 @@ pub enum Line {
     Command(CommandLine),
 
     /// A user help request
-    Help,
+    Help(CommandLine),
 
     /// Ctrl-C was entered
     CtrlC,
@@ -35,7 +35,11 @@ impl From<&str> for Line {
 
         match first {
             None => Line::Empty,
-            Some("help") => Line::Help,
+            Some("help") => {
+                Line::Help(CommandLine {
+                    command: "help".to_string(),
+                    args: parts.map(|arg| arg.to_string()).collect()
+                })},
             Some(command) => Line::Command(CommandLine {
                 command: command.to_string(),
                 args: parts.map(|arg| arg.to_string()).collect(),

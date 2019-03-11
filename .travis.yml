@@ -13,7 +13,7 @@ script:
 
 deploy:
   - provider: script
-    script: cargo deploy --token ${CRATES_IO_TOKEN} --manifest cmdr_macro/Cargo.toml
+    script: cargo publish --token ${CRATES_IO_TOKEN} --manifest-path cmdr_macro/Cargo.toml
 
     on:
       tags: true
@@ -21,7 +21,7 @@ deploy:
       condition: "$TRAVIS_RUST_VERSION = stable"
 
   - provider: script
-    script: cargo deploy --token ${CRATES_IO_TOKEN} --manifest cmdr/Cargo.toml
+    script: cargo publish --token ${CRATES_IO_TOKEN} --manifest-path cmdr/Cargo.toml
 
     on:
       tags: true

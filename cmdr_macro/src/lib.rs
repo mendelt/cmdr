@@ -184,7 +184,7 @@ fn parse_cmd_attribute(method: &ImplItemMethod) -> Option<CmdMeta> {
     let help_text = parse_help_text(method);
 
     match cmd_attr {
-        Some(attr) => Some(CmdMeta {
+        Some(_attr) => Some(CmdMeta {
             command: methodname.to_string(),
             method: methodname.to_owned(),
             help: help_text,

@@ -29,10 +29,12 @@ impl Scope for GreeterScope {
             CmdMethod::new(
                 "greet".to_string(),
                 Box::new(|scope, cmd_line| scope.do_greet(&cmd_line.args)),
+                Some("Show a greeting.".to_string()),
             ),
             CmdMethod::new(
                 "quit".to_string(),
                 Box::new(|scope, cmd_line| scope.do_quit(&cmd_line.args)),
+                Some("Quit the application.".to_string()),
             ),
         ])
     }

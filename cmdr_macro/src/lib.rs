@@ -23,7 +23,7 @@ pub fn cmdr(_meta: TokenStream, code: TokenStream) -> TokenStream {
 
     if let Type::Path(self_type) = &*input.self_ty {
         let command_methods = get_methods(&input);
-        let overrides = format_overrides(&input, self_type);
+        let overrides = format_overrides(&input);
 
         TokenStream::from(quote!(
             #input

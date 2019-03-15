@@ -1,18 +1,20 @@
 use quote::quote;
 use syn::export::TokenStream2;
-use syn::{ImplItem, ItemImpl, TypePath};
+use syn::{ImplItem, ItemImpl, Type, TypePath};
 
-pub fn format_overrides(input: &ItemImpl, self_type: &TypePath) -> TokenStream2 {
+pub fn format_overrides(input: &ItemImpl) -> TokenStream2 {
     let mut overrides = TokenStream2::new();
 
-    overrides.extend(format_prompt_override(&input, self_type));
-    overrides.extend(format_empty_override(&input, self_type));
-    overrides.extend(format_default_override(&input, self_type));
+    if let Type::Path(self_type) = &*input.self_ty {
+        overrides.extend(format_prompt_override(&input, self_type));
+        overrides.extend(format_empty_override(&input, self_type));
+        overrides.extend(format_default_override(&input, self_type));
 
-    overrides.extend(format_before_loop_override(&input, self_type));
-    overrides.extend(format_before_command_override(&input, self_type));
-    overrides.extend(format_after_command_override(&input, self_type));
-    overrides.extend(format_after_loop_override(&input, self_type));
+        overrides.extend(format_before_loop_override(&input, self_type));
+        overrides.extend(format_before_command_override(&input, self_type));
+        overrides.extend(format_after_command_override(&input, self_type));
+        overrides.extend(format_after_loop_override(&input, self_type));
+    }
 
     overrides
 }
@@ -71,7 +73,7 @@ fn format_before_loop_override(input: &ItemImpl, self_type: &TypePath) -> TokenS
     if contains_method(&input, "before_loop") {
         quote!(
             fn before_loop(&mut self) {
-                #self_type::before_loop(self);
+                #self_type::before_loop(self)
             }
         )
     } else {
@@ -119,24 +121,91 @@ fn format_after_loop_override(input: &ItemImpl, self_type: &TypePath) -> TokenSt
 mod tests {
     use super::*;
 
-    fn test_itemimpl() -> ItemImpl {
-        syn::parse_str(
-            r###"
-            impl SomeImpl {
-                fn prompt() { }
-            }
-            "###,
-        )
-        .unwrap()
+    #[test]
+    fn should_override_prompt_when_available() {
+        let source = syn::parse_str("impl SomeImpl {fn prompt() { }}").unwrap();
+
+        assert_eq!(
+            format_overrides(&source).to_string(),
+            "fn prompt ( & self ) -> String { SomeImpl :: prompt ( & self ) }"
+        );
     }
 
     #[test]
-    fn test_contains_method_returns_true_when_method_found() {
-        assert!(contains_method(&test_itemimpl(), "prompt"));
+    fn should_override_empty_when_available() {
+        let source = syn::parse_str("impl SomeImpl {fn empty() { }}").unwrap();
+
+        assert_eq!(
+            format_overrides(&source).to_string(),
+            "fn empty ( & mut self ) -> CommandResult { SomeImpl :: empty ( & self ) }"
+        );
     }
 
     #[test]
-    fn test_contains_method_returns_false_when_method_not_found() {
-        assert!(!contains_method(&test_itemimpl(), "fn_not_there"));
+    fn should_override_default_when_available() {
+        let source = syn::parse_str("impl SomeImpl {fn default() { }}").unwrap();
+
+        assert_eq!(
+            format_overrides(&source).to_string(),
+            "fn default ( & mut self , command : & CommandLine ) -> CommandResult { SomeImpl :: default ( self , command ) }"
+        );
+    }
+
+    #[test]
+    fn should_override_before_loop_when_available() {
+        let source = syn::parse_str("impl SomeImpl {fn before_loop() { }}").unwrap();
+
+        assert_eq!(
+            format_overrides(&source).to_string(),
+            "fn before_loop ( & mut self ) { SomeImpl :: before_loop ( self ) }"
+        );
+    }
+
+    #[test]
+    fn should_override_before_command_when_available() {
+        let source = syn::parse_str("impl SomeImpl {fn before_command() { }}").unwrap();
+
+        assert_eq!(
+            format_overrides(&source).to_string(),
+            "fn before_command ( & mut self , line : Line ) -> Line { SomeImpl :: before_command ( self , line ) }"
+        );
+    }
+
+    #[test]
+    fn should_override_after_command_when_available() {
+        let source = syn::parse_str("impl SomeImpl {fn after_command() { }}").unwrap();
+
+        assert_eq!(
+            format_overrides(&source).to_string(),
+            "fn after_command ( & mut self , line : & Line , result : CommandResult ) -> CommandResult { SomeImpl :: after_command ( self , line , result ) }"
+        );
+    }
+
+    #[test]
+    fn should_override_after_loop_when_available() {
+        let source = syn::parse_str("impl SomeImpl {fn after_loop() { }}").unwrap();
+
+        assert_eq!(
+            format_overrides(&source).to_string(),
+            "fn after_loop ( & mut self ) { SomeImpl :: after_loop ( self ) }"
+        );
+    }
+
+    #[test]
+    fn should_override_multiple_commands_when_available() {
+        let source =
+            syn::parse_str("impl SomeImpl {fn after_loop() { } fn prompt() { } }").unwrap();
+
+        assert_eq!(
+            format_overrides(&source).to_string(),
+            "fn prompt ( & self ) -> String { SomeImpl :: prompt ( & self ) } fn after_loop ( & mut self ) { SomeImpl :: after_loop ( self ) }"
+        );
+    }
+
+    #[test]
+    fn should_override_nothing_when_no_overridable_methods() {
+        let source = syn::parse_str("impl SomeImpl {fn some_other_method() { }}").unwrap();
+
+        assert_eq!(format_overrides(&source).to_string(), "");
     }
 }

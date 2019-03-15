@@ -54,6 +54,7 @@ pub fn cmdr(_meta: TokenStream, code: TokenStream) -> TokenStream {
     }
 }
 
+/// Use cmd attribute to mark methods as cmdr commands.
 #[proc_macro_attribute]
 pub fn cmd(_meta: TokenStream, code: TokenStream) -> TokenStream {
     code

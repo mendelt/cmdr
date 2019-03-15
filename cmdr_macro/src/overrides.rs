@@ -1,120 +1,56 @@
 use quote::quote;
 use syn::export::TokenStream2;
-use syn::{ImplItem, ItemImpl, Type, TypePath};
+use syn::{ImplItem, ItemImpl, Type};
 
 pub fn format_overrides(input: &ItemImpl) -> TokenStream2 {
     let mut overrides = TokenStream2::new();
 
     if let Type::Path(self_type) = &*input.self_ty {
-        overrides.extend(format_prompt_override(&input, self_type));
-        overrides.extend(format_empty_override(&input, self_type));
-        overrides.extend(format_default_override(&input, self_type));
-
-        overrides.extend(format_before_loop_override(&input, self_type));
-        overrides.extend(format_before_command_override(&input, self_type));
-        overrides.extend(format_after_command_override(&input, self_type));
-        overrides.extend(format_after_loop_override(&input, self_type));
-    }
-
-    overrides
-}
-
-fn contains_method(input: &ItemImpl, method_name: &str) -> bool {
-    for item in &input.items {
-        if let ImplItem::Method(method) = item {
-            let ident = &method.sig.ident;
-            let name = ident.to_string();
-
-            if name == method_name {
-                return true;
+        for item in &input.items {
+            if let ImplItem::Method(method) = item {
+                overrides.extend(match method.sig.ident.to_string().as_ref() {
+                    "prompt" => quote!(
+                        fn prompt(&self) -> String {
+                            #self_type::prompt(&self)
+                        }
+                    ),
+                    "empty" => quote!(
+                        fn empty(&mut self) -> CommandResult {
+                            #self_type::empty(&self)
+                        }
+                    ),
+                    "default" => quote!(
+                        fn default(&mut self, command: &CommandLine) -> CommandResult {
+                            #self_type::default(self, command)
+                        }
+                    ),
+                    "before_loop" => quote!(
+                        fn before_loop(&mut self) {
+                            #self_type::before_loop(self)
+                        }
+                    ),
+                    "before_command" => quote!(
+                        fn before_command(&mut self, line: Line) -> Line {
+                            #self_type::before_command(self, line)
+                        }
+                    ),
+                    "after_command" => quote!(
+                        fn after_command(&mut self, line: &Line, result: CommandResult) -> CommandResult {
+                           #self_type::after_command(self, line, result)
+                        }
+                    ),
+                    "after_loop" => quote!(
+                        fn after_loop(&mut self) {
+                           #self_type::after_loop(self)
+                        }
+                    ),
+                    _ => quote!()
+                });
             }
         }
     }
-    false
-}
 
-fn format_prompt_override(input: &ItemImpl, self_type: &TypePath) -> TokenStream2 {
-    if contains_method(&input, "prompt") {
-        quote!(
-            fn prompt(&self) -> String {
-                #self_type::prompt(&self)
-            }
-        )
-    } else {
-        quote!()
-    }
-}
-
-fn format_empty_override(input: &ItemImpl, self_type: &TypePath) -> TokenStream2 {
-    if contains_method(&input, "empty") {
-        quote!(
-            fn empty(&mut self) -> CommandResult {
-                #self_type::empty(&self)
-            }
-        )
-    } else {
-        quote!()
-    }
-}
-
-fn format_default_override(input: &ItemImpl, self_type: &TypePath) -> TokenStream2 {
-    if contains_method(&input, "default") {
-        quote!(
-            fn default(&mut self, command: &CommandLine) -> CommandResult {
-                #self_type::default(self, command)
-            }
-        )
-    } else {
-        quote!()
-    }
-}
-
-fn format_before_loop_override(input: &ItemImpl, self_type: &TypePath) -> TokenStream2 {
-    if contains_method(&input, "before_loop") {
-        quote!(
-            fn before_loop(&mut self) {
-                #self_type::before_loop(self)
-            }
-        )
-    } else {
-        quote!()
-    }
-}
-
-fn format_before_command_override(input: &ItemImpl, self_type: &TypePath) -> TokenStream2 {
-    if contains_method(&input, "before_command") {
-        quote!(
-            fn before_command(&mut self, line: Line) -> Line {
-                #self_type::before_command(self, line)
-            }
-        )
-    } else {
-        quote!()
-    }
-}
-
-fn format_after_command_override(input: &ItemImpl, self_type: &TypePath) -> TokenStream2 {
-    if contains_method(&input, "after_command") {
-        quote!(
-            fn after_command(&mut self, line: &Line, result: CommandResult) -> CommandResult {
-                #self_type::after_command(self, line, result)
-            }
-        )
-    } else {
-        quote!()
-    }
-}
-
-fn format_after_loop_override(input: &ItemImpl, self_type: &TypePath) -> TokenStream2 {
-    if contains_method(&input, "after_loop") {
-        quote!(
-            fn after_loop(&mut self) {
-                #self_type::after_loop(self)
-            }
-        )
-    } else {
-        quote!()
-    }
+    overrides
 }
 
 #[cfg(test)]
@@ -193,8 +129,7 @@ mod tests {
 
     #[test]
     fn should_override_multiple_commands_when_available() {
-        let source =
-            syn::parse_str("impl SomeImpl {fn after_loop() { } fn prompt() { } }").unwrap();
+        let source = syn::parse_str("impl SomeImpl {fn prompt() { } fn after_loop() { }}").unwrap();
 
         assert_eq!(
             format_overrides(&source).to_string(),

@@ -1,9 +1,9 @@
+use proc_macro2::TokenStream;
 use quote::quote;
-use syn::export::TokenStream2;
 use syn::{ImplItem, ItemImpl, TypePath};
 
-pub fn format_overrides(input: &ItemImpl, self_type: &TypePath) -> TokenStream2 {
-    let mut overrides = TokenStream2::new();
+pub fn format_overrides(input: &ItemImpl, self_type: &TypePath) -> TokenStream {
+    let mut overrides = TokenStream::new();
 
     for item in &input.items {
         if let ImplItem::Method(method) = item {

@@ -1,4 +1,4 @@
-use syn::{ItemImpl, TypePath, Type};
+use syn::{ItemImpl, Type, TypePath};
 
 pub fn parse_self_type(input: &ItemImpl) -> Option<TypePath> {
     match &*input.self_ty {

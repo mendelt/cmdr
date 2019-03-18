@@ -7,10 +7,10 @@ mod util;
 use self::proc_macro::TokenStream;
 use self::proc_macro2::TokenStream as TokenStream2;
 use crate::overrides::format_overrides;
-use quote::{quote, ToTokens};
-use syn::{parse_macro_input, Ident, ImplItem, ItemImpl};
-use syn::{ImplItemMethod, Meta};
 use crate::util::parse_self_type;
+use quote::{quote, ToTokens};
+use syn::{parse_macro_input, Ident, ImplItem, ItemImpl, TypePath};
+use syn::{ImplItemMethod, Meta};
 
 /// Implements the cmdr::Scope trait on any impl block.
 ///
@@ -24,19 +24,14 @@ pub fn cmdr(_meta: TokenStream, code: TokenStream) -> TokenStream {
     let input: ItemImpl = parse_macro_input!(code);
     let self_type = parse_self_type(&input).unwrap();
 
-    let command_methods = get_methods(&input);
+    let commands = format_commands(&input, &self_type);
     let overrides = format_overrides(&input, &self_type);
 
     TokenStream::from(quote!(
         #input
 
         impl cmdr::Scope for #self_type {
-            fn commands() -> CmdMethodList<#self_type> {
-                CmdMethodList::new(vec![
-                    #(#command_methods)*
-                ])
-            }
-
+            #commands
             #overrides
         }
     ))
@@ -46,6 +41,18 @@ pub fn cmdr(_meta: TokenStream, code: TokenStream) -> TokenStream {
 #[proc_macro_attribute]
 pub fn cmd(_meta: TokenStream, code: TokenStream) -> TokenStream {
     code
+}
+
+fn format_commands(input: &ItemImpl, self_type: &TypePath) -> TokenStream2 {
+    let command_methods = get_methods(&input);
+
+    quote!(
+        fn commands() -> CmdMethodList<#self_type> {
+            CmdMethodList::new(vec![
+                #(#command_methods)*
+            ])
+        }
+    )
 }
 
 fn get_methods(input: &ItemImpl) -> Vec<(CmdMeta)> {

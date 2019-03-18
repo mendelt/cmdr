@@ -5,10 +5,10 @@ mod commands;
 mod overrides;
 mod util;
 
-use self::proc_macro::TokenStream;
 use crate::commands::format_commands;
 use crate::overrides::format_overrides;
 use crate::util::parse_self_type;
+use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, ItemImpl};
 

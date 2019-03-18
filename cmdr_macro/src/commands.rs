@@ -29,7 +29,7 @@ fn get_methods(input: &ItemImpl) -> Vec<(CmdMeta)> {
 }
 
 fn parse_cmd_attribute(method: &ImplItemMethod) -> Option<CmdMeta> {
-    let methodname = &method.sig.ident;
+    let method_name = &method.sig.ident;
     let cmd_attr = method
         .attrs
         .iter()
@@ -42,8 +42,8 @@ fn parse_cmd_attribute(method: &ImplItemMethod) -> Option<CmdMeta> {
 
     match cmd_attr {
         Some(_attr) => Some(CmdMeta {
-            command: methodname.to_string(),
-            method: methodname.to_owned(),
+            command: method_name.to_string(),
+            method: method_name.to_owned(),
             help: help_text,
         }),
         None => None,
@@ -79,6 +79,7 @@ fn parse_doc_string(meta: Meta) -> Option<String> {
 }
 
 /// Contains all metadata for a command
+#[derive(Debug, PartialEq)]
 struct CmdMeta {
     command: String,
     method: Ident,
@@ -98,5 +99,58 @@ impl ToTokens for CmdMeta {
                 Some(#help_text.to_string()),
             ),
         ))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn should_ignore_method_without_cmd_attribute() {
+        let source = syn::parse_str(r###"
+            fn method() {}
+        "###).unwrap();
+
+        assert_eq!(parse_cmd_attribute(&source), None);
+    }
+
+    #[test]
+    fn should_parse_plain_cmd_attribute() {
+        let source = syn::parse_str(r###"
+            #[cmd]
+            fn method() {}
+        "###).unwrap();
+
+        let parsed = parse_cmd_attribute(&source).unwrap();
+
+        assert_eq!(parsed.command, "method".to_string());
+        assert_eq!(parsed.method.to_string(), "method".to_string());
+    }
+
+    #[test]
+    fn should_parse_outer_doc_string_as_help_text() {
+        let source = syn::parse_str( r###"
+            #[cmd]
+            ///Help text
+            fn method() {}
+        "###).unwrap();
+
+        let parsed = parse_cmd_attribute(&source).unwrap();
+        assert_eq!(parsed.help, "Help text\n".to_string());
+    }
+
+    #[test]
+    fn should_parse_inner_doc_string_as_help_text() {
+        let source = syn::parse_str( r###"
+            #[cmd]
+            fn method() {
+                //!Help text
+            }
+        "###).unwrap();
+
+        let parsed = parse_cmd_attribute(&source).unwrap();
+
+        assert_eq!(parsed.help, "Help text\n".to_string());
     }
 }

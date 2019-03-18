@@ -2,13 +2,15 @@ extern crate proc_macro;
 extern crate proc_macro2;
 
 mod overrides;
+mod util;
 
 use self::proc_macro::TokenStream;
 use self::proc_macro2::TokenStream as TokenStream2;
 use crate::overrides::format_overrides;
 use quote::{quote, ToTokens};
-use syn::{parse_macro_input, Ident, ImplItem, ItemImpl, Type, TypePath};
+use syn::{parse_macro_input, Ident, ImplItem, ItemImpl};
 use syn::{ImplItemMethod, Meta};
+use crate::util::parse_self_type;
 
 /// Implements the cmdr::Scope trait on any impl block.
 ///
@@ -23,7 +25,7 @@ pub fn cmdr(_meta: TokenStream, code: TokenStream) -> TokenStream {
     let self_type = parse_self_type(&input).unwrap();
 
     let command_methods = get_methods(&input);
-    let overrides = format_overrides(&input);
+    let overrides = format_overrides(&input, &self_type);
 
     TokenStream::from(quote!(
         #input
@@ -130,27 +132,5 @@ impl ToTokens for CmdMeta {
                 Some(#help_text.to_string()),
             ),
         ))
-    }
-}
-
-fn parse_self_type(input: &ItemImpl) -> Option<TypePath> {
-    match &*input.self_ty {
-        Type::Path(self_type) => Some(self_type.to_owned()),
-        _ => None,
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn should_return_impl_self_type() {
-        let source = &syn::parse_str("impl SomeImpl {}").unwrap();
-
-        assert_eq!(
-            parse_self_type(source),
-            Some(syn::parse_str("SomeImpl").unwrap())
-        );
     }
 }

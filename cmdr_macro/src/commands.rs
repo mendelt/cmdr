@@ -66,7 +66,7 @@ fn parse_doc_string(meta: Meta) -> Option<String> {
     if meta.name() == "doc" {
         if let Meta::NameValue(name_val) = meta {
             if let syn::Lit::Str(string) = name_val.lit {
-                Some(string.value() + "\n")
+                Some(string.value().trim().to_owned() + "\n")
             } else {
                 None
             }
@@ -108,19 +108,25 @@ mod tests {
 
     #[test]
     fn should_ignore_method_without_cmd_attribute() {
-        let source = syn::parse_str(r###"
+        let source = syn::parse_str(
+            r###"
             fn method() {}
-        "###).unwrap();
+        "###,
+        )
+        .unwrap();
 
         assert_eq!(parse_cmd_attribute(&source), None);
     }
 
     #[test]
     fn should_parse_plain_cmd_attribute() {
-        let source = syn::parse_str(r###"
+        let source = syn::parse_str(
+            r###"
             #[cmd]
             fn method() {}
-        "###).unwrap();
+        "###,
+        )
+        .unwrap();
 
         let parsed = parse_cmd_attribute(&source).unwrap();
 
@@ -130,11 +136,14 @@ mod tests {
 
     #[test]
     fn should_parse_outer_doc_string_as_help_text() {
-        let source = syn::parse_str( r###"
+        let source = syn::parse_str(
+            r###"
             #[cmd]
             ///Help text
             fn method() {}
-        "###).unwrap();
+        "###,
+        )
+        .unwrap();
 
         let parsed = parse_cmd_attribute(&source).unwrap();
         assert_eq!(parsed.help, "Help text\n".to_string());
@@ -142,15 +151,51 @@ mod tests {
 
     #[test]
     fn should_parse_inner_doc_string_as_help_text() {
-        let source = syn::parse_str( r###"
+        let source = syn::parse_str(
+            r###"
             #[cmd]
             fn method() {
                 //!Help text
             }
-        "###).unwrap();
+        "###,
+        )
+        .unwrap();
 
         let parsed = parse_cmd_attribute(&source).unwrap();
 
         assert_eq!(parsed.help, "Help text\n".to_string());
+    }
+
+    #[test]
+    fn should_strip_help_text_spaces() {
+        let source = syn::parse_str(
+            r###"
+            #[cmd]
+            ///     Help text
+            fn method() {}
+        "###,
+        )
+        .unwrap();
+
+        let parsed = parse_cmd_attribute(&source).unwrap();
+
+        assert_eq!(parsed.help, "Help text\n".to_string());
+    }
+
+    #[test]
+    fn should_parse_multi_line_help_text() {
+        let source = syn::parse_str(
+            r###"
+            #[cmd]
+            /// Multi line
+            /// help text
+            fn method() {}
+        "###,
+        )
+        .unwrap();
+
+        let parsed = parse_cmd_attribute(&source).unwrap();
+
+        assert_eq!(parsed.help, "Multi line\nhelp text\n".to_string());
     }
 }

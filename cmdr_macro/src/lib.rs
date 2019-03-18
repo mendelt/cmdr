@@ -7,7 +7,7 @@ use self::proc_macro::TokenStream;
 use self::proc_macro2::TokenStream as TokenStream2;
 use crate::overrides::format_overrides;
 use quote::{quote, ToTokens};
-use syn::{parse_macro_input, Ident, ImplItem, ItemImpl, Type};
+use syn::{parse_macro_input, Ident, ImplItem, ItemImpl, Type, TypePath};
 use syn::{ImplItemMethod, Meta};
 
 /// Implements the cmdr::Scope trait on any impl block.
@@ -20,27 +20,24 @@ use syn::{ImplItemMethod, Meta};
 #[proc_macro_attribute]
 pub fn cmdr(_meta: TokenStream, code: TokenStream) -> TokenStream {
     let input: ItemImpl = parse_macro_input!(code);
+    let self_type = parse_self_type(&input).unwrap();
 
-    if let Type::Path(self_type) = &*input.self_ty {
-        let command_methods = get_methods(&input);
-        let overrides = format_overrides(&input);
+    let command_methods = get_methods(&input);
+    let overrides = format_overrides(&input);
 
-        TokenStream::from(quote!(
-            #input
+    TokenStream::from(quote!(
+        #input
 
-            impl cmdr::Scope for #self_type {
-                fn commands() -> CmdMethodList<#self_type> {
-                    CmdMethodList::new(vec![
-                        #(#command_methods)*
-                    ])
-                }
-
-                #overrides
+        impl cmdr::Scope for #self_type {
+            fn commands() -> CmdMethodList<#self_type> {
+                CmdMethodList::new(vec![
+                    #(#command_methods)*
+                ])
             }
-        ))
-    } else {
-        panic!("Unable to parse impl type")
-    }
+
+            #overrides
+        }
+    ))
 }
 
 /// Use cmd attribute to mark methods as cmdr commands.
@@ -136,7 +133,24 @@ impl ToTokens for CmdMeta {
     }
 }
 
+fn parse_self_type(input: &ItemImpl) -> Option<TypePath> {
+    match &*input.self_ty {
+        Type::Path(self_type) => Some(self_type.to_owned()),
+        _ => None,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn should_return_impl_self_type() {
+        let source = &syn::parse_str("impl SomeImpl {}").unwrap();
+
+        assert_eq!(
+            parse_self_type(source),
+            Some(syn::parse_str("SomeImpl").unwrap())
+        );
+    }
 }

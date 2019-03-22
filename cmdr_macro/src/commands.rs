@@ -1,6 +1,6 @@
 use proc_macro2::{Ident, TokenStream};
 use quote::{quote, ToTokens};
-use syn::{Attribute, ImplItem, ImplItemMethod, ItemImpl, Meta, TypePath};
+use syn::{Attribute, ImplItem, ItemImpl, Meta, TypePath};
 
 pub fn format_commands(input: &ItemImpl, self_type: &TypePath) -> TokenStream {
     let command_methods = get_methods(&input);
@@ -114,7 +114,7 @@ mod tests {
         )
         .unwrap();
 
-        assert_eq!(parse_cmd_attribute(&source), None);
+        assert_eq!(parse_cmd_attributes(&source), None);
     }
 
     #[test]
@@ -127,7 +127,7 @@ mod tests {
         )
         .unwrap();
 
-        let parsed = parse_cmd_attribute(&source).unwrap();
+        let parsed = parse_cmd_attributes(&source).unwrap();
 
         assert_eq!(parsed.command, "method".to_string());
         assert_eq!(parsed.method.to_string(), "method".to_string());
@@ -144,7 +144,7 @@ mod tests {
         )
         .unwrap();
 
-        let parsed = parse_cmd_attribute(&source).unwrap();
+        let parsed = parse_cmd_attributes(&source).unwrap();
         assert_eq!(parsed.help, "Help text\n".to_string());
     }
 
@@ -160,7 +160,7 @@ mod tests {
         )
         .unwrap();
 
-        let parsed = parse_cmd_attribute(&source).unwrap();
+        let parsed = parse_cmd_attributes(&source).unwrap();
 
         assert_eq!(parsed.help, "Help text\n".to_string());
     }
@@ -176,7 +176,7 @@ mod tests {
         )
         .unwrap();
 
-        let parsed = parse_cmd_attribute(&source).unwrap();
+        let parsed = parse_cmd_attributes(&source).unwrap();
 
         assert_eq!(parsed.help, "Help text\n".to_string());
     }
@@ -193,7 +193,7 @@ mod tests {
         )
         .unwrap();
 
-        let parsed = parse_cmd_attribute(&source).unwrap();
+        let parsed = parse_cmd_attributes(&source).unwrap();
 
         assert_eq!(parsed.help, "Multi line\nhelp text\n".to_string());
     }

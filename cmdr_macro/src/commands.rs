@@ -25,24 +25,27 @@ fn get_methods(input: &ItemImpl) -> Vec<(CmdMeta)> {
 
 fn parse_cmd_attributes(item: &ImplItem) -> Option<CmdMeta> {
     if let ImplItem::Method(method) = item {
-        let method_name = &method.sig.ident;
-        let cmd_attr = method
-            .attrs
+        let attributes = &method.attrs;
+
+        let cmd_attributes: Vec<Meta> = attributes
             .iter()
-            .map(|arg| arg.parse_meta())
-            .filter_map(Result::ok)
+            .filter_map(Attribute::interpret_meta)
             .filter(|meta| meta.name() == "cmd")
-            .next();
+            .collect();
 
-        let help_text = parse_help_text(&method.attrs);
+        if !cmd_attributes.is_empty() {
+            let help_text = parse_help_text(attributes);
 
-        match cmd_attr {
-            Some(_attr) => Some(CmdMeta {
-                command: method_name.to_string(),
-                method: method_name.to_owned(),
+            let method_ident = method.sig.ident.to_owned();
+            let command_name = method_ident.to_string();
+
+            Some(CmdMeta {
+                command: command_name,
+                method: method_ident,
                 help: help_text,
-            }),
-            None => None,
+            })
+        } else {
+            None
         }
     } else {
         None

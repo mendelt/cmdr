@@ -1,6 +1,6 @@
 use proc_macro2::{Ident, TokenStream};
 use quote::{quote, ToTokens};
-use syn::{ImplItem, ImplItemMethod, ItemImpl, Meta, TypePath, Attribute};
+use syn::{Attribute, ImplItem, ImplItemMethod, ItemImpl, Meta, TypePath};
 
 pub fn format_commands(input: &ItemImpl, self_type: &TypePath) -> TokenStream {
     let command_methods = get_methods(&input);

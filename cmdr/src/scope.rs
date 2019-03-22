@@ -142,7 +142,10 @@ where
 {
     /// Construct a command method list
     pub fn new(scope_help: Option<String>, methods: Vec<CmdMethod<T>>) -> Self {
-        CmdMethodList { scope_help, methods }
+        CmdMethodList {
+            scope_help,
+            methods,
+        }
     }
 
     /// Find a command method by it's command name

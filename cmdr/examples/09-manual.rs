@@ -25,18 +25,21 @@ impl GreeterScope {
 /// the command method that dispatches commands to functions implemented above.
 impl Scope for GreeterScope {
     fn commands() -> CmdMethodList<GreeterScope> {
-        CmdMethodList::new(vec![
-            CmdMethod::new(
-                "greet".to_string(),
-                Box::new(|scope, cmd_line| scope.do_greet(&cmd_line.args)),
-                Some("Show a greeting.".to_string()),
-            ),
-            CmdMethod::new(
-                "quit".to_string(),
-                Box::new(|scope, cmd_line| scope.do_quit(&cmd_line.args)),
-                Some("Quit the application.".to_string()),
-            ),
-        ])
+        CmdMethodList::new(
+            Some("Manual greeter scope".to_string()),
+            vec![
+                CmdMethod::new(
+                    "greet".to_string(),
+                    Box::new(|scope, cmd_line| scope.do_greet(&cmd_line.args)),
+                    Some("Show a greeting.".to_string()),
+                ),
+                CmdMethod::new(
+                    "quit".to_string(),
+                    Box::new(|scope, cmd_line| scope.do_quit(&cmd_line.args)),
+                    Some("Quit the application.".to_string()),
+                ),
+            ],
+        )
     }
 }
 

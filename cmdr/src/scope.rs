@@ -52,7 +52,7 @@ pub trait Scope: Sized {
     }
 
     fn commands() -> CmdMethodList<Self> {
-        CmdMethodList::new(Vec::new())
+        CmdMethodList::new(None, Vec::new())
     }
 
     /// Return the prompt for this scope. The default implementation returns > as the prompt but
@@ -63,14 +63,19 @@ pub trait Scope: Sized {
 
     /// Execute a help command
     fn help(&self, line: &CommandLine) -> CommandResult {
+        let scope_metadata = Self::commands();
+
         if line.args.len() == 0 {
+            if let Some(scope_help) = scope_metadata.get_help() {
+                println!("{}", scope_help);
+            }
             println!("These are the valid commands in this scope:");
 
             for command in Self::commands().methods {
                 println!("- {}", command.name)
             }
         } else if line.args.len() == 1 {
-            match Self::commands().method_by_command(&line.args[0]) {
+            match scope_metadata.method_by_command(&line.args[0]) {
                 Some(command) => {
                     // TODO: Handle commands without help better
                     for line in command.get_help_text() {
@@ -122,10 +127,12 @@ pub trait Scope: Sized {
 }
 
 /// List of command methods implemented by a scope
+/// TODO: Rename this to ScopeMetadata
 pub struct CmdMethodList<T>
 where
     T: Scope,
 {
+    scope_help: Option<String>,
     methods: Vec<CmdMethod<T>>,
 }
 
@@ -134,8 +141,8 @@ where
     T: Scope,
 {
     /// Construct a command method list
-    pub fn new(methods: Vec<CmdMethod<T>>) -> Self {
-        CmdMethodList { methods }
+    pub fn new(scope_help: Option<String>, methods: Vec<CmdMethod<T>>) -> Self {
+        CmdMethodList { scope_help, methods }
     }
 
     /// Find a command method by it's command name
@@ -144,6 +151,10 @@ where
             .iter()
             .filter(|method| method.name == name)
             .next()
+    }
+
+    pub fn get_help(&self) -> &Option<String> {
+        &self.scope_help
     }
 }
 

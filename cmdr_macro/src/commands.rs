@@ -1,15 +1,16 @@
 use proc_macro2::{Ident, TokenStream};
 use quote::{quote, ToTokens};
-use syn::{ImplItem, ImplItemMethod, ItemImpl, Meta, TypePath};
+use syn::{ImplItem, ImplItemMethod, ItemImpl, Meta, TypePath, Attribute};
 
 pub fn format_commands(input: &ItemImpl, self_type: &TypePath) -> TokenStream {
     let command_methods = get_methods(&input);
-
+    let scope_help = parse_help_text(&input.attrs);
     quote!(
         fn commands() -> CmdMethodList<#self_type> {
-            CmdMethodList::new(vec![
-                #(#command_methods)*
-            ])
+            CmdMethodList::new(
+                Some(#scope_help.to_string()),
+                vec![#(#command_methods)*]
+            )
         }
     )
 }
@@ -38,7 +39,7 @@ fn parse_cmd_attribute(method: &ImplItemMethod) -> Option<CmdMeta> {
         .filter(|meta| meta.name() == "cmd")
         .next();
 
-    let help_text = parse_help_text(method);
+    let help_text = parse_help_text(&method.attrs);
 
     match cmd_attr {
         Some(_attr) => Some(CmdMeta {
@@ -50,9 +51,9 @@ fn parse_cmd_attribute(method: &ImplItemMethod) -> Option<CmdMeta> {
     }
 }
 
-fn parse_help_text(method: &ImplItemMethod) -> String {
-    let doc_attrs: String = method
-        .attrs
+/// Parse documentation from attributes
+fn parse_help_text(attrs: &Vec<Attribute>) -> String {
+    let doc_attrs: String = attrs
         .iter()
         .map(|arg| arg.parse_meta())
         .filter_map(Result::ok)

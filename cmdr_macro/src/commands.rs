@@ -6,8 +6,8 @@ pub fn format_commands(input: &ItemImpl, self_type: &TypePath) -> TokenStream {
     let command_methods = get_methods(&input);
     let scope_help = parse_help_text(&input.attrs);
     quote!(
-        fn commands() -> CmdMethodList<#self_type> {
-            CmdMethodList::new(
+        fn commands() -> ScopeDescription<#self_type> {
+            ScopeDescription::new(
                 Some(#scope_help.to_string()),
                 vec![#(#command_methods)*]
             )
@@ -94,7 +94,7 @@ impl ToTokens for CmdMeta {
         let help_text = &self.help;
 
         tokens.extend(quote!(
-            CmdMethod::new(
+            ScopeCmdDescription::new(
                 #command.to_string(),
                 Box::new(|scope, cmd_line| scope.#method(&cmd_line.args)),
                 Some(#help_text.to_string()),

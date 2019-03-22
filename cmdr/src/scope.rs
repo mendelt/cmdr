@@ -51,8 +51,8 @@ pub trait Scope: Sized {
         }
     }
 
-    fn commands() -> CmdMethodList<Self> {
-        CmdMethodList::new(None, Vec::new())
+    fn commands() -> ScopeDescription<Self> {
+        ScopeDescription::new(None, Vec::new())
     }
 
     /// Return the prompt for this scope. The default implementation returns > as the prompt but
@@ -126,30 +126,30 @@ pub trait Scope: Sized {
     fn after_loop(&mut self) {}
 }
 
-/// List of command methods implemented by a scope
-/// TODO: Rename this to ScopeMetadata
-pub struct CmdMethodList<T>
+/// Metadata describing a scope, is used to return help text and the list of commands that this
+/// scope exposes.
+pub struct ScopeDescription<T>
 where
     T: Scope,
 {
     scope_help: Option<String>,
-    methods: Vec<CmdMethod<T>>,
+    methods: Vec<ScopeCmdDescription<T>>,
 }
 
-impl<T> CmdMethodList<T>
+impl<T> ScopeDescription<T>
 where
     T: Scope,
 {
     /// Construct a command method list
-    pub fn new(scope_help: Option<String>, methods: Vec<CmdMethod<T>>) -> Self {
-        CmdMethodList {
+    pub fn new(scope_help: Option<String>, methods: Vec<ScopeCmdDescription<T>>) -> Self {
+        ScopeDescription {
             scope_help,
             methods,
         }
     }
 
     /// Find a command method by it's command name
-    pub fn method_by_command(&self, name: &str) -> Option<&CmdMethod<T>> {
+    pub fn method_by_command(&self, name: &str) -> Option<&ScopeCmdDescription<T>> {
         self.methods
             .iter()
             .filter(|method| method.name == name)
@@ -162,7 +162,7 @@ where
 }
 
 /// All information about a command method in one handy struct
-pub struct CmdMethod<T>
+pub struct ScopeCmdDescription<T>
 where
     T: Scope,
 {
@@ -171,7 +171,7 @@ where
     help_text: Option<String>,
 }
 
-impl<T> CmdMethod<T>
+impl<T> ScopeCmdDescription<T>
 where
     T: Scope,
 {
@@ -181,7 +181,7 @@ where
         method: Box<Fn(&mut T, &CommandLine) -> CommandResult>,
         help_text: Option<String>,
     ) -> Self {
-        CmdMethod {
+        ScopeCmdDescription {
             name,
             method,
             help_text,

@@ -54,24 +54,18 @@ fn parse_cmd_attributes(item: &ImplItem) -> Option<CmdMeta> {
 
 /// Parse documentation from attributes
 fn parse_help_text(attrs: &Vec<Attribute>) -> String {
-    let doc_attrs: String = attrs
+    attrs
         .iter()
-        .map(|arg| arg.parse_meta())
-        .filter_map(Result::ok)
+        .filter_map(Attribute::interpret_meta)
+        .filter(|meta| meta.name() == "doc")
         .filter_map(parse_doc_string)
-        .collect();
-
-    doc_attrs
+        .collect()
 }
 
 fn parse_doc_string(meta: Meta) -> Option<String> {
-    if meta.name() == "doc" {
-        if let Meta::NameValue(name_val) = meta {
-            if let syn::Lit::Str(string) = name_val.lit {
-                Some(string.value().trim().to_owned() + "\n")
-            } else {
-                None
-            }
+    if let Meta::NameValue(name_val) = meta {
+        if let syn::Lit::Str(string) = name_val.lit {
+            Some(string.value().trim().to_owned() + "\n")
         } else {
             None
         }

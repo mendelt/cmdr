@@ -16,38 +16,36 @@ pub fn format_commands(input: &ItemImpl, self_type: &TypePath) -> TokenStream {
 }
 
 fn get_methods(input: &ItemImpl) -> Vec<(CmdMeta)> {
-    let mut result = Vec::new();
-
-    for item in &input.items {
-        if let ImplItem::Method(method) = item {
-            if let Some(metadata) = parse_cmd_attribute(method) {
-                result.push(metadata)
-            }
-        }
-    }
-
-    result
+    input
+        .items
+        .iter()
+        .filter_map(parse_cmd_attributes)
+        .collect()
 }
 
-fn parse_cmd_attribute(method: &ImplItemMethod) -> Option<CmdMeta> {
-    let method_name = &method.sig.ident;
-    let cmd_attr = method
-        .attrs
-        .iter()
-        .map(|arg| arg.parse_meta())
-        .filter_map(Result::ok)
-        .filter(|meta| meta.name() == "cmd")
-        .next();
+fn parse_cmd_attributes(item: &ImplItem) -> Option<CmdMeta> {
+    if let ImplItem::Method(method) = item {
+        let method_name = &method.sig.ident;
+        let cmd_attr = method
+            .attrs
+            .iter()
+            .map(|arg| arg.parse_meta())
+            .filter_map(Result::ok)
+            .filter(|meta| meta.name() == "cmd")
+            .next();
 
-    let help_text = parse_help_text(&method.attrs);
+        let help_text = parse_help_text(&method.attrs);
 
-    match cmd_attr {
-        Some(_attr) => Some(CmdMeta {
-            command: method_name.to_string(),
-            method: method_name.to_owned(),
-            help: help_text,
-        }),
-        None => None,
+        match cmd_attr {
+            Some(_attr) => Some(CmdMeta {
+                command: method_name.to_string(),
+                method: method_name.to_owned(),
+                help: help_text,
+            }),
+            None => None,
+        }
+    } else {
+        None
     }
 }
 

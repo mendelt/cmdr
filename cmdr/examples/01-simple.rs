@@ -10,8 +10,8 @@ struct GreeterScope {}
 impl GreeterScope {
     /// Cmdr command to greet someone. Takes one parameter and prints a greeting
     /// More lines
-    #[cmd]
-    fn greet(&self, args: &[String]) -> CommandResult {
+    #[cmd(greet)]
+    fn greet_method(&self, args: &[String]) -> CommandResult {
         println!("Hello {}", args[0]);
         CommandResult::Ok
     }

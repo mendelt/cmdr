@@ -1,6 +1,6 @@
 use proc_macro2::{Ident, TokenStream};
 use quote::{quote, ToTokens};
-use syn::{Attribute, ImplItem, ItemImpl, Meta, TypePath};
+use syn::{Attribute, ImplItem, ItemImpl, Meta, MetaList, NestedMeta, TypePath};
 
 pub fn format_commands(input: &ItemImpl, self_type: &TypePath) -> TokenStream {
     let command_methods = get_methods(&input);
@@ -37,7 +37,20 @@ fn parse_cmd_attributes(item: &ImplItem) -> Option<CmdMeta> {
             let help_text = parse_help_text(attributes);
 
             let method_ident = method.sig.ident.to_owned();
-            let command_name = method_ident.to_string();
+            let mut command_name = method_ident.to_string();
+
+            // Parse cmd field
+            for meta in cmd_attributes {
+                // Parse command name if it is different from method name
+                // #[cmd(command_name)]
+                if let Meta::List(MetaList { nested, .. }) = meta {
+                    if nested.len() == 1 {
+                        if let NestedMeta::Meta(Meta::Word(ident)) = &nested[0] {
+                            command_name = ident.to_string()
+                        }
+                    }
+                }
+            }
 
             Some(CmdMeta {
                 command: command_name,
@@ -45,9 +58,11 @@ fn parse_cmd_attributes(item: &ImplItem) -> Option<CmdMeta> {
                 help: help_text,
             })
         } else {
+            // Method has no cmd attribute so is not a command
             None
         }
     } else {
+        // Not a method
         None
     }
 }
@@ -131,6 +146,37 @@ mod tests {
     }
 
     #[test]
+    fn should_parse_command_name() {
+        let source = syn::parse_str(
+            r###"
+                #[cmd(command)]
+                fn method() {}
+            "###,
+        )
+        .unwrap();
+
+        let parsed = parse_cmd_attributes(&source).unwrap();
+        assert_eq!(parsed.command, "command".to_string());
+        assert_eq!(parsed.method.to_string(), "method".to_string());
+    }
+
+    #[test]
+    fn should_parse_name_from_multiple_cmd_attributes() {
+        let source = syn::parse_str(
+            r###"
+                #[cmd]
+                #[cmd(command)]
+                fn method() {}
+           "###,
+        )
+        .unwrap();
+
+        let parsed = parse_cmd_attributes(&source).unwrap();
+        assert_eq!(parsed.command, "command".to_string());
+        assert_eq!(parsed.method.to_string(), "method".to_string());
+    }
+
+    #[test]
     fn should_parse_outer_doc_string_as_help_text() {
         let source = syn::parse_str(
             r###"
@@ -182,7 +228,7 @@ mod tests {
     fn should_parse_multi_line_help_text() {
         let source = syn::parse_str(
             r###"
-            #[cmd]
+            #[cmd(name)]
             /// Multi line
             /// help text
             fn method() {}

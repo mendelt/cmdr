@@ -131,27 +131,30 @@ mod tests {
 
     #[test]
     fn should_ignore_method_without_cmd_attribute() {
-        let source = syn::parse_str(
-            r###"
-            fn method() {}
-        "###,
-        )
-        .unwrap();
+        let parsed = parse_cmd_attributes(
+            &syn::parse_str(
+                r###"
+                fn method() {}
+            "###,
+            )
+            .unwrap(),
+        );
 
-        assert_eq!(parse_cmd_attributes(&source), None);
+        assert_eq!(parsed, None);
     }
 
     #[test]
     fn should_parse_plain_cmd_attribute() {
-        let source = syn::parse_str(
-            r###"
-            #[cmd]
-            fn method() {}
-        "###,
+        let parsed = parse_cmd_attributes(
+            &syn::parse_str(
+                r###"
+                #[cmd]
+                fn method() {}
+            "###,
+            )
+            .unwrap(),
         )
         .unwrap();
-
-        let parsed = parse_cmd_attributes(&source).unwrap();
 
         assert_eq!(parsed.command, "method".to_string());
         assert_eq!(parsed.method.to_string(), "method".to_string());
@@ -159,111 +162,122 @@ mod tests {
 
     #[test]
     fn should_parse_command_name() {
-        let source = syn::parse_str(
-            r###"
+        let parsed = parse_cmd_attributes(
+            &syn::parse_str(
+                r###"
                 #[cmd(command)]
                 fn method() {}
             "###,
+            )
+            .unwrap(),
         )
         .unwrap();
 
-        let parsed = parse_cmd_attributes(&source).unwrap();
         assert_eq!(parsed.command, "command".to_string());
         assert_eq!(parsed.method.to_string(), "method".to_string());
     }
 
     #[test]
     fn should_parse_named_command_name() {
-        let source = syn::parse_str(
-            r###"
+        let parsed = parse_cmd_attributes(
+            &syn::parse_str(
+                r###"
                 #[cmd(name="command")]
                 fn method() {}
             "###,
+            )
+            .unwrap(),
         )
         .unwrap();
 
-        let parsed = parse_cmd_attributes(&source).unwrap();
         assert_eq!(parsed.command, "command".to_string());
         assert_eq!(parsed.method.to_string(), "method".to_string());
     }
 
     #[test]
     fn should_parse_name_from_multiple_cmd_attributes() {
-        let source = syn::parse_str(
-            r###"
+        let parsed = parse_cmd_attributes(
+            &syn::parse_str(
+                r###"
                 #[cmd]
                 #[cmd(command)]
                 fn method() {}
            "###,
+            )
+            .unwrap(),
         )
         .unwrap();
 
-        let parsed = parse_cmd_attributes(&source).unwrap();
         assert_eq!(parsed.command, "command".to_string());
         assert_eq!(parsed.method.to_string(), "method".to_string());
     }
 
     #[test]
     fn should_parse_outer_doc_string_as_help_text() {
-        let source = syn::parse_str(
-            r###"
+        let parsed = parse_cmd_attributes(
+            &syn::parse_str(
+                r###"
             #[cmd]
             ///Help text
             fn method() {}
         "###,
+            )
+            .unwrap(),
         )
         .unwrap();
 
-        let parsed = parse_cmd_attributes(&source).unwrap();
         assert_eq!(parsed.help, "Help text\n".to_string());
     }
 
     #[test]
     fn should_parse_inner_doc_string_as_help_text() {
-        let source = syn::parse_str(
-            r###"
+        let parsed = parse_cmd_attributes(
+            &syn::parse_str(
+                r###"
             #[cmd]
             fn method() {
                 //!Help text
             }
         "###,
+            )
+            .unwrap(),
         )
         .unwrap();
-
-        let parsed = parse_cmd_attributes(&source).unwrap();
 
         assert_eq!(parsed.help, "Help text\n".to_string());
     }
 
     #[test]
     fn should_strip_help_text_spaces() {
-        let source = syn::parse_str(
-            r###"
+        let parsed = parse_cmd_attributes(
+            &syn::parse_str(
+                r###"
             #[cmd]
             ///     Help text
             fn method() {}
         "###,
+            )
+            .unwrap(),
         )
         .unwrap();
-
-        let parsed = parse_cmd_attributes(&source).unwrap();
 
         assert_eq!(parsed.help, "Help text\n".to_string());
     }
 
     #[test]
     fn should_parse_multi_line_help_text() {
-        let source = syn::parse_str(
-            r###"
+        let parsed = parse_cmd_attributes(
+            &syn::parse_str(
+                r###"
             #[cmd(name)]
             /// Multi line
             /// help text
             fn method() {}
         "###,
+            )
+            .unwrap(),
         )
         .unwrap();
-
-        let parsed = parse_cmd_attributes(&source).unwrap();
 
         assert_eq!(parsed.help, "Multi line\nhelp text\n".to_string());
     }

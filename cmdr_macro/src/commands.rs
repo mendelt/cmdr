@@ -1,6 +1,8 @@
 use proc_macro2::{Ident, TokenStream};
 use quote::{quote, ToTokens};
-use syn::{Attribute, ImplItem, ItemImpl, Meta, MetaList, NestedMeta, TypePath};
+use syn::{
+    Attribute, ImplItem, ItemImpl, Lit, Meta, MetaList, MetaNameValue, NestedMeta, TypePath,
+};
 
 pub fn format_commands(input: &ItemImpl, self_type: &TypePath) -> TokenStream {
     let command_methods = get_methods(&input);
@@ -39,14 +41,24 @@ fn parse_cmd_attributes(item: &ImplItem) -> Option<CmdMeta> {
             let method_ident = method.sig.ident.to_owned();
             let mut command_name = method_ident.to_string();
 
-            // Parse cmd field
+            // Parse cmd fields
             for meta in cmd_attributes {
                 // Parse command name if it is different from method name
                 // #[cmd(command_name)]
                 if let Meta::List(MetaList { nested, .. }) = meta {
-                    if nested.len() == 1 {
-                        if let NestedMeta::Meta(Meta::Word(ident)) = &nested[0] {
-                            command_name = ident.to_string()
+                    for nested_val in nested {
+                        match nested_val {
+                            NestedMeta::Meta(Meta::Word(ident)) => command_name = ident.to_string(),
+                            NestedMeta::Meta(Meta::NameValue(MetaNameValue {
+                                ident,
+                                lit: Lit::Str(lit),
+                                ..
+                            })) => {
+                                if ident.to_string() == "name" {
+                                    command_name = lit.value();
+                                }
+                            }
+                            _ => (),
                         }
                     }
                 }
@@ -150,6 +162,21 @@ mod tests {
         let source = syn::parse_str(
             r###"
                 #[cmd(command)]
+                fn method() {}
+            "###,
+        )
+        .unwrap();
+
+        let parsed = parse_cmd_attributes(&source).unwrap();
+        assert_eq!(parsed.command, "command".to_string());
+        assert_eq!(parsed.method.to_string(), "method".to_string());
+    }
+
+    #[test]
+    fn should_parse_named_command_name() {
+        let source = syn::parse_str(
+            r###"
+                #[cmd(name="command")]
                 fn method() {}
             "###,
         )

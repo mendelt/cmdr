@@ -36,9 +36,9 @@ fn parse_cmd_attributes(item: &ImplItem) -> Option<CmdMeta> {
             .collect();
 
         if !cmd_attributes.is_empty() {
-            let help_text = parse_help_text(attributes);
-
             let method_ident = method.sig.ident.to_owned();
+
+            let mut help_text = parse_help_text(attributes);
             let mut command_name = method_ident.to_string();
 
             // Parse cmd fields
@@ -56,6 +56,8 @@ fn parse_cmd_attributes(item: &ImplItem) -> Option<CmdMeta> {
                             })) => {
                                 if ident.to_string() == "name" {
                                     command_name = lit.value();
+                                } else if ident.to_string() == "help" {
+                                    help_text = lit.value();
                                 }
                             }
                             _ => (),
@@ -280,5 +282,21 @@ mod tests {
         .unwrap();
 
         assert_eq!(parsed.help, "Multi line\nhelp text\n".to_string());
+    }
+
+    #[test]
+    fn should_parse_help_from_cmd_attribute_if_available() {
+        let parsed = parse_cmd_attributes(
+            &syn::parse_str(
+                r###"
+                #[cmd(name, help="Help text from the cmd attribute")]
+                /// This is a docstring, not help text
+                fn method() {}
+            "###,
+            )
+            .unwrap(),
+        )
+        .unwrap();
+        assert_eq!(parsed.help, "Help text from the cmd attribute".to_string())
     }
 }

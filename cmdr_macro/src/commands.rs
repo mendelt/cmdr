@@ -40,6 +40,7 @@ fn parse_cmd_attributes(item: &ImplItem) -> Option<CmdMeta> {
 
             let mut help_text = parse_help_text(attributes);
             let mut command_name = method_ident.to_string();
+            let mut aliasses = Vec::new();
 
             // Parse cmd fields
             for meta in cmd_attributes {
@@ -48,7 +49,9 @@ fn parse_cmd_attributes(item: &ImplItem) -> Option<CmdMeta> {
                 if let Meta::List(MetaList { nested, .. }) = meta {
                     for nested_val in nested {
                         match nested_val {
-                            NestedMeta::Meta(Meta::Word(ident)) => command_name = ident.to_string(),
+                            NestedMeta::Meta(Meta::Word(ref ident)) => {
+                                command_name = ident.to_string()
+                            }
                             NestedMeta::Meta(Meta::NameValue(MetaNameValue {
                                 ident,
                                 lit: Lit::Str(lit),
@@ -60,6 +63,21 @@ fn parse_cmd_attributes(item: &ImplItem) -> Option<CmdMeta> {
                                     help_text = lit.value();
                                 }
                             }
+                            NestedMeta::Meta(Meta::List(ref alias_list))
+                                if alias_list.ident.to_string() == "alias" =>
+                            {
+                                for alias_item in &alias_list.nested {
+                                    if let NestedMeta::Meta(Meta::Word(ref alias_ident)) =
+                                        alias_item
+                                    {
+                                        aliasses.push(alias_ident.to_string());
+                                    }
+                                    if let NestedMeta::Literal(Lit::Str(alias_lit)) = alias_item {
+                                        aliasses.push(alias_lit.value());
+                                    }
+                                    dbg!(alias_item);
+                                }
+                            }
                             _ => (),
                         }
                     }
@@ -69,6 +87,7 @@ fn parse_cmd_attributes(item: &ImplItem) -> Option<CmdMeta> {
             Some(CmdMeta {
                 command: command_name,
                 method: method_ident,
+                alias: aliasses,
                 help: help_text,
             })
         } else {
@@ -108,6 +127,7 @@ fn parse_doc_string(meta: Meta) -> Option<String> {
 struct CmdMeta {
     command: String,
     method: Ident,
+    alias: Vec<String>,
     help: String,
 }
 
@@ -121,6 +141,7 @@ impl ToTokens for CmdMeta {
             ScopeCmdDescription::new(
                 #command.to_string(),
                 Box::new(|scope, cmd_line| scope.#method(&cmd_line.args)),
+                // todo: add alias
                 Some(#help_text.to_string()),
             ),
         ))
@@ -298,5 +319,21 @@ mod tests {
         )
         .unwrap();
         assert_eq!(parsed.help, "Help text from the cmd attribute".to_string())
+    }
+
+    #[test]
+    fn should_parse_aliasses_from_cmd_attribute() {
+        let parsed = parse_cmd_attributes(
+            &syn::parse_str(
+                r###"
+                    #[cmd(name, alias("one", "two", three))]
+                    fn method() {}
+                "###,
+            )
+            .unwrap(),
+        )
+        .unwrap();
+
+        assert_eq!(parsed.alias, vec!["one", "two", "three"]);
     }
 }

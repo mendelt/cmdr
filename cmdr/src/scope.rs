@@ -148,11 +148,11 @@ where
         }
     }
 
-    /// Find a command method by it's command name
+    /// Find a command method by its command name or alias
     pub fn method_by_command(&self, name: &str) -> Option<&ScopeCmdDescription<T>> {
         self.methods
             .iter()
-            .filter(|method| method.name == name)
+            .filter(|method| method.handles(name))
             .next()
     }
 
@@ -168,6 +168,7 @@ where
 {
     name: String,
     method: Box<Fn(&mut T, &CommandLine) -> CommandResult>,
+    alias: Vec<String>,
     help_text: Option<String>,
 }
 
@@ -179,12 +180,25 @@ where
     pub fn new(
         name: String,
         method: Box<Fn(&mut T, &CommandLine) -> CommandResult>,
+        alias: Vec<String>,
         help_text: Option<String>,
     ) -> Self {
         ScopeCmdDescription {
             name,
             method,
+            alias,
             help_text,
+        }
+    }
+
+    /// Checks name or alias to see if a command can be handled.
+    pub fn handles(&self, command: &str) -> bool {
+        if self.name == command {
+            true
+        } else if self.alias.contains(&command.to_string()) {
+            true
+        } else {
+            false
         }
     }
 
@@ -195,5 +209,50 @@ where
 
     pub fn get_help_text(&self) -> &Option<String> {
         &self.help_text
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    struct TestScope {}
+
+    impl TestScope {
+        fn test_method(&self, _args: &[String]) -> CommandResult {
+            CommandResult::Ok
+        }
+    }
+
+    impl Scope for TestScope {}
+
+    fn get_test_command() -> ScopeCmdDescription<TestScope> {
+        ScopeCmdDescription::new(
+            "test".to_string(),
+            Box::new(|scope, cmd_line| scope.test_method(&cmd_line.args)),
+            vec!["alias1".to_string(), "alias2".to_string()],
+            Some("Help text".to_string()),
+        )
+    }
+
+    #[test]
+    fn command_should_not_handle_unknown() {
+        let command = get_test_command();
+        assert!(!command.handles("not_a_command"));
+    }
+
+    #[test]
+    fn command_should_handle_by_name() {
+        let command = get_test_command();
+
+        assert!(command.handles("test"));
+    }
+
+    #[test]
+    fn command_should_handle_by_alias() {
+        let command = get_test_command();
+
+        assert!(command.handles("alias1"));
+        assert!(command.handles("alias2"));
     }
 }

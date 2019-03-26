@@ -31,11 +31,13 @@ impl Scope for GreeterScope {
                 ScopeCmdDescription::new(
                     "greet".to_string(),
                     Box::new(|scope, cmd_line| scope.do_greet(&cmd_line.args)),
+                    Vec::new(),
                     Some("Show a greeting.".to_string()),
                 ),
                 ScopeCmdDescription::new(
                     "quit".to_string(),
                     Box::new(|scope, cmd_line| scope.do_quit(&cmd_line.args)),
+                    Vec::new(),
                     Some("Quit the application.".to_string()),
                 ),
             ],

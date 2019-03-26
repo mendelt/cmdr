@@ -136,12 +136,14 @@ impl ToTokens for CmdMeta {
         let command = &self.command;
         let method = &self.method;
         let help_text = &self.help;
+        let alias_list = &self.alias;
+        let alias_quote = quote!(vec![#(#alias_list)*]);
 
         tokens.extend(quote!(
             ScopeCmdDescription::new(
                 #command.to_string(),
                 Box::new(|scope, cmd_line| scope.#method(&cmd_line.args)),
-                // todo: add alias
+                #alias_quote,
                 Some(#help_text.to_string()),
             ),
         ))

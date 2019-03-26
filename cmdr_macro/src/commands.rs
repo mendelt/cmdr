@@ -304,6 +304,7 @@ mod tests {
         )
         .unwrap();
 
+        // TODO: Should not parse trailing \n
         assert_eq!(parsed.help, "Multi line\nhelp text\n".to_string());
     }
 
@@ -320,28 +321,30 @@ mod tests {
             .unwrap(),
         )
         .unwrap();
+
+        // TODO: Also test parsing multiline help from attribute
         assert_eq!(parsed.help, "Help text from the cmd attribute".to_string())
     }
 
-// TODO: implement this
-//
-//    #[test]
-//    fn should_set_missing_help_text_to_none() {
-//        let parsed = parse_cmd_attributes(
-//            &syn::parse_str(
-//                r###"
-//                #[cmd(name)]
-//                fn method() {}
-//            "###,
-//            )
-//                .unwrap(),
-//        )
-//            .unwrap();
-//        assert_eq!(parsed.help, None)
-//    }
+    // TODO: implement this
+    //
+    //    #[test]
+    //    fn should_set_missing_help_text_to_none() {
+    //        let parsed = parse_cmd_attributes(
+    //            &syn::parse_str(
+    //                r###"
+    //                #[cmd(name)]
+    //                fn method() {}
+    //            "###,
+    //            )
+    //                .unwrap(),
+    //        )
+    //            .unwrap();
+    //        assert_eq!(parsed.help, None)
+    //    }
 
     #[test]
-    fn should_parse_aliasses_from_cmd_attribute() {
+    fn should_parse_alias_from_cmd_attribute() {
         let parsed = parse_cmd_attributes(
             &syn::parse_str(
                 r###"

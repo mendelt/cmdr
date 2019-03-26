@@ -77,9 +77,10 @@ pub trait Scope: Sized {
         } else if line.args.len() == 1 {
             match scope_metadata.method_by_command(&line.args[0]) {
                 Some(command) => {
-                    // TODO: Handle commands without help better
-                    for line in command.get_help_text() {
-                        print!("{}", line)
+                    if let Some(help_text) = command.get_help_text() {
+                        println!("{}", help_text)
+                    } else {
+                        println!("No help for commmand {}", command.name);
                     }
                 }
                 None => {

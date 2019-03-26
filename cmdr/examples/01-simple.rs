@@ -8,8 +8,8 @@ struct GreeterScope {}
 /// Example scope that implements two commands, greet and quit
 #[cmdr]
 impl GreeterScope {
-    /// Cmdr command to greet someone. Takes one parameter and prints a greeting
-    /// More lines
+    /// Cmdr command to greet someone.
+    /// Takes one parameter and prints a greeting
     #[cmd(greet)]
     fn greet_method(&self, args: &[String]) -> CommandResult {
         println!("Hello {}", args[0]);
@@ -17,8 +17,8 @@ impl GreeterScope {
     }
 
     /// Cmdr command to quit the application by returning CommandResult::Quit
-    #[cmd]
-    fn quit(&self, _args: &[String]) -> CommandResult {
+    #[cmd(quit, help = "Quit the application")]
+    fn quit_method(&self, _args: &[String]) -> CommandResult {
         println!("Quitting");
         CommandResult::Quit
     }

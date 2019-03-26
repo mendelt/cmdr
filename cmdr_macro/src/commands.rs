@@ -323,6 +323,23 @@ mod tests {
         assert_eq!(parsed.help, "Help text from the cmd attribute".to_string())
     }
 
+// TODO: implement this
+//
+//    #[test]
+//    fn should_set_missing_help_text_to_none() {
+//        let parsed = parse_cmd_attributes(
+//            &syn::parse_str(
+//                r###"
+//                #[cmd(name)]
+//                fn method() {}
+//            "###,
+//            )
+//                .unwrap(),
+//        )
+//            .unwrap();
+//        assert_eq!(parsed.help, None)
+//    }
+
     #[test]
     fn should_parse_aliasses_from_cmd_attribute() {
         let parsed = parse_cmd_attributes(

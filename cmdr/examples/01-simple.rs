@@ -17,7 +17,7 @@ impl GreeterScope {
     }
 
     /// Cmdr command to quit the application by returning CommandResult::Quit
-    #[cmd(quit, help = "Quit the application")]
+    #[cmd(quit, help = "Quit the application", alias(exit, x, q))]
     fn quit_method(&self, _args: &[String]) -> CommandResult {
         println!("Quitting");
         CommandResult::Quit

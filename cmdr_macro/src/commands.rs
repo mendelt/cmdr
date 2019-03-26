@@ -75,7 +75,6 @@ fn parse_cmd_attributes(item: &ImplItem) -> Option<CmdMeta> {
                                     if let NestedMeta::Literal(Lit::Str(alias_lit)) = alias_item {
                                         aliasses.push(alias_lit.value());
                                     }
-                                    dbg!(alias_item);
                                 }
                             }
                             _ => (),
@@ -136,8 +135,12 @@ impl ToTokens for CmdMeta {
         let command = &self.command;
         let method = &self.method;
         let help_text = &self.help;
-        let alias_list = &self.alias;
-        let alias_quote = quote!(vec![#(#alias_list)*]);
+        let alias_list: Vec<TokenStream> = self
+            .alias
+            .iter()
+            .map(|alias| quote!(#alias.to_string()))
+            .collect();
+        let alias_quote = quote!(vec![#(#alias_list),*]);
 
         tokens.extend(quote!(
             ScopeCmdDescription::new(

@@ -1,0 +1,5 @@
+[book]
+authors = ["Mendelt Siebenga"]
+multilingual = false
+src = "src"
+title = "Cmdr"

@@ -253,7 +253,7 @@ mod tests {
             .unwrap(),
         )
         .unwrap();
-
+        // TODO: Remove trailing newline
         assert_eq!(parsed.help, "Help text\n".to_string());
     }
 
@@ -327,6 +327,25 @@ mod tests {
 
         // TODO: Also test parsing multiline help from attribute
         assert_eq!(parsed.help, "Help text from the cmd attribute".to_string())
+    }
+
+    #[test]
+    fn should_parse_multiline_help_from_cmd_attribute() {
+        let parsed = parse_cmd_attributes(
+            &syn::parse_str(
+                r###"
+                #[cmd(name, help="Multiline help text\nFrom the cmd attribute")]
+                fn method() {}
+            "###,
+            )
+            .unwrap(),
+        )
+        .unwrap();
+
+        assert_eq!(
+            parsed.help,
+            "Multiline help text\nFrom the cmd attribute".to_string()
+        )
     }
 
     // TODO: implement this

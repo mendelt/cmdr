@@ -14,6 +14,18 @@
 //! empty commands additional methods can be added to the impl block. These correspond to
 //! overridable functions in the Scope trait.
 
+// Turn on warnings for some lints
+#[warn(
+    missing_debug_implementations,
+    missing_copy_implementations,
+    missing_docs,
+    trivial_casts,
+    trivial_numeric_casts,
+    unreachable_pub,
+    unused_import_braces,
+    unused_qualifications
+)]
+
 mod line;
 mod line_reader;
 mod scope;

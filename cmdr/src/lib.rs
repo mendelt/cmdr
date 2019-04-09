@@ -25,7 +25,6 @@
     unused_import_braces,
     unused_qualifications
 )]
-
 mod line;
 mod line_reader;
 mod scope;

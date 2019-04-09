@@ -9,7 +9,6 @@
     unused_import_braces,
     unused_qualifications
 )]
-
 extern crate proc_macro;
 extern crate proc_macro2;
 

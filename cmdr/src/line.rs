@@ -23,7 +23,10 @@ pub enum Line {
 /// A parsed command, optionally with arguments
 #[derive(Debug, PartialEq)]
 pub struct CommandLine {
+    /// The command name
     pub command: String,
+
+    /// A vector of strings containing the arguments of the command
     pub args: Vec<String>,
 }
 

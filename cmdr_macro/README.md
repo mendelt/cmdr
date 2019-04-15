@@ -1,7 +1,7 @@
 # cmdr &emsp; [![Build Status]][travis] [![Latest Version]][crates.io]
 
-[Build Status]: https://api.travis-ci.org/Mendelt/cmdr.svg?branch=master
-[travis]: https://travis-ci.org/Mendelt/cmdr
+[Build Status]: https://api.travis-ci.org/mendelt/cmdr.svg?branch=master
+[travis]: https://travis-ci.org/mendelt/cmdr
 [Latest Version]: https://img.shields.io/crates/v/cmdr.svg
 [crates.io]: https://crates.io/crates/cmdr
 

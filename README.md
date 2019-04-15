@@ -1,7 +1,7 @@
 # cmdr &emsp; [![Build Status]][travis] [![Latest Version]][crates.io]
 
-[Build Status]: https://api.travis-ci.org/Mendelt/cmdr.svg?branch=master
-[travis]: https://travis-ci.org/Mendelt/cmdr
+[Build Status]: https://api.travis-ci.org/mendelt/cmdr.svg?branch=master
+[travis]: https://travis-ci.org/mendelt/cmdr
 [Latest Version]: https://img.shields.io/crates/v/cmdr.svg
 [crates.io]: https://crates.io/crates/cmdr
 
@@ -52,9 +52,9 @@ fn main() {
 
 ## More information
 - [API documentation](https://docs.rs/cmdr/)
-- [Github repository](https://github.com/Mendelt/cmdr)
+- [Github repository](https://github.com/mendelt/cmdr)
 - [Crates.io](https://crates.io/crates/cmdr)
-- [Release notes](https://github.com/Mendelt/cmdr/releases)
+- [Release notes](https://github.com/mendelt/cmdr/releases)
 
 ## License
 

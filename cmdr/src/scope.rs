@@ -12,12 +12,15 @@ pub enum CommandResult {
     Quit,
 }
 
-/// Trait for implementing a Scope object. This trait can be implemented by a client but will most
+/// Trait for implementing a Scope object. This trait can be implemented directly but will most
 /// likely be implemented for you by the cmdr macro.
-pub trait Scope: Sized {
+pub trait Scope {
     /// Execute commands in this scope. Uses a LineReader to get commands and executes them one by
     /// one until a command returns CommandResult::Quit
-    fn run_lines(&mut self, reader: &mut LineReader) -> CommandResult {
+    fn run_lines(&mut self, reader: &mut LineReader) -> CommandResult
+    where
+        Self: Sized,
+    {
         self.before_loop();
 
         let mut last_result = CommandResult::Ok;
@@ -31,7 +34,10 @@ pub trait Scope: Sized {
     }
 
     /// Execute a single line
-    fn run_line(&mut self, line: Line) -> CommandResult {
+    fn run_line(&mut self, line: Line) -> CommandResult
+    where
+        Self: Sized,
+    {
         let line = self.before_command(line);
         let result = match line {
             Line::Empty => self.empty(),
@@ -44,16 +50,19 @@ pub trait Scope: Sized {
     }
 
     /// Execute a single command
-    fn command(&mut self, command: &CommandLine) -> CommandResult {
+    fn command(&mut self, command: &CommandLine) -> CommandResult
+    where
+        Self: Sized,
+    {
         match Self::commands().method_by_command(&command.command) {
             Some(method) => method.execute(self, command),
             None => self.default(command),
         }
     }
 
-    fn commands() -> ScopeDescription<Self> {
-        ScopeDescription::new(None, Vec::new())
-    }
+    fn commands() -> ScopeDescription<Self>
+    where
+        Self: Sized;
 
     /// Return the prompt for this scope. The default implementation returns > as the prompt but
     /// this can be overridden to return other strings or implement dynamically generated prompts
@@ -62,7 +71,10 @@ pub trait Scope: Sized {
     }
 
     /// Execute a help command
-    fn help(&self, line: &CommandLine) -> CommandResult {
+    fn help(&self, line: &CommandLine) -> CommandResult
+    where
+        Self: Sized,
+    {
         let scope_metadata = Self::commands();
 
         if line.args.len() == 0 {

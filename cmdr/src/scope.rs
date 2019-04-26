@@ -237,7 +237,14 @@ mod tests {
         }
     }
 
-    impl Scope for TestScope {}
+    impl Scope for TestScope {
+        fn commands() -> ScopeDescription<Self>
+        where
+            Self: Sized,
+        {
+            unimplemented!()
+        }
+    }
 
     fn get_test_command() -> ScopeCmdDescription<TestScope> {
         ScopeCmdDescription::new(

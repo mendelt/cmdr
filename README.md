@@ -11,8 +11,8 @@ All you have to do is implement the functions you want a user to be able to exec
 object. Add the cmdr macro annotation and let Cmdr handle the rest;
 - Command line parsing
 - Command history
+- Help functions and discoverability
 - Auto completion (not yet implemented)
-- Help functions and discoverability (not yet implemented)
 
 Cargo.toml
 ```toml

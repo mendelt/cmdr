@@ -3,7 +3,7 @@ name = "cmdr_macro"
 version = "0.3.4"
 edition = "2018"
 
-authors = ["Mendelt Siebenga <mendelt@siebenga.com>"]
+authors = ["Mendelt Siebenga <msiebenga@gmail.com>"]
 license = "MIT/Apache-2.0"
 description = "Macros for use with cmdr crate"
 repository = "https://github.com/mendelt/cmdr"

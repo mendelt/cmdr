@@ -1,6 +1,4 @@
-//! Example implementation of a generic version of the greeterscope from example 01. Currently
-//! you can't use the #[cmdr] macro on generic types so this example shows a workaround by
-//! implementing the scope trait by hand (see issue 36 [https://github.com/mendelt/cmdr/issues/36])
+//! Example implementation of a scope on a generic struct.
 
 use cmdr::*;
 
@@ -13,7 +11,7 @@ where
 }
 
 /// Example scope that implements two commands, greet and quit
-// #[cmdr]
+#[cmdr]
 impl<T, G> GreeterScope<T, G>
 where
     T: PartialEq,
@@ -21,42 +19,17 @@ where
     /// Cmdr command to greet someone.
     /// Takes one parameter and prints a greeting
 
-    // #[cmd]
+    #[cmd]
     fn greet(&mut self, args: &[String]) -> CommandResult {
         println!("Hello {}", args[0]);
         CommandResult::Ok
     }
 
     /// Cmdr command to quit the application by returning CommandResult::Quit
-    // #[cmd]
+    #[cmd]
     fn quit(&mut self, _args: &[String]) -> CommandResult {
         println!("Quitting");
         CommandResult::Quit
-    }
-}
-
-impl<T, G> Scope for GreeterScope<T, G>
-where
-    T: PartialEq,
-{
-    fn commands() -> ScopeDescription<GreeterScope<T, G>> {
-        ScopeDescription::new(
-            Some("Manual greeter scope".to_string()),
-            vec![
-                ScopeCmdDescription::new(
-                    "greet".to_string(),
-                    Box::new(|scope, cmd_line| scope.greet(&cmd_line.args)),
-                    Vec::new(),
-                    Some("Show a greeting.".to_string()),
-                ),
-                ScopeCmdDescription::new(
-                    "quit".to_string(),
-                    Box::new(|scope, cmd_line| scope.quit(&cmd_line.args)),
-                    Vec::new(),
-                    Some("Quit the application.".to_string()),
-                ),
-            ],
-        )
     }
 }
 

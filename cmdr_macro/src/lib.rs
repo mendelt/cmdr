@@ -33,7 +33,10 @@ use syn::{parse_macro_input, ItemImpl};
 #[proc_macro_attribute]
 pub fn cmdr(_meta: TokenStream, code: TokenStream) -> TokenStream {
     let input: ItemImpl = parse_macro_input!(code);
+
     let self_type = parse_self_type(&input).unwrap();
+    let self_generics = &input.generics;
+    let self_where = &self_generics.where_clause;
 
     let commands = format_commands(&input, &self_type);
     let overrides = format_overrides(&input, &self_type);
@@ -41,7 +44,7 @@ pub fn cmdr(_meta: TokenStream, code: TokenStream) -> TokenStream {
     TokenStream::from(quote!(
         #input
 
-        impl cmdr::Scope for #self_type {
+        impl#self_generics cmdr::Scope for #self_type #self_where {
             #commands
             #overrides
         }

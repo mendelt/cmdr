@@ -1,13 +1,8 @@
-# cmdr_macro &emsp; [![Build Status](https://travis-ci.org/mendelt/cmdr.svg?branch=master)](https://travis-ci.org/mendelt/cmdr)
+# {{crate}} &emsp; {{badges}}
 
-**Cmdr_macro contains macro's for use with the cmdr crate.**
+{{readme}}
 
-The cmdr_macro crate should not be used separately. The cmdr crate can
-be found here:
-
-[Crates.io](https://crates.io/crates/cmdr)
-
-*version: 0.3.5*
+*version: {{version}}*
 ## License
 
 Licensed under either of

@@ -1,3 +1,10 @@
+//! **Cmdr_macro contains macro's for use with the cmdr crate.**
+//!
+//! The cmdr_macro crate should not be used separately. The cmdr crate can
+//! be found here:
+//!
+//! [Crates.io](https://crates.io/crates/cmdr)
+
 // Turn on warnings for some lints
 #[warn(
     missing_debug_implementations,

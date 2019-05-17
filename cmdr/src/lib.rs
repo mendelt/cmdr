@@ -1,18 +1,52 @@
 //! **Cmdr is a library for building line-oriented text-based user interfaces.**
+//! It lets you focus on writing the implementations of your commands while it handles user
+//! interaction, parsing etc.
 //!
-//! This can be done by implementing one or more objects that implement the Cmdr::Scope trait. A
-//! command loop can then be started on a scope by calling the cmd_loop function. The command loop
-//! uses a line reader to get user input and executes them by running the appropriate functions on
-//! the supplied scope object.
+//! Out of the box CMDR gives you;
+//! - Command line parsing
+//! - Command history
+//! - Help functions and discoverability
+//! - Auto completion (not yet implemented)
 //!
-//! Implementing a scope is as easy as creating an object with a few methods that take a vector of
-//! &str as their input and return a CommandResult. By annotating the impl block of that object
-//! the cmdr macro all functions starting annotated with #[cmd] in that block can be used as
+//! To use CMDR you write the commands you want your user to interact with as functions on one or
+//! more Scope types. By implementing the scope trait cmdr can implement and execute your supplied
 //! commands.
+//! Implementing the Scope trait is as easy by using the supplied cmdr macro and annotating your
+//! commands with the cmd annotation to provide useful metadata on your commands. Doc strings in
+//! your command will be picked up automatically and used as help text.
 //!
-//! For additional functionality like setting custom prompts or setting hooks to catch unknown or
-//! empty commands additional methods can be added to the impl block. These correspond to
-//! overridable functions in the Scope trait.
+//! ```rust
+//! use cmdr::*;
+//! struct GreeterScope {}
+//!
+//! /// Example scope that implements two commands, greet and quit
+//! #[cmdr]
+//! impl GreeterScope {
+//!     /// Cmdr command to greet someone. Takes one parameter and prints a greeting
+//!     #[cmd]
+//!     fn greet(&self, args: &[String]) -> CommandResult {
+//!         println!("Hello {}", args[0]);
+//!         CommandResult::Ok
+//!     }
+//!
+//!     /// Cmdr command to quit the application by returning CommandResult::Quit
+//!     #[cmd]
+//!     fn quit(&self, _args: &[String]) -> CommandResult {
+//!         println!("Quitting");
+//!         CommandResult::Quit
+//!     }
+//! }
+//!
+//! /// Main function that creates the scope and starts a command loop for it
+//! fn main() {
+//!     cmd_loop(&mut GreeterScope {});
+//! }
+//! ```
+//! ## More information
+//! - [API documentation](https://docs.rs/cmdr/)
+//! - [Github repository](https://github.com/mendelt/cmdr)
+//! - [Crates.io](https://crates.io/crates/cmdr)
+//! - [Release notes](https://github.com/mendelt/cmdr/releases)
 
 // Turn on warnings for some lints
 #[warn(

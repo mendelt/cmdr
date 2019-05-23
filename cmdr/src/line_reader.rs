@@ -26,8 +26,9 @@ impl LineReader for RustyLineReader {
         let input = self.editor.readline(format!("{} ", prompt).as_ref());
         match input {
             Ok(line_string) => {
-                self.editor.add_history_entry(line_string.as_ref());
-                line_string[..].into()
+                let string_ref: &str = line_string.as_ref();
+                self.editor.add_history_entry(string_ref);
+                string_ref.into()
             }
             Err(ReadlineError::Interrupted) => Line::CtrlC,
             Err(ReadlineError::Eof) => Line::CtrlD,

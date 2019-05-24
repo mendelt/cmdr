@@ -238,10 +238,7 @@ mod tests {
     }
 
     impl Scope for TestScope {
-        fn commands() -> ScopeDescription<Self>
-        where
-            Self: Sized,
-        {
+        fn commands() -> ScopeDescription<Self> {
             unimplemented!()
         }
     }

@@ -61,12 +61,14 @@
 )]
 mod line;
 mod line_reader;
+mod result;
 mod scope;
 
 use crate::line_reader::RustyLineReader;
 
 pub use crate::line::{CommandLine, Line};
-pub use crate::scope::{CommandResult, Scope, ScopeCmdDescription, ScopeDescription};
+pub use crate::result::CommandResult;
+pub use crate::scope::{Scope, ScopeCmdDescription, ScopeDescription};
 pub use cmdr_macro::{cmd, cmdr};
 
 /// This is the main entry-point to the cmdr library.

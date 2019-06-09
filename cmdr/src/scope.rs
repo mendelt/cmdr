@@ -1,16 +1,7 @@
 use crate::line_reader::LineReader;
 use crate::CommandLine;
+use crate::CommandResult;
 use crate::Line;
-
-/// A command result. returned by one of the client-implemented command methods
-#[derive(Debug, PartialEq)]
-pub enum CommandResult {
-    /// Result Ok, ready to go on to the next command
-    Ok,
-
-    /// Result Quit, close the application and stop
-    Quit,
-}
 
 /// Trait for implementing a Scope object. This trait can be implemented directly but will most
 /// likely be implemented for you by the cmdr macro.

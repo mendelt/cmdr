@@ -73,10 +73,13 @@ pub use cmdr_macro::{cmd, cmdr};
 
 /// This is the main entry-point to the cmdr library.
 /// Creates a LineReader and executes its command on the scope that is passed to it.
-pub fn cmd_loop<T>(scope: &mut T)
+pub fn cmd_loop<S>(scope: &mut S)
 where
-    T: Scope,
+    S: Scope,
 {
     let mut reader = RustyLineReader::new();
-    scope.run_lines(&mut reader);
+
+    while let CommandResult::NewScope(mut new_scope) = scope.run_lines(&mut reader) {
+        result = new_scope.run_lines(&mut reader);
+    }
 }

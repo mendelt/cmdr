@@ -1,7 +1,6 @@
 use crate::line_reader::LineReader;
-use crate::CommandLine;
-use crate::CommandResult;
 use crate::Line;
+use crate::{CommandLine, CommandResult};
 
 /// Trait for implementing a Scope object. This trait can be implemented directly but will most
 /// likely be implemented for you by the cmdr macro.

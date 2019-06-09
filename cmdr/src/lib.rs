@@ -78,8 +78,9 @@ where
     S: Scope,
 {
     let mut reader = RustyLineReader::new();
+    let mut result = scope.run_lines(&mut reader);
 
-    while let CommandResult::NewScope(mut new_scope) = scope.run_lines(&mut reader) {
+    while let CommandResult::NewScope(new_scope) = result {
         result = new_scope.run_lines(&mut reader);
     }
 }

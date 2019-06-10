@@ -15,6 +15,9 @@ pub enum CommandResult {
     /// Switch to a sub scope,
     SubScope(ScopeRunner),
 
+    /// Result Exit, exit the current scope and return to the parent scope if available
+    Exit,
+
     /// Result Quit, close the application and stop
     Quit,
 }

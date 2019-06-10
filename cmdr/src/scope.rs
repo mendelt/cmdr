@@ -16,7 +16,7 @@ pub trait Scope {
         let mut last_result = CommandResult::Ok;
 
         while last_result == CommandResult::Ok {
-            last_result = self.run_line(reader.read_line(self.prompt().as_ref()));
+            last_result = self.run_line(reader.read_line(self.prompt().as_ref()), reader);
         }
 
         self.after_loop();
@@ -24,7 +24,7 @@ pub trait Scope {
     }
 
     /// Execute a single line
-    fn run_line(&mut self, line: Line) -> CommandResult
+    fn run_line(&mut self, line: Line, reader: &mut LineReader) -> CommandResult
     where
         Self: Sized,
     {
@@ -34,6 +34,12 @@ pub trait Scope {
             Line::CtrlC | Line::CtrlD | Line::Error => CommandResult::Quit,
             Line::Help(ref command) => self.help(command),
             Line::Command(ref command) => self.command(command),
+        };
+
+        let result = if let CommandResult::SubScope(scope_runner) = result {
+            scope_runner.run_lines(reader)
+        } else {
+            result
         };
 
         self.after_command(&line, result)

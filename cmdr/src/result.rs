@@ -12,13 +12,22 @@ pub enum CommandResult {
     /// Switch to a new scope
     NewScope(ScopeRunner),
 
+    /// Switch to a sub scope,
+    SubScope(ScopeRunner),
+
     /// Result Quit, close the application and stop
     Quit,
 }
 
 impl CommandResult {
+    /// Construct a CommandResult::NewScope around the provided scope
     pub fn new_scope<S: Scope + Sized + 'static>(scope: S) -> Self {
         CommandResult::NewScope(ScopeRunner::new(scope))
+    }
+
+    /// Construct a CommandResult::SubScope around the provided scope
+    pub fn sub_scope<S: Scope + Sized + 'static>(scope: S) -> Self {
+        CommandResult::SubScope(ScopeRunner::new(scope))
     }
 }
 

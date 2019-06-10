@@ -20,7 +20,12 @@ pub trait Scope {
         }
 
         self.after_loop();
-        last_result
+
+        if last_result == CommandResult::Exit {
+            CommandResult::Ok
+        } else {
+            last_result
+        }
     }
 
     /// Execute a single line

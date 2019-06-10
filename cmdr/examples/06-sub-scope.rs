@@ -17,14 +17,14 @@ impl MainScope {
     #[cmd]
     /// Switch to the second scope
     fn sub(&mut self, _args: &[String]) -> CommandResult {
-        CommandResult::sub_scope(SubScope {count: 1})
+        CommandResult::sub_scope(SubScope { count: 1 })
     }
 }
 
 /// The subscope. Has a quit and an exit command to quit the application or exit the sub scope and
 /// return to the main scope, has a deeper_underground command to open another subscope.
 struct SubScope {
-    count: u32
+    count: u32,
 }
 
 #[cmdr]
@@ -45,7 +45,9 @@ impl SubScope {
 
     #[cmd]
     fn deeper_undergroud(&mut self, _args: &[String]) -> CommandResult {
-        CommandResult::sub_scope(SubScope {count: self.count + 1})
+        CommandResult::sub_scope(SubScope {
+            count: self.count + 1,
+        })
     }
 }
 

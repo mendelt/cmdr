@@ -74,7 +74,10 @@ mod tests {
 
     #[test]
     fn should_override_help_when_available() {
-        let source = syn::parse_str("impl SomeImpl {fn help(args: &[String]) -> CommandResult { CommandResult::Ok }}").unwrap();
+        let source = syn::parse_str(
+            "impl SomeImpl {fn help(args: &[String]) -> CommandResult { CommandResult::Ok }}",
+        )
+        .unwrap();
         let self_type = util::parse_self_type(&source).unwrap();
 
         assert_eq!(

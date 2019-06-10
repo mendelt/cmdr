@@ -37,7 +37,7 @@ pub trait Scope {
         let result = match line {
             Line::Empty => self.empty(),
             Line::CtrlC | Line::CtrlD | Line::Error => CommandResult::Quit,
-            Line::Help(ref command) => self.help(command),
+            Line::Help(ref command) => self.help(&command.args),
             Line::Command(ref command) => self.command(command),
         };
 
@@ -72,13 +72,13 @@ pub trait Scope {
     }
 
     /// Execute a help command
-    fn help(&self, line: &CommandLine) -> CommandResult
+    fn help(&self, args: &[String]) -> CommandResult
     where
         Self: Sized,
     {
         let scope_metadata = Self::commands();
 
-        if line.args.len() == 0 {
+        if args.len() == 0 {
             if let Some(scope_help) = scope_metadata.get_help() {
                 println!("{}", scope_help);
             }
@@ -87,8 +87,8 @@ pub trait Scope {
             for command in Self::commands().methods {
                 println!("- {}", command.name)
             }
-        } else if line.args.len() == 1 {
-            match scope_metadata.method_by_command(&line.args[0]) {
+        } else if args.len() == 1 {
+            match scope_metadata.method_by_command(&args[0]) {
                 Some(command) => {
                     if let Some(help_text) = command.get_help_text() {
                         println!("{}", help_text)
@@ -97,11 +97,10 @@ pub trait Scope {
                     }
                 }
                 None => {
-                    println!("No command with name {}", line.args[0]);
+                    println!("No command with name {}", args[0]);
                 }
             }
         } else {
-            // TODO: Handle errors like wrong number of args with commandresults?
             println!("Too many arguments, help expects 0 or 1")
         }
 

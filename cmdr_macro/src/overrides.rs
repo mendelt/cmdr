@@ -13,6 +13,11 @@ pub fn format_overrides(input: &ItemImpl, self_type: &TypePath) -> TokenStream {
                         #self_type::prompt(&self)
                     }
                 ),
+                "help" => quote!(
+                    fn help(&self, args: &[String]) -> CommandResult {
+                        #self_type::help(&self, args)
+                    }
+                ),
                 "empty" => quote!(
                     fn empty(&mut self) -> CommandResult {
                         #self_type::empty(&self)
@@ -64,6 +69,17 @@ mod tests {
         assert_eq!(
             format_overrides(&source, &self_type).to_string(),
             "fn prompt ( & self ) -> String { SomeImpl :: prompt ( & self ) }"
+        );
+    }
+
+    #[test]
+    fn should_override_help_when_available() {
+        let source = syn::parse_str("impl SomeImpl {fn help(args: &[String]) -> CommandResult { CommandResult::Ok }}").unwrap();
+        let self_type = util::parse_self_type(&source).unwrap();
+
+        assert_eq!(
+            format_overrides(&source, &self_type).to_string(),
+            "fn help ( & self , args : & [ String ] ) -> CommandResult { SomeImpl :: help ( & self , args ) }"
         );
     }
 

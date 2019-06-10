@@ -20,6 +20,13 @@ impl OverrideScope {
         CommandResult::Quit
     }
 
+    /// Unfriendly help function
+    fn help(&self, _args: &[String]) -> CommandResult {
+        println!("Figure it out yourself");
+
+        CommandResult::Ok
+    }
+
     /// Default line handler override
     fn default(&mut self, command: &CommandLine) -> CommandResult {
         println!("{}? What does that even mean?", command.command);

@@ -20,9 +20,17 @@ impl OverrideScope {
         CommandResult::Quit
     }
 
-    /// Unfriendly help function
+    /// All the help, all the time
     fn help(&self, _args: &[String]) -> CommandResult {
-        println!("Figure it out yourself");
+        let scope_metadata = Self::commands();
+
+        println!("Help Stuff");
+        for command in scope_metadata.all_commands() {
+            println!("- {}", command.name());
+            if let Some(help_text) = &command.help_text() {
+                println!("{}", help_text)
+            }
+        }
 
         CommandResult::Ok
     }

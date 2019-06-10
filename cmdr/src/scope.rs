@@ -55,7 +55,7 @@ pub trait Scope {
     where
         Self: Sized,
     {
-        match Self::commands().method_by_command(&command.command) {
+        match Self::commands().command_by_name(&command.command) {
             Some(method) => method.execute(self, command),
             None => self.default(command),
         }
@@ -81,19 +81,20 @@ pub trait Scope {
         if args.len() == 0 {
             if let Some(scope_help) = scope_metadata.get_help() {
                 println!("{}", scope_help);
+            } else {
+                println!("These are the valid commands in this scope:");
             }
-            println!("These are the valid commands in this scope:");
 
-            for command in Self::commands().methods {
-                println!("- {}", command.name)
+            for command in scope_metadata.all_commands() {
+                println!("- {}", command.name())
             }
         } else if args.len() == 1 {
-            match scope_metadata.method_by_command(&args[0]) {
+            match scope_metadata.command_by_name(&args[0]) {
                 Some(command) => {
-                    if let Some(help_text) = command.get_help_text() {
+                    if let Some(help_text) = command.help_text() {
                         println!("{}", help_text)
                     } else {
-                        println!("No help for commmand {}", command.name);
+                        println!("No help for commmand {}", command.name());
                     }
                 }
                 None => {
@@ -161,8 +162,13 @@ where
         }
     }
 
+    /// Get all scope commands
+    pub fn all_commands(&self) -> impl Iterator<Item = &ScopeCmdDescription<T>> {
+        self.methods.iter()
+    }
+
     /// Find a command method by its command name or alias
-    pub fn method_by_command(&self, name: &str) -> Option<&ScopeCmdDescription<T>> {
+    pub fn command_by_name(&self, name: &str) -> Option<&ScopeCmdDescription<T>> {
         self.methods
             .iter()
             .filter(|method| method.handles(name))
@@ -204,6 +210,21 @@ where
         }
     }
 
+    /// Name accessor method
+    pub fn name(&self) -> &str {
+        self.name.as_ref()
+    }
+
+    /// Help text accessor method
+    pub fn help_text(&self) -> &Option<String> {
+        &self.help_text
+    }
+
+    /// An iterator of all aliasses for this command
+    pub fn aliases(&self) -> impl Iterator<Item = &String> {
+        self.alias.iter()
+    }
+
     /// Checks name or alias to see if a command can be handled.
     pub fn handles(&self, command: &str) -> bool {
         if self.name == command {
@@ -218,10 +239,6 @@ where
     /// Execute this command
     pub fn execute(&self, scope: &mut T, command: &CommandLine) -> CommandResult {
         (self.method)(scope, command)
-    }
-
-    pub fn get_help_text(&self) -> &Option<String> {
-        &self.help_text
     }
 }
 
@@ -248,7 +265,7 @@ mod tests {
             "test".to_string(),
             Box::new(|scope, cmd_line| scope.test_method(&cmd_line.args)),
             vec!["alias1".to_string(), "alias2".to_string()],
-            Some("Help text".to_string()),
+            Some("Help text\nMore lines".to_string()),
         )
     }
 
@@ -256,6 +273,31 @@ mod tests {
     fn command_should_not_handle_unknown() {
         let command = get_test_command();
         assert!(!command.handles("not_a_command"));
+    }
+
+    #[test]
+    fn command_should_return_name() {
+        let command = get_test_command();
+
+        assert_eq!(command.name(), "test")
+    }
+
+    #[test]
+    fn command_should_return_help_text() {
+        let command = get_test_command();
+
+        assert_eq!(
+            command.help_text(),
+            &Some("Help text\nMore lines".to_string())
+        )
+    }
+
+    #[test]
+    fn command_should_return_all_aliases() {
+        let command = get_test_command();
+        let aliasses: Vec<&String> = command.aliases().collect();
+
+        assert_eq!(aliasses, vec!["alias1", "alias2"])
     }
 
     #[test]
@@ -272,4 +314,5 @@ mod tests {
         assert!(command.handles("alias1"));
         assert!(command.handles("alias2"));
     }
+
 }

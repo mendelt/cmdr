@@ -73,7 +73,7 @@ pub use cmdr_macro::{cmd, cmdr};
 
 /// This is the main entry-point to the cmdr library.
 /// Creates a LineReader and executes its command on the scope that is passed to it.
-pub fn cmd_loop<S>(scope: &mut S)
+pub fn cmd_loop<S>(scope: &mut S) -> CommandResult
 where
     S: Scope,
 {
@@ -83,4 +83,6 @@ where
     while let CommandResult::NewScope(scope_runner) = result {
         result = scope_runner.run_lines(&mut reader);
     }
+
+    result
 }

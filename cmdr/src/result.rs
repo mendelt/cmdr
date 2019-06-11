@@ -20,6 +20,9 @@ pub enum CommandResult {
 
     /// Result Quit, close the application and stop
     Quit,
+
+    /// Fatal error, quit the application with an error code
+    FatalError(i32),
 }
 
 impl CommandResult {

@@ -1,6 +1,6 @@
 [package]
 name = "cmdr"
-version = "0.3.8"
+version = "0.3.9"
 edition = "2018"
 
 authors = ["Mendelt Siebenga <msiebenga@gmail.com>"]

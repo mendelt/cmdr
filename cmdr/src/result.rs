@@ -21,6 +21,9 @@ pub enum CommandResult {
     /// Result Quit, close the application and stop
     Quit,
 
+    /// Invalid command was entered
+    InvalidCommandError { command: String },
+
     /// Fatal error, quit the application with an error code
     FatalError(i32),
 }

@@ -118,9 +118,21 @@ pub trait Scope {
     /// A user entered an unknown command.
     /// The default implementation prints an error to the user and returns ok to go on. Can be
     /// overridden by a client-application to implement other behaviour
-    fn default(&mut self, _command: &CommandLine) -> CommandResult {
-        println!("Unknown command");
-        CommandResult::Ok
+    fn default(&mut self, command_line: &CommandLine) -> CommandResult {
+        CommandResult::InvalidCommandError {
+            command: command_line.command.clone(),
+        }
+    }
+
+    /// Handle errors
+    fn handle_error(&mut self, error: CommandResult) -> CommandResult {
+        match error {
+            CommandResult::InvalidCommandError { command } => {
+                println!("Unknown command: {}", command);
+                CommandResult::Ok
+            }
+            _ => error,
+        }
     }
 
     /// Hook that is called before the command loop starts, can be overridden
@@ -314,5 +326,4 @@ mod tests {
         assert!(command.handles("alias1"));
         assert!(command.handles("alias2"));
     }
-
 }

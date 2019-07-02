@@ -14,7 +14,7 @@ impl MainScope {
     }
 
     #[cmd]
-    /// Switch to the second scope
+    /// Return a fatal error to quit the application with an error code
     fn error(&mut self, _args: &[String]) -> CommandResult {
         CommandResult::Error(CommandError::Fatal(101))
     }

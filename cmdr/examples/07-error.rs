@@ -16,14 +16,14 @@ impl MainScope {
     #[cmd]
     /// Switch to the second scope
     fn error(&mut self, _args: &[String]) -> CommandResult {
-        CommandResult::FatalError(101)
+        CommandResult::Error(CommandError::Fatal(101))
     }
 }
 
 fn main() {
     std::process::exit(match cmd_loop(&mut MainScope {}) {
         CommandResult::Ok => 0,
-        CommandResult::FatalError(error_code) => error_code,
+        CommandResult::Error(CommandError::Fatal(error_code)) => error_code,
         _ => -1, // This should not happen.
     })
 }

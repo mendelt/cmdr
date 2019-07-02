@@ -1,4 +1,5 @@
 use crate::line_reader::LineReader;
+use crate::result::CommandError;
 use crate::Line;
 use crate::{CommandLine, CommandResult};
 
@@ -119,19 +120,19 @@ pub trait Scope {
     /// The default implementation prints an error to the user and returns ok to go on. Can be
     /// overridden by a client-application to implement other behaviour
     fn default(&mut self, command_line: &CommandLine) -> CommandResult {
-        CommandResult::InvalidCommandError {
+        CommandResult::Error(CommandError::InvalidCommand {
             command: command_line.command.clone(),
-        }
+        })
     }
 
     /// Handle errors
-    fn handle_error(&mut self, error: CommandResult) -> CommandResult {
+    fn handle_error(&mut self, error: CommandError) -> CommandResult {
         match error {
-            CommandResult::InvalidCommandError { command } => {
+            CommandError::InvalidCommand { command } => {
                 println!("Unknown command: {}", command);
                 CommandResult::Ok
             }
-            _ => error,
+            _ => CommandResult::Error(error),
         }
     }
 

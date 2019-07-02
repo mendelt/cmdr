@@ -21,11 +21,8 @@ pub enum CommandResult {
     /// Result Quit, close the application and stop
     Quit,
 
-    /// Invalid command was entered
-    InvalidCommandError { command: String },
-
-    /// Fatal error, quit the application with an error code
-    FatalError(i32),
+    /// Error
+    Error(CommandError),
 }
 
 impl CommandResult {
@@ -38,6 +35,16 @@ impl CommandResult {
     pub fn sub_scope<S: Scope + Sized + 'static>(scope: S) -> Self {
         CommandResult::SubScope(ScopeRunner::new(scope))
     }
+}
+
+/// Specifies an error while parsing or executing a command
+#[derive(Debug, PartialEq)]
+pub enum CommandError {
+    /// Invalid command was entered
+    InvalidCommand { command: String },
+
+    /// Fatal error, quit the application with an error code
+    Fatal(i32),
 }
 
 /// Return the new scope to start on a CommandResult::NewScope

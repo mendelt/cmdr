@@ -23,6 +23,11 @@ pub fn format_overrides(input: &ItemImpl, self_type: &TypePath) -> TokenStream {
                         #self_type::empty(&self)
                     }
                 ),
+                "handle_error" => quote!(
+                    fn handle_error(&mut self, error: CommandError) -> CommandResult {
+                        #self_type::handle_error(self, error)
+                    }
+                ),
                 "default" => quote!(
                     fn default(&mut self, command: &CommandLine) -> CommandResult {
                         #self_type::default(self, command)

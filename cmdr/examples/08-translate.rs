@@ -26,4 +26,3 @@ impl TranslatedScope {
 fn main() {
     cmd_loop(&mut TranslatedScope {});
 }
-

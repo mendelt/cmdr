@@ -43,6 +43,24 @@ pub enum CommandError {
     /// Invalid command was entered
     InvalidCommand { command: String },
 
+    /// Invalid numer of arguments
+    InvalidNumberOfArguments { command: String },
+
+    /// No help for the entered command
+    NoHelpForCommand { command: String },
+
+    /// An unknown error occured reading a line
+    LineReaderError,
+
+    /// An empty line was read
+    EmptyLine,
+
+    /// Control C was pressed
+    CtrlC,
+
+    /// Control D was pressed
+    CtrlD,
+
     /// Fatal error, quit the application with an error code
     Fatal(i32),
 }

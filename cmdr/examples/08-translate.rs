@@ -18,6 +18,14 @@ impl TranslatedScope {
                 println!("Onbekend commando: {}", command);
                 CommandResult::Ok
             }
+            CommandError::InvalidNumberOfArguments { command } => {
+                println!("Verkeerd aantal argumenten voor commando: {}", command);
+                CommandResult::Ok
+            }
+            CommandError::NoHelpForCommand { command } => {
+                println!("Geen hulp beschikbaar voor commando: {}", command);
+                CommandResult::Ok
+            }
             _ => CommandResult::Error(error),
         }
     }

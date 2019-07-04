@@ -93,26 +93,33 @@ pub trait Scope {
             }
 
             for command in scope_metadata.all_commands() {
-                println!("- {}", command.name())
+                println!("- {}", command.name());
             }
+
+            CommandResult::Ok
         } else if args.len() == 1 {
             match scope_metadata.command_by_name(&args[0]) {
                 Some(command) => {
                     if let Some(help_text) = command.help_text() {
-                        println!("{}", help_text)
+                        println!("{}", help_text);
+                        CommandResult::Ok
                     } else {
-                        println!("No help for commmand {}", command.name());
+                        return CommandResult::Error(CommandError::NoHelpForCommand {
+                            command: command.name().to_string(),
+                        });
                     }
                 }
                 None => {
-                    println!("No command with name {}", args[0]);
+                    return CommandResult::Error(CommandError::InvalidCommand {
+                        command: args[0].clone(),
+                    })
                 }
             }
         } else {
-            println!("Too many arguments, help expects 0 or 1")
+            CommandResult::Error(CommandError::InvalidNumberOfArguments {
+                command: "help".to_string(),
+            })
         }
-
-        CommandResult::Ok
     }
 
     /// Execute an empty line.
@@ -138,7 +145,15 @@ pub trait Scope {
                 println!("Unknown command: {}", command);
                 CommandResult::Ok
             }
-            _ => CommandResult::Error(error),
+            CommandError::InvalidNumberOfArguments { command } => {
+                println!("Invalid number of arguments for command: {}", command);
+                CommandResult::Ok
+            }
+            CommandError::NoHelpForCommand { command } => {
+                println!("No help available for command: {}", command);
+                CommandResult::Ok
+            }
+            _ => CommandResult::Error(error)
         }
     }
 

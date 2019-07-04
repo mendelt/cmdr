@@ -18,11 +18,6 @@ pub fn format_overrides(input: &ItemImpl, self_type: &TypePath) -> TokenStream {
                         #self_type::help(&self, args)
                     }
                 ),
-                "empty" => quote!(
-                    fn empty(&mut self) -> CommandResult {
-                        #self_type::empty(&self)
-                    }
-                ),
                 "handle_error" => quote!(
                     fn handle_error(&mut self, error: CommandError) -> CommandResult {
                         #self_type::handle_error(self, error)
@@ -88,17 +83,6 @@ mod tests {
         assert_eq!(
             format_overrides(&source, &self_type).to_string(),
             "fn help ( & self , args : & [ String ] ) -> CommandResult { SomeImpl :: help ( & self , args ) }"
-        );
-    }
-
-    #[test]
-    fn should_override_empty_when_available() {
-        let source = syn::parse_str("impl SomeImpl {fn empty() { }}").unwrap();
-        let self_type = util::parse_self_type(&source).unwrap();
-
-        assert_eq!(
-            format_overrides(&source, &self_type).to_string(),
-            "fn empty ( & mut self ) -> CommandResult { SomeImpl :: empty ( & self ) }"
         );
     }
 

@@ -13,12 +13,7 @@ impl OverrideScope {
         "#".to_string()
     }
 
-    /// Passive agressive empty line handler override
-    fn empty(&self) -> CommandResult {
-        println!("If you don't want to talk to me I'll just go then...");
-
-        CommandResult::Quit
-    }
+    // TODO: Override handle_error
 
     /// All the help, all the time
     fn help(&self, _args: &[String]) -> CommandResult {

@@ -17,7 +17,10 @@ pub trait Scope {
         let mut last_result = CommandResult::Ok;
 
         while last_result == CommandResult::Ok {
-            last_result = self.run_line(reader.read_line(self.prompt().as_ref()), reader);
+            last_result = match reader.read_line(self.prompt().as_ref()) {
+                Err(error) => self.handle_error(error),
+                Ok(line) => self.run_line(line, reader),
+            }
         }
 
         self.after_loop();
@@ -36,8 +39,6 @@ pub trait Scope {
     {
         let line = self.before_command(line);
         let result = match line {
-            Line::Empty => self.empty(),
-            Line::CtrlC | Line::CtrlD | Line::Error => CommandResult::Quit,
             Line::Help(ref command) => self.help(&command.args),
             Line::Command(ref command) => self.command(command),
         };
@@ -153,6 +154,9 @@ pub trait Scope {
                 println!("No help available for command: {}", command);
                 CommandResult::Ok
             }
+            CommandError::EmptyLine => CommandResult::Ok,
+            CommandError::CtrlC => CommandResult::Quit,
+            CommandError::CtrlD => CommandResult::Exit,
             _ => CommandResult::Error(error)
         }
     }

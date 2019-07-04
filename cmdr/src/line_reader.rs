@@ -29,7 +29,7 @@ impl LineReader for RustyLineReader {
             Ok(line_string) => {
                 let string_ref: &str = line_string.as_ref();
                 self.editor.add_history_entry(string_ref);
-                Ok(string_ref.into())
+                Line::try_parse(string_ref.into())
             }
             Err(ReadlineError::Interrupted) => Err(CommandError::CtrlC),
             Err(ReadlineError::Eof) => Err(CommandError::CtrlD),

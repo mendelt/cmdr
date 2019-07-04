@@ -21,7 +21,8 @@ pub struct CommandLine {
 }
 
 impl Line {
-    fn try_parse(line: &str) -> Result<Line, CommandError> {
+    /// Try to parse a Line from a String or return an error when unsuccesfull
+    pub fn try_parse(line: &str) -> Result<Line, CommandError> {
         let mut parts = line.trim().split(' ').filter(|part| !part.is_empty());
 
         let first = parts.next();

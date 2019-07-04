@@ -48,7 +48,13 @@ pub trait Scope {
             result
         };
 
-        self.after_command(&line, result)
+        let result = self.after_command(&line, result);
+
+        if let CommandResult::Error(error) = result {
+            self.handle_error(error)
+        } else {
+            result
+        }
     }
 
     /// Execute a single command

@@ -103,6 +103,17 @@ mod tests {
     }
 
     #[test]
+    fn should_override_handle_error_when_available() {
+        let source = syn::parse_str("impl SomeImpl {fn handle_error() { }}").unwrap();
+        let self_type = util::parse_self_type(&source).unwrap();
+
+        assert_eq!(
+            format_overrides(&source, &self_type).to_string(),
+            "fn handle_error ( & mut self , error : CommandError ) -> CommandResult { SomeImpl :: handle_error ( self , error ) }"
+        );
+    }
+
+    #[test]
     fn should_override_default_when_available() {
         let source = syn::parse_str("impl SomeImpl {fn default() { }}").unwrap();
         let self_type = util::parse_self_type(&source).unwrap();

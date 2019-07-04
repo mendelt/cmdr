@@ -1,23 +1,13 @@
+use crate::CommandError;
+
 /// A parsed line from the user
 #[derive(Debug, PartialEq)]
 pub enum Line {
-    /// An empty line
-    Empty,
-
     /// A user command made up of a command and a series of attributes
     Command(CommandLine),
 
     /// A user help request
     Help(CommandLine),
-
-    /// Ctrl-C was entered
-    CtrlC,
-
-    /// Ctrl-D was entered
-    CtrlD,
-
-    /// An error occurred collecting input
-    Error,
 }
 
 /// A parsed command, optionally with arguments
@@ -30,22 +20,22 @@ pub struct CommandLine {
     pub args: Vec<String>,
 }
 
-impl From<&str> for Line {
-    fn from(line: &str) -> Self {
+impl Line {
+    fn try_parse(line: &str) -> Result<Line, CommandError> {
         let mut parts = line.trim().split(' ').filter(|part| !part.is_empty());
 
         let first = parts.next();
 
         match first {
-            None => Line::Empty,
-            Some("help") => Line::Help(CommandLine {
+            None => Err(CommandError::EmptyLine),
+            Some("help") => Ok(Line::Help(CommandLine {
                 command: "help".to_string(),
                 args: parts.map(|arg| arg.to_string()).collect(),
-            }),
-            Some(command) => Line::Command(CommandLine {
+            })),
+            Some(command) => Ok(Line::Command(CommandLine {
                 command: command.to_string(),
                 args: parts.map(|arg| arg.to_string()).collect(),
-            }),
+            })),
         }
     }
 }
@@ -57,36 +47,36 @@ mod tests {
     #[test]
     // Test parsing an empty line
     fn test_parse_empty_line() {
-        let line: Line = "".into();
+        let line = Line::try_parse("");
 
-        assert_eq!(line, Line::Empty);
+        assert_eq!(line, Err(CommandError::EmptyLine));
     }
 
     #[test]
     // Test parsing an empty line
     fn test_parse_command() {
-        let line: Line = "command".into();
+        let line = Line::try_parse("command");
 
         assert_eq!(
             line,
-            Line::Command(CommandLine {
+            Ok(Line::Command(CommandLine {
                 command: "command".to_string(),
                 args: [].to_vec()
-            })
+            }))
         );
     }
 
     #[test]
     // Test parsing an empty line
     fn test_parse_command_with_arguments() {
-        let line: Line = "command with arguments".into();
+        let line= Line::try_parse("command with arguments");
 
         assert_eq!(
             line,
-            Line::Command(CommandLine {
+            Ok(Line::Command(CommandLine {
                 command: "command".to_string(),
                 args: ["with".to_string(), "arguments".to_string()].to_vec()
-            })
+            }))
         );
     }
 }

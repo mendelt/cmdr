@@ -70,7 +70,7 @@ mod tests {
     #[test]
     // Test parsing an empty line
     fn test_parse_command_with_arguments() {
-        let line= Line::try_parse("command with arguments");
+        let line = Line::try_parse("command with arguments");
 
         assert_eq!(
             line,

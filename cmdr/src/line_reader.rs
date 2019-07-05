@@ -1,7 +1,7 @@
 use crate::line::*;
+use crate::CommandError;
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
-use crate::CommandError;
 
 /// Linereader trait, a line reader gets lines from a user, for example from the command line and
 /// parses them.

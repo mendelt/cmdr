@@ -157,7 +157,7 @@ pub trait Scope {
             CommandError::EmptyLine => CommandResult::Ok,
             CommandError::CtrlC => CommandResult::Quit,
             CommandError::CtrlD => CommandResult::Exit,
-            _ => CommandResult::Error(error)
+            _ => CommandResult::Error(error),
         }
     }
 

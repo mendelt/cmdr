@@ -37,7 +37,12 @@ pub trait Scope {
         Self: Sized,
     {
         let line = self.before_command(line);
-        let result = self.command(&line);
+
+        let result = if line.command == "help" {
+            self.help(&line.args)
+        } else {
+             self.command(&line)
+        };
 
         let result = if let CommandResult::SubScope(scope_runner) = result {
             scope_runner.run_lines(reader)

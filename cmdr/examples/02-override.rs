@@ -13,8 +13,6 @@ impl OverrideScope {
         "#".to_string()
     }
 
-    // TODO: Override handle_error
-
     /// All the help, all the time
     fn help(&self, _args: &[String]) -> CommandResult {
         let scope_metadata = Self::commands();
@@ -28,6 +26,16 @@ impl OverrideScope {
         }
 
         CommandResult::Ok
+    }
+
+    /// Handle empty line here, pass other error up to be handled by cmdr
+    fn handle_error(&mut self, error: CommandError) -> CommandResult {
+        if let CommandError::EmptyLine = error {
+            println!("Quitting because empty");
+            CommandResult::Quit
+        } else {
+            CommandResult::Error(error)
+        }
     }
 
     /// Default line handler override

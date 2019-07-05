@@ -2,17 +2,7 @@ use crate::CommandError;
 
 /// A parsed line from the user
 #[derive(Debug, PartialEq)]
-pub enum Line {
-    /// A user command made up of a command and a series of attributes
-    Command(CommandLine),
-
-    /// A user help request
-    Help(CommandLine),
-}
-
-/// A parsed command, optionally with arguments
-#[derive(Debug, PartialEq)]
-pub struct CommandLine {
+pub struct Line {
     /// The command name
     pub command: String,
 
@@ -29,14 +19,10 @@ impl Line {
 
         match first {
             None => Err(CommandError::EmptyLine),
-            Some("help") => Ok(Line::Help(CommandLine {
-                command: "help".to_string(),
-                args: parts.map(|arg| arg.to_string()).collect(),
-            })),
-            Some(command) => Ok(Line::Command(CommandLine {
+            Some(command) => Ok(Line {
                 command: command.to_string(),
                 args: parts.map(|arg| arg.to_string()).collect(),
-            })),
+            }),
         }
     }
 }
@@ -60,10 +46,10 @@ mod tests {
 
         assert_eq!(
             line,
-            Ok(Line::Command(CommandLine {
+            Ok(Line {
                 command: "command".to_string(),
                 args: [].to_vec()
-            }))
+            })
         );
     }
 
@@ -74,10 +60,10 @@ mod tests {
 
         assert_eq!(
             line,
-            Ok(Line::Command(CommandLine {
+            Ok(Line {
                 command: "command".to_string(),
                 args: ["with".to_string(), "arguments".to_string()].to_vec()
-            }))
+            })
         );
     }
 }

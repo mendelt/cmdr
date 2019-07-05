@@ -1,7 +1,6 @@
 use crate::line_reader::LineReader;
-use crate::result::CommandError;
+use crate::result::{CommandError, CommandResult};
 use crate::Line;
-use crate::{CommandLine, CommandResult};
 
 /// Trait for implementing a Scope object. This trait can be implemented directly but will most
 /// likely be implemented for you by the cmdr macro.
@@ -38,10 +37,7 @@ pub trait Scope {
         Self: Sized,
     {
         let line = self.before_command(line);
-        let result = match line {
-            Line::Help(ref command) => self.help(&command.args),
-            Line::Command(ref command) => self.command(command),
-        };
+        let result = self.command(&line);
 
         let result = if let CommandResult::SubScope(scope_runner) = result {
             scope_runner.run_lines(reader)
@@ -59,13 +55,13 @@ pub trait Scope {
     }
 
     /// Execute a single command
-    fn command(&mut self, command: &CommandLine) -> CommandResult
+    fn command(&mut self, line: &Line) -> CommandResult
     where
         Self: Sized,
     {
-        match Self::commands().command_by_name(&command.command) {
-            Some(method) => method.execute(self, command),
-            None => self.default(command),
+        match Self::commands().command_by_name(&line.command) {
+            Some(method) => method.execute(self, line),
+            None => self.default(line),
         }
     }
 
@@ -133,7 +129,7 @@ pub trait Scope {
     /// A user entered an unknown command.
     /// The default implementation prints an error to the user and returns ok to go on. Can be
     /// overridden by a client-application to implement other behaviour
-    fn default(&mut self, command_line: &CommandLine) -> CommandResult {
+    fn default(&mut self, command_line: &Line) -> CommandResult {
         CommandResult::Error(CommandError::InvalidCommand {
             command: command_line.command.clone(),
         })
@@ -237,7 +233,7 @@ where
     T: Scope,
 {
     name: String,
-    method: Box<Fn(&mut T, &CommandLine) -> CommandResult>,
+    method: Box<Fn(&mut T, &Line) -> CommandResult>,
     alias: Vec<String>,
     help_text: Option<String>,
 }
@@ -249,7 +245,7 @@ where
     /// Construct a CmdMethod from a command name and a command closure
     pub fn new(
         name: String,
-        method: Box<Fn(&mut T, &CommandLine) -> CommandResult>,
+        method: Box<Fn(&mut T, &Line) -> CommandResult>,
         alias: Vec<String>,
         help_text: Option<String>,
     ) -> Self {
@@ -288,7 +284,7 @@ where
     }
 
     /// Execute this command
-    pub fn execute(&self, scope: &mut T, command: &CommandLine) -> CommandResult {
+    pub fn execute(&self, scope: &mut T, command: &Line) -> CommandResult {
         (self.method)(scope, command)
     }
 }

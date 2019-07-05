@@ -23,10 +23,10 @@ impl ScopeWithHooks {
         println!("Code that gets executed before each command can go here.");
         println!("You can even change what the user typed");
 
-        Line::Command(CommandLine {
+        Line {
             command: "stuff".to_string(),
             args: vec![],
-        })
+        }
     }
 
     fn after_command(&mut self, _line: &Line, _result: CommandResult) -> CommandResult {

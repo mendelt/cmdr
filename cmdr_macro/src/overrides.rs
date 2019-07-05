@@ -24,7 +24,7 @@ pub fn format_overrides(input: &ItemImpl, self_type: &TypePath) -> TokenStream {
                     }
                 ),
                 "default" => quote!(
-                    fn default(&mut self, command: &CommandLine) -> CommandResult {
+                    fn default(&mut self, command: &Line) -> CommandResult {
                         #self_type::default(self, command)
                     }
                 ),
@@ -104,7 +104,7 @@ mod tests {
 
         assert_eq!(
             format_overrides(&source, &self_type).to_string(),
-            "fn default ( & mut self , command : & CommandLine ) -> CommandResult { SomeImpl :: default ( self , command ) }"
+            "fn default ( & mut self , command : & Line ) -> CommandResult { SomeImpl :: default ( self , command ) }"
         );
     }
 

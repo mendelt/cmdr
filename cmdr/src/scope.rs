@@ -18,7 +18,7 @@ pub trait Scope {
 
         while last_result == CommandResult::Ok {
             last_result = match reader.read_line(self.prompt().as_ref()) {
-                Err(error) => self.handle_error(error),
+                Err(error) => self.handle_error_internal(error),
                 Ok(line) => self.run_line(line, reader),
             }
         }
@@ -52,7 +52,7 @@ pub trait Scope {
         let result = self.after_command(&line, result);
 
         if let CommandResult::Error(error) = result {
-            self.handle_error(error)
+            self.handle_error_internal(error)
         } else {
             result
         }
@@ -139,26 +139,39 @@ pub trait Scope {
         })
     }
 
-    /// Handle errors
-    fn handle_error(&mut self, error: CommandError) -> CommandResult {
-        match error {
-            CommandError::InvalidCommand { command } => {
-                println!("Unknown command: {}", command);
-                CommandResult::Ok
+    /// Error handling, first checks if the user handles the error, then
+    fn handle_error_internal(&mut self, error: CommandError) -> CommandResult {
+        // Allow user to handle error in overridable handle_error
+        match self.handle_error(error) {
+            CommandResult::Error(error) => {
+                // Error was not handled, handle it here
+
+                match error {
+                    CommandError::InvalidCommand { command } => {
+                        println!("Unknown command: {}", command);
+                        CommandResult::Ok
+                    }
+                    CommandError::InvalidNumberOfArguments { command } => {
+                        println!("Invalid number of arguments for command: {}", command);
+                        CommandResult::Ok
+                    }
+                    CommandError::NoHelpForCommand { command } => {
+                        println!("No help available for command: {}", command);
+                        CommandResult::Ok
+                    }
+                    CommandError::EmptyLine => CommandResult::Ok,
+                    CommandError::CtrlC => CommandResult::Quit,
+                    CommandError::CtrlD => CommandResult::Exit,
+                    _ => CommandResult::Error(error),
+                }
             }
-            CommandError::InvalidNumberOfArguments { command } => {
-                println!("Invalid number of arguments for command: {}", command);
-                CommandResult::Ok
-            }
-            CommandError::NoHelpForCommand { command } => {
-                println!("No help available for command: {}", command);
-                CommandResult::Ok
-            }
-            CommandError::EmptyLine => CommandResult::Ok,
-            CommandError::CtrlC => CommandResult::Quit,
-            CommandError::CtrlD => CommandResult::Exit,
-            _ => CommandResult::Error(error),
+            result => result,
         }
+    }
+
+    /// Handle errors, overridable by user
+    fn handle_error(&mut self, error: CommandError) -> CommandResult {
+        CommandResult::Error(error)
     }
 
     /// Hook that is called before the command loop starts, can be overridden

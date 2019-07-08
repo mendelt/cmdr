@@ -124,13 +124,6 @@ pub trait Scope {
         }
     }
 
-    /// Execute an empty line.
-    /// The default implentation does nothing but this can be overridden by a client-application
-    /// to implement other behaviour
-    fn empty(&mut self) -> CommandResult {
-        CommandResult::Ok
-    }
-
     /// A user entered an unknown command.
     /// The default implementation prints an error to the user and returns ok to go on. Can be
     /// overridden by a client-application to implement other behaviour

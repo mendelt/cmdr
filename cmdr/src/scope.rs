@@ -41,7 +41,7 @@ pub trait Scope {
         let result = if line.command == "help" {
             self.help(&line.args)
         } else {
-             self.command(&line)
+            self.command(&line)
         };
 
         let result = if let CommandResult::SubScope(scope_runner) = result {

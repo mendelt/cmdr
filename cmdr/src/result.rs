@@ -43,7 +43,7 @@ pub enum CommandError {
     /// Invalid command was entered
     InvalidCommand { command: String },
 
-    /// Invalid numer of arguments
+    /// Invalid number of arguments
     InvalidNumberOfArguments { command: String },
 
     /// No help for the entered command

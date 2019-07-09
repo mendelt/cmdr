@@ -37,11 +37,15 @@ pub trait Scope {
         Self: Sized,
     {
         let line = self.before_command(line);
+        let scope_meta = Self::commands();
 
         let result = if line.command == "help" {
             self.help(&line.args)
         } else {
-            self.command(&line)
+            match scope_meta.command_by_name(&line.command) {
+                Some(method) => method.execute(self, &line),
+                None => self.default(&line),
+            }
         };
 
         let result = if let CommandResult::SubScope(scope_runner) = result {
@@ -56,17 +60,6 @@ pub trait Scope {
             self.handle_error_internal(error)
         } else {
             result
-        }
-    }
-
-    /// Execute a single command
-    fn command(&mut self, line: &Line) -> CommandResult
-    where
-        Self: Sized,
-    {
-        match Self::commands().command_by_name(&line.command) {
-            Some(method) => method.execute(self, line),
-            None => self.default(line),
         }
     }
 

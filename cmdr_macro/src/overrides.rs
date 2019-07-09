@@ -14,17 +14,17 @@ pub fn format_overrides(input: &ItemImpl, self_type: &TypePath) -> TokenStream {
                     }
                 ),
                 "help" => quote!(
-                    fn help(&self, args: &[String]) -> CommandResult {
+                    fn help(&self, args: &[String]) -> Result<CommandResult, CommandError> {
                         #self_type::help(&self, args)
                     }
                 ),
                 "handle_error" => quote!(
-                    fn handle_error(&mut self, error: CommandError) -> CommandResult {
+                    fn handle_error(&mut self, error: CommandError) -> Result<CommandResult, CommandError> {
                         #self_type::handle_error(self, error)
                     }
                 ),
                 "default" => quote!(
-                    fn default(&mut self, command: &Line) -> CommandResult {
+                    fn default(&mut self, command: &Line) -> Result<CommandResult, CommandError> {
                         #self_type::default(self, command)
                     }
                 ),
@@ -39,7 +39,7 @@ pub fn format_overrides(input: &ItemImpl, self_type: &TypePath) -> TokenStream {
                     }
                 ),
                 "after_command" => quote!(
-                    fn after_command(&mut self, line: &Line, result: CommandResult) -> CommandResult {
+                    fn after_command(&mut self, line: &Line, result: Result<CommandResult, CommandError>) -> Result<CommandResult, CommandError> {
                        #self_type::after_command(self, line, result)
                     }
                 ),
@@ -75,14 +75,14 @@ mod tests {
     #[test]
     fn should_override_help_when_available() {
         let source = syn::parse_str(
-            "impl SomeImpl {fn help(args: &[String]) -> CommandResult { CommandResult::Ok }}",
+            "impl SomeImpl {fn help(args: &[String]) -> Result < CommandResult , CommandError > { Ok ( CommandResult::Ok ) }}",
         )
         .unwrap();
         let self_type = util::parse_self_type(&source).unwrap();
 
         assert_eq!(
             format_overrides(&source, &self_type).to_string(),
-            "fn help ( & self , args : & [ String ] ) -> CommandResult { SomeImpl :: help ( & self , args ) }"
+            "fn help ( & self , args : & [ String ] ) -> Result < CommandResult , CommandError > { SomeImpl :: help ( & self , args ) }"
         );
     }
 
@@ -93,7 +93,7 @@ mod tests {
 
         assert_eq!(
             format_overrides(&source, &self_type).to_string(),
-            "fn handle_error ( & mut self , error : CommandError ) -> CommandResult { SomeImpl :: handle_error ( self , error ) }"
+            "fn handle_error ( & mut self , error : CommandError ) -> Result < CommandResult , CommandError > { SomeImpl :: handle_error ( self , error ) }"
         );
     }
 
@@ -104,7 +104,7 @@ mod tests {
 
         assert_eq!(
             format_overrides(&source, &self_type).to_string(),
-            "fn default ( & mut self , command : & Line ) -> CommandResult { SomeImpl :: default ( self , command ) }"
+            "fn default ( & mut self , command : & Line ) -> Result < CommandResult , CommandError > { SomeImpl :: default ( self , command ) }"
         );
     }
 
@@ -137,7 +137,7 @@ mod tests {
 
         assert_eq!(
             format_overrides(&source, &self_type).to_string(),
-            "fn after_command ( & mut self , line : & Line , result : CommandResult ) -> CommandResult { SomeImpl :: after_command ( self , line , result ) }"
+            "fn after_command ( & mut self , line : & Line , result : Result < CommandResult , CommandError > ) -> Result < CommandResult , CommandError > { SomeImpl :: after_command ( self , line , result ) }"
         );
     }
 

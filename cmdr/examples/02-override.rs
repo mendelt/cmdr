@@ -14,7 +14,7 @@ impl OverrideScope {
     }
 
     /// All the help, all the time
-    fn help(&self, _args: &[String]) -> CommandResult {
+    fn help(&self, _args: &[String]) -> Result<CommandResult, CommandError> {
         let scope_metadata = Self::commands();
 
         println!("Help Stuff");
@@ -25,28 +25,28 @@ impl OverrideScope {
             }
         }
 
-        CommandResult::Ok
+        Ok(CommandResult::Ok)
     }
 
     /// Handle empty line here, pass other error up to be handled by cmdr
-    fn handle_error(&mut self, error: CommandError) -> CommandResult {
+    fn handle_error(&mut self, error: CommandError) -> Result<CommandResult, CommandError> {
         if let CommandError::EmptyLine = error {
             println!("Quitting because empty");
-            CommandResult::Quit
+            Ok(CommandResult::Quit)
         } else {
-            CommandResult::Error(error)
+            Err(error)
         }
     }
 
     /// Default line handler override
-    fn default(&mut self, command: &Line) -> CommandResult {
+    fn default(&mut self, command: &Line) -> Result<CommandResult, CommandError> {
         println!("{}? What does that even mean?", command.command);
 
-        CommandResult::Ok
+        Ok(CommandResult::Ok)
     }
 }
 
 /// Main function that creates the scope and starts a command loop for it
 fn main() {
-    cmd_loop(&mut OverrideScope {});
+    cmd_loop(&mut OverrideScope {}).unwrap();
 }

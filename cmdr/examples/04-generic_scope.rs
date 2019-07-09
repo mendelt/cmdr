@@ -20,16 +20,16 @@ where
     /// Takes one parameter and prints a greeting
 
     #[cmd]
-    fn greet(&mut self, args: &[String]) -> CommandResult {
+    fn greet(&mut self, args: &[String]) -> Result<CommandResult, CommandError> {
         println!("Hello {}", args[0]);
-        CommandResult::Ok
+        Ok(CommandResult::Ok)
     }
 
     /// Cmdr command to quit the application by returning CommandResult::Quit
     #[cmd]
-    fn quit(&mut self, _args: &[String]) -> CommandResult {
+    fn quit(&mut self, _args: &[String]) -> Result<CommandResult, CommandError> {
         println!("Quitting");
-        CommandResult::Quit
+        Ok(CommandResult::Quit)
     }
 }
 
@@ -38,5 +38,6 @@ fn main() {
     cmd_loop(&mut GreeterScope {
         _generic_t_member: "String T".to_string(),
         _generic_g_member: "String G".to_string(),
-    });
+    })
+    .unwrap();
 }

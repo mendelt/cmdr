@@ -24,16 +24,16 @@
 //! impl GreeterScope {
 //!     /// Cmdr command to greet someone. Takes one parameter and prints a greeting
 //!     #[cmd]
-//!     fn greet(&self, args: &[String]) -> CommandResult {
+//!     fn greet(&self, args: &[String]) -> Result<CommandResult, CommandError> {
 //!         println!("Hello {}", args[0]);
-//!         CommandResult::Ok
+//!         Ok(CommandResult::Ok)
 //!     }
 //!
 //!     /// Cmdr command to quit the application by returning CommandResult::Quit
 //!     #[cmd]
-//!     fn quit(&self, _args: &[String]) -> CommandResult {
+//!     fn quit(&self, _args: &[String]) -> Result<CommandResult, CommandError> {
 //!         println!("Quitting");
-//!         CommandResult::Quit
+//!         Ok(CommandResult::Quit)
 //!     }
 //! }
 //!
@@ -73,14 +73,14 @@ pub use cmdr_macro::{cmd, cmdr};
 
 /// This is the main entry-point to the cmdr library.
 /// Creates a LineReader and executes its command on the scope that is passed to it.
-pub fn cmd_loop<S>(scope: &mut S) -> CommandResult
+pub fn cmd_loop<S>(scope: &mut S) -> Result<CommandResult, CommandError>
 where
     S: Scope,
 {
     let mut reader = RustyLineReader::new();
     let mut result = scope.run_lines(&mut reader);
 
-    while let CommandResult::NewScope(scope_runner) = result {
+    while let Ok(CommandResult::NewScope(scope_runner)) = result {
         result = scope_runner.run_lines(&mut reader);
     }
 

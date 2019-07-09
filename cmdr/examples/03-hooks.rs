@@ -9,10 +9,10 @@ struct ScopeWithHooks {}
 #[cmdr]
 impl ScopeWithHooks {
     #[cmd]
-    fn stuff(&self, _args: &[String]) -> CommandResult {
+    fn stuff(&self, _args: &[String]) -> Result<CommandResult, CommandError> {
         println!("Stuff done");
 
-        CommandResult::Ok
+        Ok(CommandResult::Ok)
     }
 
     fn before_loop(&mut self) {
@@ -29,11 +29,15 @@ impl ScopeWithHooks {
         }
     }
 
-    fn after_command(&mut self, _line: &Line, _result: CommandResult) -> CommandResult {
+    fn after_command(
+        &mut self,
+        _line: &Line,
+        _result: Result<CommandResult, CommandError>,
+    ) -> Result<CommandResult, CommandError> {
         println!("Code that gets executed after each command can go here.");
         println!("For example to change the command result to quit");
 
-        CommandResult::Quit
+        Ok(CommandResult::Quit)
     }
 
     fn after_loop(&mut self) {
@@ -44,5 +48,5 @@ impl ScopeWithHooks {
 
 /// Main function that creates the scope and starts a command loop for it
 fn main() {
-    cmd_loop(&mut ScopeWithHooks {});
+    cmd_loop(&mut ScopeWithHooks {}).unwrap();
 }

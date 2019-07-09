@@ -9,15 +9,15 @@ struct GreeterScope {}
 
 impl GreeterScope {
     /// Cmdr command to greet someone.
-    fn do_greet(&self, args: &[String]) -> CommandResult {
+    fn do_greet(&self, args: &[String]) -> Result<CommandResult, CommandError> {
         println!("Hello {}", args[0]);
-        CommandResult::Ok
+        Ok(CommandResult::Ok)
     }
 
     /// Cmdr command to quit the application by returning CommandResult::Quit
-    fn do_quit(&self, _args: &[String]) -> CommandResult {
+    fn do_quit(&self, _args: &[String]) -> Result<CommandResult, CommandError> {
         println!("Quitting");
-        CommandResult::Quit
+        Ok(CommandResult::Quit)
     }
 }
 
@@ -47,5 +47,5 @@ impl Scope for GreeterScope {
 
 /// Main function that creates the scope and starts a command loop for it
 fn main() {
-    cmd_loop(&mut GreeterScope {});
+    cmd_loop(&mut GreeterScope {}).unwrap();
 }

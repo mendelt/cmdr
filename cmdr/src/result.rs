@@ -20,9 +20,6 @@ pub enum CommandResult {
 
     /// Result Quit, close the application and stop
     Quit,
-
-    /// Error
-    Error(CommandError),
 }
 
 impl CommandResult {
@@ -67,7 +64,7 @@ pub enum CommandError {
 
 /// Return the new scope to start on a CommandResult::NewScope
 pub struct ScopeRunner {
-    runner: Box<dyn (FnOnce(&mut LineReader) -> CommandResult)>,
+    runner: Box<dyn (FnOnce(&mut LineReader) -> Result<CommandResult, CommandError>)>,
 }
 
 impl ScopeRunner {
@@ -77,7 +74,7 @@ impl ScopeRunner {
         }
     }
 
-    pub fn run_lines(self, reader: &mut LineReader) -> CommandResult {
+    pub fn run_lines(self, reader: &mut LineReader) -> Result<CommandResult, CommandError> {
         (self.runner)(reader)
     }
 }

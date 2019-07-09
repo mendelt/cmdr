@@ -16,8 +16,8 @@ impl MainScope {
 
     #[cmd]
     /// Switch to the second scope
-    fn sub(&mut self, _args: &[String]) -> CommandResult {
-        CommandResult::sub_scope(SubScope { count: 1 })
+    fn sub(&mut self, _args: &[String]) -> Result<CommandResult, CommandError> {
+        Ok(CommandResult::sub_scope(SubScope { count: 1 }))
     }
 }
 
@@ -34,23 +34,23 @@ impl SubScope {
     }
 
     #[cmd]
-    fn exit(&mut self, _args: &[String]) -> CommandResult {
-        CommandResult::Exit
+    fn exit(&mut self, _args: &[String]) -> Result<CommandResult, CommandError> {
+        Ok(CommandResult::Exit)
     }
 
     #[cmd]
-    fn quit(&mut self, _args: &[String]) -> CommandResult {
-        CommandResult::Quit
+    fn quit(&mut self, _args: &[String]) -> Result<CommandResult, CommandError> {
+        Ok(CommandResult::Quit)
     }
 
     #[cmd]
-    fn sub(&mut self, _args: &[String]) -> CommandResult {
-        CommandResult::sub_scope(SubScope {
+    fn sub(&mut self, _args: &[String]) -> Result<CommandResult, CommandError> {
+        Ok(CommandResult::sub_scope(SubScope {
             count: self.count + 1,
-        })
+        }))
     }
 }
 
 fn main() {
-    cmd_loop(&mut MainScope {});
+    cmd_loop(&mut MainScope {}).unwrap();
 }

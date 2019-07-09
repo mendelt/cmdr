@@ -39,7 +39,7 @@ pub trait Scope {
         let line = self.before_command(line);
         let scope_meta = Self::commands();
 
-        let result = if line.command == "help" {
+        let result = if line.command == scope_meta.help_command {
             self.help(&line.args)
         } else {
             match scope_meta.command_by_name(&line.command) {
@@ -112,7 +112,7 @@ pub trait Scope {
             }
         } else {
             CommandResult::Error(CommandError::InvalidNumberOfArguments {
-                command: "help".to_string(),
+                command: scope_metadata.help_command.clone(),
             })
         }
     }
@@ -185,6 +185,7 @@ where
     T: Scope,
 {
     scope_help: Option<String>,
+    help_command: String,
     methods: Vec<ScopeCmdDescription<T>>,
 }
 
@@ -193,9 +194,14 @@ where
     T: Scope,
 {
     /// Construct a command method list
-    pub fn new(scope_help: Option<String>, methods: Vec<ScopeCmdDescription<T>>) -> Self {
+    pub fn new(
+        scope_help: Option<String>,
+        help_command: Option<String>,
+        methods: Vec<ScopeCmdDescription<T>>,
+    ) -> Self {
         ScopeDescription {
             scope_help,
+            help_command: help_command.unwrap_or("help".to_string()),
             methods,
         }
     }

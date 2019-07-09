@@ -11,6 +11,7 @@ pub fn format_commands(input: &ItemImpl, self_type: &TypePath) -> TokenStream {
         fn commands() -> ScopeDescription<#self_type> {
             ScopeDescription::new(
                 Some(#scope_help.to_string()),
+                None,
                 vec![#(#command_methods)*]
             )
         }

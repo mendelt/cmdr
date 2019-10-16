@@ -32,8 +32,9 @@ fn parse_cmd_attributes(item: &ImplItem) -> Option<CmdMeta> {
 
         let cmd_attributes: Vec<Meta> = attributes
             .iter()
-            .filter_map(Attribute::interpret_meta)
-            .filter(|meta| meta.name() == "cmd")
+            .map(Attribute::parse_meta)
+            .filter_map(Result::ok)
+            .filter(|meta| meta.path().is_ident("cmd"))
             .collect();
 
         if !cmd_attributes.is_empty() {
@@ -50,30 +51,34 @@ fn parse_cmd_attributes(item: &ImplItem) -> Option<CmdMeta> {
                 if let Meta::List(MetaList { nested, .. }) = meta {
                     for nested_val in nested {
                         match nested_val {
-                            NestedMeta::Meta(Meta::Word(ref ident)) => {
-                                command_name = ident.to_string()
+                            NestedMeta::Meta(Meta::Path(ref path)) => {
+                                if let Some(ident) = path.get_ident() {
+                                    command_name = ident.to_string()
+                                }
                             }
                             NestedMeta::Meta(Meta::NameValue(MetaNameValue {
-                                ident,
+                                path,
                                 lit: Lit::Str(lit),
                                 ..
                             })) => {
-                                if ident.to_string() == "name" {
+                                if path.is_ident("name") {
                                     command_name = lit.value();
-                                } else if ident.to_string() == "help" {
+                                } else if path.is_ident("help") {
                                     help_text = lit.value();
                                 }
                             }
                             NestedMeta::Meta(Meta::List(ref alias_list))
-                                if alias_list.ident.to_string() == "alias" =>
+                                if alias_list.path.is_ident("alias") =>
                             {
                                 for alias_item in &alias_list.nested {
-                                    if let NestedMeta::Meta(Meta::Word(ref alias_ident)) =
+                                    if let NestedMeta::Meta(Meta::Path(ref alias_path)) =
                                         alias_item
                                     {
-                                        aliasses.push(alias_ident.to_string());
+                                        if let Some(alias_ident) = alias_path.get_ident() {
+                                            aliasses.push(alias_ident.to_string());
+                                        }
                                     }
-                                    if let NestedMeta::Literal(Lit::Str(alias_lit)) = alias_item {
+                                    if let NestedMeta::Lit(Lit::Str(alias_lit)) = alias_item {
                                         aliasses.push(alias_lit.value());
                                     }
                                 }
@@ -104,8 +109,9 @@ fn parse_cmd_attributes(item: &ImplItem) -> Option<CmdMeta> {
 fn parse_help_text(attrs: &Vec<Attribute>) -> String {
     attrs
         .iter()
-        .filter_map(Attribute::interpret_meta)
-        .filter(|meta| meta.name() == "doc")
+        .map(Attribute::parse_meta)
+        .filter_map(Result::ok)
+        .filter(|meta| meta.path().is_ident("doc"))
         .filter_map(parse_doc_string)
         .collect()
 }

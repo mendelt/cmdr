@@ -7,7 +7,7 @@ use crate::Line;
 pub trait Scope {
     /// Execute commands in this scope. Uses a LineReader to get commands and executes them one by
     /// one until a command returns CommandResult::Quit
-    fn run_lines(&mut self, reader: &mut LineReader) -> CommandResult
+    fn run_lines(&mut self, reader: &mut dyn LineReader) -> CommandResult
     where
         Self: Sized,
     {
@@ -32,7 +32,7 @@ pub trait Scope {
     }
 
     /// Execute a single line
-    fn run_line(&mut self, line: Line, reader: &mut LineReader) -> CommandResult
+    fn run_line(&mut self, line: Line, reader: &mut dyn LineReader) -> CommandResult
     where
         Self: Sized,
     {
@@ -230,7 +230,7 @@ where
     T: Scope,
 {
     name: String,
-    method: Box<Fn(&mut T, &Line) -> CommandResult>,
+    method: Box<dyn Fn(&mut T, &Line) -> CommandResult>,
     alias: Vec<String>,
     help_text: Option<String>,
 }
@@ -242,7 +242,7 @@ where
     /// Construct a CmdMethod from a command name and a command closure
     pub fn new(
         name: String,
-        method: Box<Fn(&mut T, &Line) -> CommandResult>,
+        method: Box<dyn Fn(&mut T, &Line) -> CommandResult>,
         alias: Vec<String>,
         help_text: Option<String>,
     ) -> Self {

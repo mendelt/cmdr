@@ -67,7 +67,7 @@ pub enum CommandError {
 
 /// Return the new scope to start on a CommandResult::NewScope
 pub struct ScopeRunner {
-    runner: Box<dyn (FnOnce(&mut LineReader) -> CommandResult)>,
+    runner: Box<dyn (FnOnce(&mut dyn LineReader) -> CommandResult)>,
 }
 
 impl ScopeRunner {
@@ -77,7 +77,7 @@ impl ScopeRunner {
         }
     }
 
-    pub fn run_lines(self, reader: &mut LineReader) -> CommandResult {
+    pub fn run_lines(self, reader: &mut dyn LineReader) -> CommandResult {
         (self.runner)(reader)
     }
 }

@@ -71,8 +71,7 @@ fn parse_cmd_attributes(item: &ImplItem) -> Option<CmdMeta> {
                                 if alias_list.path.is_ident("alias") =>
                             {
                                 for alias_item in &alias_list.nested {
-                                    if let NestedMeta::Meta(Meta::Path(ref alias_path)) =
-                                        alias_item
+                                    if let NestedMeta::Meta(Meta::Path(ref alias_path)) = alias_item
                                     {
                                         if let Some(alias_ident) = alias_path.get_ident() {
                                             aliasses.push(alias_ident.to_string());

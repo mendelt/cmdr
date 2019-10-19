@@ -169,7 +169,7 @@ mod tests {
             &syn::parse_str(
                 r###"
                 fn method() {}
-            "###,
+                "###,
             )
             .unwrap(),
         );
@@ -184,7 +184,7 @@ mod tests {
                 r###"
                 #[cmd]
                 fn method() {}
-            "###,
+                "###,
             )
             .unwrap(),
         )
@@ -201,7 +201,7 @@ mod tests {
                 r###"
                 #[cmd(command)]
                 fn method() {}
-            "###,
+                "###,
             )
             .unwrap(),
         )
@@ -218,7 +218,7 @@ mod tests {
                 r###"
                 #[cmd(name="command")]
                 fn method() {}
-            "###,
+                "###,
             )
             .unwrap(),
         )
@@ -299,26 +299,7 @@ mod tests {
     }
 
     #[test]
-    fn should_parse_multi_line_help_text() {
-        let parsed = parse_cmd_attributes(
-            &syn::parse_str(
-                r###"
-            #[cmd(name)]
-            /// Multi line
-            /// help text
-            fn method() {}
-        "###,
-            )
-            .unwrap(),
-        )
-        .unwrap();
-
-        // TODO: Should not parse trailing \n
-        assert_eq!(parsed.help, "Multi line\nhelp text\n".to_string());
-    }
-
-    #[test]
-    fn should_parse_help_from_cmd_attribute_if_available() {
+    fn should_ignore_docstring_if_cmd_attribute_help_available() {
         let parsed = parse_cmd_attributes(
             &syn::parse_str(
                 r###"
@@ -331,7 +312,6 @@ mod tests {
         )
         .unwrap();
 
-        // TODO: Also test parsing multiline help from attribute
         assert_eq!(parsed.help, "Help text from the cmd attribute".to_string())
     }
 

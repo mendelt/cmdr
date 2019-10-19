@@ -114,15 +114,19 @@ fn parse_cmd_attributes(item: &ImplItem) -> Option<CmdMeta> {
 
 /// Parse documentation from attributes
 fn parse_help_text(attrs: &Vec<Attribute>) -> Option<String> {
-    Some(
-        attrs
-            .iter()
-            .map(Attribute::parse_meta)
-            .filter_map(Result::ok)
-            .filter(|meta| meta.path().is_ident("doc"))
-            .filter_map(parse_doc_string)
-            .join("\n"),
-    )
+    let mut help_lines = attrs
+        .iter()
+        .map(Attribute::parse_meta)
+        .filter_map(Result::ok)
+        .filter(|meta| meta.path().is_ident("doc"))
+        .filter_map(parse_doc_string)
+        .peekable();
+
+    if help_lines.peek().is_some() {
+        Some(help_lines.join("\n"))
+    } else {
+        None
+    }
 }
 
 fn parse_doc_string(meta: Meta) -> Option<String> {
@@ -346,22 +350,21 @@ mod when_parsing_function_cmd_attributes {
         )
     }
 
-    // TODO: implement this
-    //
-    //    #[test]
-    //    fn should_set_missing_help_text_to_none() {
-    //        let parsed = parse_cmd_attributes(
-    //            &syn::parse_str(
-    //                r###"
-    //                #[cmd(name)]
-    //                fn method() {}
-    //            "###,
-    //            )
-    //                .unwrap(),
-    //        )
-    //            .unwrap();
-    //        assert_eq!(parsed.help, None)
-    //    }
+    #[test]
+    fn should_set_missing_help_text_to_none() {
+        let parsed = parse_cmd_attributes(
+            &syn::parse_str(
+                r###"
+                #[cmd(name)]
+                fn method() {}
+                "###,
+            )
+            .unwrap(),
+        )
+        .unwrap();
+
+        assert_eq!(parsed.help, None)
+    }
 
     #[test]
     fn should_parse_alias_from_cmd_attribute() {

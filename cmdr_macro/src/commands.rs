@@ -1,3 +1,4 @@
+use itertools::Itertools;
 use proc_macro2::{Ident, TokenStream};
 use quote::{quote, ToTokens};
 use syn::{
@@ -120,14 +121,14 @@ fn parse_help_text(attrs: &Vec<Attribute>) -> Option<String> {
             .filter_map(Result::ok)
             .filter(|meta| meta.path().is_ident("doc"))
             .filter_map(parse_doc_string)
-            .collect(),
+            .join("\n"),
     )
 }
 
 fn parse_doc_string(meta: Meta) -> Option<String> {
     if let Meta::NameValue(name_val) = meta {
         if let syn::Lit::Str(string) = name_val.lit {
-            Some(string.value().trim().to_owned() + "\n")
+            Some(string.value().trim().to_owned())
         } else {
             None
         }
@@ -268,8 +269,7 @@ mod when_parsing_function_cmd_attributes {
             .unwrap(),
         )
         .unwrap();
-        // TODO: Remove trailing newline
-        assert_eq!(parsed.help.unwrap(), "Help text\n".to_string());
+        assert_eq!(parsed.help.unwrap(), "Help text".to_string());
     }
 
     #[test]
@@ -287,7 +287,7 @@ mod when_parsing_function_cmd_attributes {
         )
         .unwrap();
 
-        assert_eq!(parsed.help.unwrap(), "Help text\n".to_string());
+        assert_eq!(parsed.help.unwrap(), "Help text".to_string());
     }
 
     #[test]
@@ -304,7 +304,7 @@ mod when_parsing_function_cmd_attributes {
         )
         .unwrap();
 
-        assert_eq!(parsed.help.unwrap(), "Help text\n".to_string());
+        assert_eq!(parsed.help.unwrap(), "Help text".to_string());
     }
 
     #[test]

@@ -82,7 +82,7 @@ pub trait Scope {
 
         if args.len() == 0 {
             if let Some(scope_help) = scope_metadata.get_help() {
-                println!("{}", scope_help);
+                println!("{}\n", scope_help);
             } else {
                 println!("These are the valid commands in this scope:");
             }
@@ -96,7 +96,7 @@ pub trait Scope {
             match scope_metadata.command_by_name(&args[0]) {
                 Some(command) => {
                     if let Some(help_text) = command.help_text() {
-                        println!("{}", help_text);
+                        println!("{}\n", help_text);
                         CommandResult::Ok
                     } else {
                         return CommandResult::Error(CommandError::NoHelpForCommand {

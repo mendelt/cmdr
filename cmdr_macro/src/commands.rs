@@ -160,7 +160,7 @@ impl ToTokens for CmdMeta {
 }
 
 #[cfg(test)]
-mod tests {
+mod when_parsing_function_cmd_attributes {
     use super::*;
 
     #[test]
@@ -236,7 +236,7 @@ mod tests {
                 #[cmd]
                 #[cmd(command)]
                 fn method() {}
-           "###,
+                "###,
             )
             .unwrap(),
         )
@@ -251,10 +251,10 @@ mod tests {
         let parsed = parse_cmd_attributes(
             &syn::parse_str(
                 r###"
-            #[cmd]
-            ///Help text
-            fn method() {}
-        "###,
+                #[cmd]
+                ///Help text
+                fn method() {}
+                "###,
             )
             .unwrap(),
         )
@@ -268,11 +268,11 @@ mod tests {
         let parsed = parse_cmd_attributes(
             &syn::parse_str(
                 r###"
-            #[cmd]
-            fn method() {
-                //!Help text
-            }
-        "###,
+                #[cmd]
+                fn method() {
+                    //!Help text
+                }
+                "###,
             )
             .unwrap(),
         )
@@ -286,10 +286,10 @@ mod tests {
         let parsed = parse_cmd_attributes(
             &syn::parse_str(
                 r###"
-            #[cmd]
-            ///     Help text
-            fn method() {}
-        "###,
+                #[cmd]
+                ///     Help text
+                fn method() {}
+                "###,
             )
             .unwrap(),
         )
@@ -306,7 +306,7 @@ mod tests {
                 #[cmd(name, help="Help text from the cmd attribute")]
                 /// This is a docstring, not help text
                 fn method() {}
-            "###,
+                "###,
             )
             .unwrap(),
         )
@@ -322,7 +322,7 @@ mod tests {
                 r###"
                 #[cmd(name, help="Multiline help text\nFrom the cmd attribute")]
                 fn method() {}
-            "###,
+                "###,
             )
             .unwrap(),
         )
@@ -356,8 +356,8 @@ mod tests {
         let parsed = parse_cmd_attributes(
             &syn::parse_str(
                 r###"
-                    #[cmd(name, alias("one", "two", three))]
-                    fn method() {}
+                #[cmd(name, alias("one", "two", three))]
+                fn method() {}
                 "###,
             )
             .unwrap(),

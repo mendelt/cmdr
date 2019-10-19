@@ -6,16 +6,23 @@ use syn::{
 
 pub fn format_commands(input: &ItemImpl, self_type: &TypePath) -> TokenStream {
     let command_methods = get_methods(&input);
-    let scope_help = parse_help_text(&input.attrs);
+    let scope_help = quote_string_option(&parse_help_text(&input.attrs));
     quote!(
         fn commands() -> ScopeDescription<#self_type> {
             ScopeDescription::new(
-                Some(#scope_help.to_string()),
+                #scope_help,
                 None,
                 vec![#(#command_methods)*]
             )
         }
     )
+}
+
+fn quote_string_option(value: &Option<String>) -> TokenStream {
+    match value {
+        Some(text) => quote!(Some(#text.to_string())),
+        None => quote!(None),
+    }
 }
 
 fn get_methods(input: &ItemImpl) -> Vec<(CmdMeta)> {
@@ -64,7 +71,7 @@ fn parse_cmd_attributes(item: &ImplItem) -> Option<CmdMeta> {
                                 if path.is_ident("name") {
                                     command_name = lit.value();
                                 } else if path.is_ident("help") {
-                                    help_text = lit.value();
+                                    help_text = Some(lit.value());
                                 }
                             }
                             NestedMeta::Meta(Meta::List(ref alias_list))
@@ -105,14 +112,16 @@ fn parse_cmd_attributes(item: &ImplItem) -> Option<CmdMeta> {
 }
 
 /// Parse documentation from attributes
-fn parse_help_text(attrs: &Vec<Attribute>) -> String {
-    attrs
-        .iter()
-        .map(Attribute::parse_meta)
-        .filter_map(Result::ok)
-        .filter(|meta| meta.path().is_ident("doc"))
-        .filter_map(parse_doc_string)
-        .collect()
+fn parse_help_text(attrs: &Vec<Attribute>) -> Option<String> {
+    Some(
+        attrs
+            .iter()
+            .map(Attribute::parse_meta)
+            .filter_map(Result::ok)
+            .filter(|meta| meta.path().is_ident("doc"))
+            .filter_map(parse_doc_string)
+            .collect(),
+    )
 }
 
 fn parse_doc_string(meta: Meta) -> Option<String> {
@@ -133,14 +142,14 @@ struct CmdMeta {
     command: String,
     method: Ident,
     alias: Vec<String>,
-    help: String,
+    help: Option<String>,
 }
 
 impl ToTokens for CmdMeta {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let command = &self.command;
         let method = &self.method;
-        let help_text = &self.help;
+        let help_text = quote_string_option(&self.help);
         let alias_list: Vec<TokenStream> = self
             .alias
             .iter()
@@ -153,7 +162,7 @@ impl ToTokens for CmdMeta {
                 #command.to_string(),
                 Box::new(|scope, cmd_line| scope.#method(&cmd_line.args)),
                 #alias_quote,
-                Some(#help_text.to_string()),
+                #help_text,
             ),
         ))
     }
@@ -260,7 +269,7 @@ mod when_parsing_function_cmd_attributes {
         )
         .unwrap();
         // TODO: Remove trailing newline
-        assert_eq!(parsed.help, "Help text\n".to_string());
+        assert_eq!(parsed.help.unwrap(), "Help text\n".to_string());
     }
 
     #[test]
@@ -278,7 +287,7 @@ mod when_parsing_function_cmd_attributes {
         )
         .unwrap();
 
-        assert_eq!(parsed.help, "Help text\n".to_string());
+        assert_eq!(parsed.help.unwrap(), "Help text\n".to_string());
     }
 
     #[test]
@@ -295,7 +304,7 @@ mod when_parsing_function_cmd_attributes {
         )
         .unwrap();
 
-        assert_eq!(parsed.help, "Help text\n".to_string());
+        assert_eq!(parsed.help.unwrap(), "Help text\n".to_string());
     }
 
     #[test]
@@ -312,7 +321,10 @@ mod when_parsing_function_cmd_attributes {
         )
         .unwrap();
 
-        assert_eq!(parsed.help, "Help text from the cmd attribute".to_string())
+        assert_eq!(
+            parsed.help.unwrap(),
+            "Help text from the cmd attribute".to_string()
+        )
     }
 
     #[test]
@@ -329,7 +341,7 @@ mod when_parsing_function_cmd_attributes {
         .unwrap();
 
         assert_eq!(
-            parsed.help,
+            parsed.help.unwrap(),
             "Multiline help text\nFrom the cmd attribute".to_string()
         )
     }

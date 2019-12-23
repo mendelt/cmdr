@@ -7,7 +7,7 @@ struct GreeterScope {}
 
 /// Example scope that implements two commands, greet and quit, help is available with the new_help
 /// command
-#[cmdr(help_command = "new_help", help = "Example scope")]
+#[cmdr(help = "Example scope")]
 impl GreeterScope {
     /// Cmdr command to greet someone.
     /// Takes one parameter and prints a greeting

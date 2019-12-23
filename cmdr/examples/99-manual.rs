@@ -1,6 +1,6 @@
-//! Manual implementation of a cmdr application.
+//! Implementation of a cmdr application without using the #[cmdr] macro.
 //! This example shows how to implement the Scope trait by hand. Normally you'd use the cmdr macro
-//! to do the heavy lifting. But you can use cmdr without using macro's too.
+//! to do the heavy lifting. This shows what the macro does under water.
 
 use cmdr::*;
 
@@ -9,13 +9,13 @@ struct GreeterScope {}
 
 impl GreeterScope {
     /// Cmdr command to greet someone.
-    fn do_greet(&self, args: &[String]) -> CommandResult {
+    fn greet(&self, args: &[String]) -> CommandResult {
         println!("Hello {}", args[0]);
         CommandResult::Ok
     }
 
     /// Cmdr command to quit the application by returning CommandResult::Quit
-    fn do_quit(&self, _args: &[String]) -> CommandResult {
+    fn quit(&self, _args: &[String]) -> CommandResult {
         println!("Quitting");
         CommandResult::Quit
     }
@@ -31,13 +31,13 @@ impl Scope for GreeterScope {
             vec![
                 ScopeCmdDescription::new(
                     "greet".to_string(),
-                    Box::new(|scope, cmd_line| scope.do_greet(&cmd_line.args)),
+                    Box::new(|scope, cmd_line| scope.greet(&cmd_line.args)),
                     Vec::new(),
                     Some("Show a greeting.".to_string()),
                 ),
                 ScopeCmdDescription::new(
                     "quit".to_string(),
-                    Box::new(|scope, cmd_line| scope.do_quit(&cmd_line.args)),
+                    Box::new(|scope, cmd_line| scope.quit(&cmd_line.args)),
                     Vec::new(),
                     Some("Quit the application.".to_string()),
                 ),

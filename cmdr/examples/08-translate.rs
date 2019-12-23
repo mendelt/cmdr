@@ -1,15 +1,12 @@
 //! Shows how to replace all strings that are output by cmdr with translated versions. This example
-//! provides Dutch translations for all messages built into cmdr.
-//!
-//! This translates;
-//! - Error messages by handling user_error
-//! -
+//! provides Dutch translations for all messages built into cmdr. And changes the help command to
+//! German.
 
 use cmdr::*;
 
 struct TranslatedScope {}
 
-#[cmdr]
+#[cmdr(help_command = "hilfe")]
 impl TranslatedScope {
     /// Handle errors, output a translated error string for all known errors
     fn handle_error(&mut self, error: CommandError) -> CommandResult {

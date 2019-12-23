@@ -1,29 +1,60 @@
 language: rust
 cache: cargo
-rust:
-  - stable
-  - beta
-  - nightly
 
-script:
-  - rustup component add rustfmt
-  - cargo fmt --all -- --check
-  - cargo build --verbose --all
-  - cargo test --verbose --all
+matrix:
+  include:
+    - rust: stable
+      script:
+        - rustup component add rustfmt
+        - cargo fmt --all -- --check
+        - cargo build --verbose --all
+        - cargo test --verbose --all
 
-deploy:
-  - provider: script
-    script: cargo publish --token ${CRATES_IO_TOKEN} --manifest-path cmdr_macro/Cargo.toml
+      deploy:
+        - provider: script
+          script: cargo publish --token ${CRATES_IO_TOKEN} --manifest-path cmdr_macro/Cargo.toml
 
-    on:
-      tags: true
-      branch: master
-      condition: "$TRAVIS_RUST_VERSION = stable"
+          on:
+            tags: true
+            branch: master
 
-  - provider: script
-    script: cargo publish --token ${CRATES_IO_TOKEN} --manifest-path cmdr/Cargo.toml
+        - provider: script
+          script: cargo publish --token ${CRATES_IO_TOKEN} --manifest-path cmdr/Cargo.toml
 
-    on:
-      tags: true
-      branch: master
-      condition: "$TRAVIS_RUST_VERSION = stable"
+          on:
+            tags: true
+            branch: master
+
+    - rust: beta
+      script:
+        - rustup component add rustfmt
+        - cargo fmt --all -- --check
+        - cargo build --verbose --all
+        - cargo test --verbose --all
+
+    - rust: nightly
+      script:
+        - rustup component add rustfmt
+        - cargo fmt --all -- --check
+        - cargo build --verbose --all
+        - cargo test --verbose --all
+
+    - rust: stable
+      name: docs
+      on:
+        branch: master
+
+      before_script:
+        - (test -x $HOME/.cargo/bin/cargo-install-update || cargo install cargo-update)
+        - (test -x $HOME/.cargo/bin/mdbook || cargo install --vers "^0.3" mdbook)
+        - cargo install-update -a
+
+      script:
+        - mdbook build doc && mdbook test doc
+
+      deploy:
+        provider: pages
+        skip-cleanup: true
+        github-token: $GITHUB_TOKEN
+        local-dir: doc/book
+        keep-history: false

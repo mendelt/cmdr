@@ -1,4 +1,4 @@
-# cmdr_macro &emsp; [![Build Status](https://travis-ci.org/mendelt/cmdr.svg?branch=master)](https://travis-ci.org/mendelt/cmdr)
+# cmdr_macro &emsp; [![Build Status](https://travis-ci.com/mendelt/cmdr.svg?branch=master)](https://travis-ci.com/mendelt/cmdr)
 
 **Cmdr_macro contains macro's for use with the cmdr crate.**
 

@@ -1,4 +1,4 @@
-# cmdr &emsp; [![Build Status](https://travis-ci.org/mendelt/cmdr.svg?branch=master)](https://travis-ci.org/mendelt/cmdr)
+# cmdr &emsp; [![Build Status](https://travis-ci.com/mendelt/cmdr.svg?branch=master)](https://travis-ci.com/mendelt/cmdr)
 
 **Cmdr is a library for building line-oriented text-based user interfaces.**
 It lets you focus on writing the implementations of your commands while it handles user

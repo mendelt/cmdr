@@ -26,7 +26,7 @@ fn quote_string_option(value: &Option<String>) -> TokenStream {
     }
 }
 
-fn get_methods(input: &ItemImpl) -> Vec<(CmdMeta)> {
+fn get_methods(input: &ItemImpl) -> Vec<CmdMeta> {
     input
         .items
         .iter()

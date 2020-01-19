@@ -1,4 +1,5 @@
 use cmdr::*;
+use std::fs::File;
 
 struct MainScope;
 
@@ -35,5 +36,6 @@ impl SubScope {
 }
 
 fn main() {
-    cmd_loop(&mut MainScope {});
+    let mut line_reader = FileLineReader::new(File::open("./examples/09-file-input.txt").unwrap()).echo_on();
+    cmd_loop_from(&mut MainScope {}, &mut line_reader);
 }

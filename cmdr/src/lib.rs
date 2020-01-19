@@ -65,7 +65,7 @@ mod result;
 mod scope;
 
 use crate::line_reader::RustyLineReader;
-pub use crate::line_reader::LineReader;
+pub use crate::line_reader::{LineReader, FileLineReader};
 pub use crate::line::Line;
 pub use crate::result::{CommandError, CommandResult};
 pub use crate::scope::{Scope, ScopeCmdDescription, ScopeDescription};

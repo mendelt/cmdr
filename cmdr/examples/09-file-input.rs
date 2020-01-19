@@ -14,7 +14,7 @@ impl MainScope {
     #[cmd]
     fn sub(&mut self, _: &[String]) -> CommandResult {
         println!("sub");
-        CommandResult::sub_scope(SubScope { })
+        CommandResult::sub_scope(SubScope {})
     }
 }
 
@@ -36,6 +36,7 @@ impl SubScope {
 }
 
 fn main() {
-    let mut line_reader = FileLineReader::new(File::open("./examples/09-file-input.txt").unwrap()).echo_on();
+    let mut line_reader =
+        FileLineReader::new(File::open("./examples/09-file-input.txt").unwrap()).echo_on();
     cmd_loop_from(&mut MainScope {}, &mut line_reader);
 }

@@ -1,8 +1,8 @@
-use std::io::{Read, BufReader, BufRead};
 use crate::line::*;
 use crate::CommandError;
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
+use std::io::{BufRead, BufReader, Read};
 
 /// Linereader trait, a line reader gets lines from a user, for example from the command line and
 /// parses them.
@@ -46,7 +46,10 @@ pub struct FileLineReader<R: Read> {
 
 impl<R: Read> FileLineReader<R> {
     pub fn new(reader: R) -> Self {
-        FileLineReader {reader: BufReader::new(reader), echo: false}
+        FileLineReader {
+            reader: BufReader::new(reader),
+            echo: false,
+        }
     }
 
     pub fn echo_on(mut self) -> Self {
@@ -67,7 +70,7 @@ impl<R: Read> LineReader for FileLineReader<R> {
                 }
                 Line::try_parse(line.as_ref())
             }
-            Err(_) => Err(CommandError::LineReaderError)
+            Err(_) => Err(CommandError::LineReaderError),
         }
     }
 }

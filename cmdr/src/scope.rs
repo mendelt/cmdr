@@ -14,11 +14,14 @@ pub trait Scope {
         self.before_loop();
 
         let mut last_result = CommandResult::Ok;
-
         while last_result == CommandResult::Ok {
             last_result = match reader.read_line(self.prompt().as_ref()) {
-                Err(error) => self.handle_error_internal(error),
+                Err(error) => CommandResult::Error(error),
                 Ok(line) => self.run_line(line, reader),
+            };
+
+            if let CommandResult::Error(error) = last_result {
+                last_result = self.handle_error_internal(error)
             }
         }
 
@@ -54,13 +57,7 @@ pub trait Scope {
             result
         };
 
-        let result = self.after_command(&line, result);
-
-        if let CommandResult::Error(error) = result {
-            self.handle_error_internal(error)
-        } else {
-            result
-        }
+        self.after_command(&line, result)
     }
 
     fn commands() -> ScopeDescription<Self>
@@ -126,13 +123,13 @@ pub trait Scope {
         })
     }
 
-    /// Error handling, first checks if the user handles the error, then
+    /// Error handling, first allow the user to handle the error, then handles or passes on
+    /// unhandled errors
     fn handle_error_internal(&mut self, error: CommandError) -> CommandResult {
         // Allow user to handle error in overridable handle_error
         match self.handle_error(error) {
             CommandResult::Error(error) => {
-                // Error was not handled, handle it here
-
+                // Error was not handled by the user, handle it here
                 match error {
                     CommandError::InvalidCommand { command } => {
                         println!("Unknown command: {}", command);

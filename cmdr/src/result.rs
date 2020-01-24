@@ -10,10 +10,10 @@ pub enum CommandResult {
     Ok,
 
     /// Switch to a new scope
-    NewScope(ScopeRunner),
+    NewScope(ScopeWrap),
 
     /// Switch to a sub scope,
-    SubScope(ScopeRunner),
+    SubScope(ScopeWrap),
 
     /// Result Exit, exit the current scope and return to the parent scope if available
     Exit,
@@ -28,12 +28,12 @@ pub enum CommandResult {
 impl CommandResult {
     /// Construct a CommandResult::NewScope around the provided scope
     pub fn new_scope<S: Scope + Sized + 'static>(scope: S) -> Self {
-        CommandResult::NewScope(ScopeRunner::new(scope))
+        CommandResult::NewScope(ScopeWrap::new(scope))
     }
 
     /// Construct a CommandResult::SubScope around the provided scope
     pub fn sub_scope<S: Scope + Sized + 'static>(scope: S) -> Self {
-        CommandResult::SubScope(ScopeRunner::new(scope))
+        CommandResult::SubScope(ScopeWrap::new(scope))
     }
 }
 
@@ -65,14 +65,14 @@ pub enum CommandError {
     Fatal(i32),
 }
 
-/// Return the new scope to start on a CommandResult::NewScope
-pub struct ScopeRunner {
+/// Wrap the scope to start on a CommandResult::NewScope or CommandResult::SubScope
+pub struct ScopeWrap {
     runner: Box<dyn (FnOnce(&mut dyn LineReader) -> CommandResult)>,
 }
 
-impl ScopeRunner {
+impl ScopeWrap {
     pub fn new<S: Sized + Scope + 'static>(mut scope: S) -> Self {
-        ScopeRunner {
+        ScopeWrap {
             runner: Box::new(move |reader| scope.run_lines(reader)),
         }
     }
@@ -83,15 +83,15 @@ impl ScopeRunner {
 }
 
 /// Do not attempt to print anything about the ScopeRunner, just show that this is a ScopeRunner
-impl Debug for ScopeRunner {
+impl Debug for ScopeWrap {
     fn fmt(&self, formatter: &mut Formatter) -> Result<(), Error> {
         write!(formatter, "NewScopeResult")
     }
 }
 
 /// Different instances of ScopeRunner are never equal
-impl PartialEq for ScopeRunner {
-    fn eq(&self, other: &ScopeRunner) -> bool {
+impl PartialEq for ScopeWrap {
+    fn eq(&self, other: &ScopeWrap) -> bool {
         ptr::eq(self, other)
     }
 }

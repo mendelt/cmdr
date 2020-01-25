@@ -17,7 +17,13 @@ pub trait Scope {
         while last_result == CommandResult::Ok {
             last_result = match reader.read_line(self.prompt().as_ref()) {
                 Err(error) => CommandResult::Error(error),
-                Ok(line) => self.run_line(line, reader),
+                Ok(line_string) => {
+                    let line = Line::try_parse(line_string.as_ref());
+                    match line {
+                        Err(error) => CommandResult::Error(error),
+                        Ok(line) => self.run_line(line, reader),
+                    }
+                }
             };
 
             if let CommandResult::Error(error) = last_result {

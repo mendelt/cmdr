@@ -60,7 +60,7 @@
     unused_qualifications
 )]
 mod line;
-mod line_reader;
+pub mod line_reader;
 mod result;
 mod scope;
 

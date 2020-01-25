@@ -38,10 +38,32 @@ impl LineReader for RustyLineReader {
     }
 }
 
+/// Wraps a LineReader and echoes all read lines
+pub struct EchoLineReader<W: LineReader> {
+    wrapped: W,
+}
+
+impl<W: LineReader> EchoLineReader<W> {
+    pub fn new(wrapped: W) -> Self {
+        EchoLineReader { wrapped }
+    }
+}
+
+impl<W: LineReader> LineReader for EchoLineReader<W> {
+    fn read_line(&mut self, prompt: &str) -> Result<String, CommandError> {
+        match self.wrapped.read_line(prompt) {
+            Ok(line) => {
+                println!("{} {}", prompt, &line);
+                Ok(line)
+            }
+            Err(error) => Err(error),
+        }
+    }
+}
+
 /// Read commands from an io stream like a textfile or domain socket
 pub struct FileLineReader<R: Read> {
     reader: BufReader<R>,
-    echo: bool,
 }
 
 impl<R: Read> FileLineReader<R> {
@@ -49,28 +71,17 @@ impl<R: Read> FileLineReader<R> {
     pub fn new(reader: R) -> Self {
         FileLineReader {
             reader: BufReader::new(reader),
-            echo: false,
         }
-    }
-
-    pub fn echo_on(mut self) -> Self {
-        self.echo = true;
-        self
     }
 }
 
 impl<R: Read> LineReader for FileLineReader<R> {
-    fn read_line(&mut self, prompt: &str) -> Result<String, CommandError> {
+    fn read_line(&mut self, _: &str) -> Result<String, CommandError> {
         let mut line = String::new();
         let input = self.reader.read_line(&mut line);
         match input {
             Ok(0) => Err(CommandError::CtrlD),
-            Ok(_) => {
-                if self.echo {
-                    println!("{} {}", prompt, &line);
-                }
-                Ok(line)
-            }
+            Ok(_) => Ok(line),
             Err(_) => Err(CommandError::LineReaderError),
         }
     }

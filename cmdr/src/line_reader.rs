@@ -39,12 +39,14 @@ impl LineReader for RustyLineReader {
     }
 }
 
+/// Read commands from an io stream like a textfile or domain socket
 pub struct FileLineReader<R: Read> {
     reader: BufReader<R>,
     echo: bool,
 }
 
 impl<R: Read> FileLineReader<R> {
+    /// Create a new FileLineReader
     pub fn new(reader: R) -> Self {
         FileLineReader {
             reader: BufReader::new(reader),

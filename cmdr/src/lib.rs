@@ -78,6 +78,7 @@ pub fn cmd_loop<S: Scope>(scope: &mut S) -> CommandResult {
 }
 
 /// Use this as the entrypoint when using a different reader implementation.
+/// TODO: This syntax will probably change before version 0.3.12
 pub fn cmd_loop_from<S: Scope, R: LineReader>(scope: &mut S, reader: &mut R) -> CommandResult {
     let mut result = scope.run_lines(reader);
 

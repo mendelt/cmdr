@@ -87,8 +87,8 @@ pub trait Scope {
             Ok(help_text) => {
                 println!("\n{}", help_text);
                 CommandResult::Ok
-            },
-            Err(error) => CommandResult::Error(error)
+            }
+            Err(error) => CommandResult::Error(error),
         }
     }
 
@@ -198,11 +198,22 @@ where
     pub fn help(&self, args: &[String]) -> Result<String, CommandError> {
         match args.len() {
             0 => Ok(self.format_scope_help()),
-            1 => match self.command_by_name(&args[0]).ok_or(CommandError::InvalidCommand{command: args[0].to_owned()})?.help_text.clone() {
+            1 => match self
+                .command_by_name(&args[0])
+                .ok_or(CommandError::InvalidCommand {
+                    command: args[0].to_owned(),
+                })?
+                .help_text
+                .clone()
+            {
                 Some(help_text) => Ok(help_text),
-                None => Err(CommandError::NoHelpForCommand { command: args[0].to_owned() }),
+                None => Err(CommandError::NoHelpForCommand {
+                    command: args[0].to_owned(),
+                }),
             },
-            _ => Err(CommandError::InvalidNumberOfArguments{command: self.help_command.clone()}),
+            _ => Err(CommandError::InvalidNumberOfArguments {
+                command: self.help_command.clone(),
+            }),
         }
     }
 
@@ -211,7 +222,7 @@ where
 
         result.push_str(match &self.scope_help {
             Some(scope_help) => scope_help,
-            None => "These are the valid commands in this scope:"
+            None => "These are the valid commands in this scope:",
         });
 
         result.push('\n');
@@ -222,7 +233,6 @@ where
 
         result
     }
-
 }
 
 /// All information about a command method in one handy struct

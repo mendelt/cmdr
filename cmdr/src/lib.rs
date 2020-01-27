@@ -49,6 +49,7 @@
 //! - [Release notes](https://github.com/mendelt/cmdr/releases)
 
 // Turn on warnings for some lints
+mod description;
 #[warn(
     missing_debug_implementations,
     missing_copy_implementations,
@@ -64,11 +65,12 @@ pub mod line_reader;
 mod result;
 mod scope;
 
+pub use crate::description::{ScopeCmdDescription, ScopeDescription};
 pub use crate::line::Line;
 use crate::line_reader::RustyLineReader;
 pub use crate::line_reader::{FileLineReader, LineReader};
 pub use crate::result::{CommandError, CommandResult};
-pub use crate::scope::{Scope, ScopeCmdDescription, ScopeDescription};
+pub use crate::scope::Scope;
 pub use cmdr_macro::{cmd, cmdr};
 
 /// This is the main entry-point to the cmdr library.

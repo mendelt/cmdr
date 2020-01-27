@@ -81,42 +81,14 @@ pub trait Scope {
     where
         Self: Sized,
     {
-        let scope_metadata = Self::commands();
+        let scope_meta = Self::commands();
 
-        if args.len() == 0 {
-            if let Some(scope_help) = scope_metadata.get_help() {
-                println!("{}\n", scope_help);
-            } else {
-                println!("These are the valid commands in this scope:");
-            }
-
-            for command in scope_metadata.all_commands() {
-                println!("- {}", command.name());
-            }
-
-            CommandResult::Ok
-        } else if args.len() == 1 {
-            match scope_metadata.command_by_name(&args[0]) {
-                Some(command) => {
-                    if let Some(help_text) = command.help_text() {
-                        println!("{}\n", help_text);
-                        CommandResult::Ok
-                    } else {
-                        return CommandResult::Error(CommandError::NoHelpForCommand {
-                            command: command.name().to_string(),
-                        });
-                    }
-                }
-                None => {
-                    return CommandResult::Error(CommandError::InvalidCommand {
-                        command: args[0].clone(),
-                    })
-                }
-            }
-        } else {
-            CommandResult::Error(CommandError::InvalidNumberOfArguments {
-                command: scope_metadata.help_command.clone(),
-            })
+        match scope_meta.help(args) {
+            Ok(help_text) => {
+                println!("\n{}", help_text);
+                CommandResult::Ok
+            },
+            Err(error) => CommandResult::Error(error)
         }
     }
 
@@ -222,9 +194,35 @@ where
             .next()
     }
 
-    pub fn get_help(&self) -> &Option<String> {
-        &self.scope_help
+    /// Format help text for command
+    pub fn help(&self, args: &[String]) -> Result<String, CommandError> {
+        match args.len() {
+            0 => Ok(self.format_scope_help()),
+            1 => match self.command_by_name(&args[0]).ok_or(CommandError::InvalidCommand{command: args[0].to_owned()})?.help_text.clone() {
+                Some(help_text) => Ok(help_text),
+                None => Err(CommandError::NoHelpForCommand { command: args[0].to_owned() }),
+            },
+            _ => Err(CommandError::InvalidNumberOfArguments{command: self.help_command.clone()}),
+        }
     }
+
+    fn format_scope_help(&self) -> String {
+        let mut result = String::new();
+
+        result.push_str(match &self.scope_help {
+            Some(scope_help) => scope_help,
+            None => "These are the valid commands in this scope:"
+        });
+
+        result.push('\n');
+
+        for command in self.all_commands() {
+            result = format!("{}- {}\n", result, command.name());
+        }
+
+        result
+    }
+
 }
 
 /// All information about a command method in one handy struct

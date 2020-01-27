@@ -6,7 +6,7 @@ use cmdr::*;
 
 struct TranslatedScope {}
 
-#[cmdr(help_command = "hilfe")]
+#[cmdr(help_command = "?")]
 impl TranslatedScope {
     /// Handle errors, output a translated error string for all known errors
     fn handle_error(&mut self, error: CommandError) -> CommandResult {

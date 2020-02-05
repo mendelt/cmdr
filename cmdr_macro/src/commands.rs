@@ -210,11 +210,12 @@ impl ToTokens for CmdMeta {
 #[cfg(test)]
 mod when_parsing_function_cmd_attributes {
     use super::*;
+    use syn::parse_str;
 
     #[test]
     fn should_ignore_method_without_cmd_attribute() {
         let parsed = parse_cmd_attributes(
-            &syn::parse_str(
+            &parse_str(
                 r###"
                 fn method() {}
                 "###,
@@ -228,7 +229,7 @@ mod when_parsing_function_cmd_attributes {
     #[test]
     fn should_parse_plain_cmd_attribute() {
         let parsed = parse_cmd_attributes(
-            &syn::parse_str(
+            &parse_str(
                 r###"
                 #[cmd]
                 fn method() {}
@@ -245,7 +246,7 @@ mod when_parsing_function_cmd_attributes {
     #[test]
     fn should_parse_command_name() {
         let parsed = parse_cmd_attributes(
-            &syn::parse_str(
+            &parse_str(
                 r###"
                 #[cmd(command)]
                 fn method() {}
@@ -262,7 +263,7 @@ mod when_parsing_function_cmd_attributes {
     #[test]
     fn should_parse_named_command_name() {
         let parsed = parse_cmd_attributes(
-            &syn::parse_str(
+            &parse_str(
                 r###"
                 #[cmd(name="command")]
                 fn method() {}
@@ -279,7 +280,7 @@ mod when_parsing_function_cmd_attributes {
     #[test]
     fn should_parse_name_from_multiple_cmd_attributes() {
         let parsed = parse_cmd_attributes(
-            &syn::parse_str(
+            &parse_str(
                 r###"
                 #[cmd]
                 #[cmd(command)]
@@ -297,7 +298,7 @@ mod when_parsing_function_cmd_attributes {
     #[test]
     fn should_parse_outer_doc_string_as_help_text() {
         let parsed = parse_cmd_attributes(
-            &syn::parse_str(
+            &parse_str(
                 r###"
                 #[cmd]
                 ///Help text
@@ -313,7 +314,7 @@ mod when_parsing_function_cmd_attributes {
     #[test]
     fn should_parse_inner_doc_string_as_help_text() {
         let parsed = parse_cmd_attributes(
-            &syn::parse_str(
+            &parse_str(
                 r###"
                 #[cmd]
                 fn method() {
@@ -331,7 +332,7 @@ mod when_parsing_function_cmd_attributes {
     #[test]
     fn should_strip_help_text_spaces() {
         let parsed = parse_cmd_attributes(
-            &syn::parse_str(
+            &parse_str(
                 r###"
                 #[cmd]
                 ///     Help text
@@ -348,7 +349,7 @@ mod when_parsing_function_cmd_attributes {
     #[test]
     fn should_ignore_docstring_if_cmd_attribute_help_available() {
         let parsed = parse_cmd_attributes(
-            &syn::parse_str(
+            &parse_str(
                 r###"
                 #[cmd(name, help="Help text from the cmd attribute")]
                 /// This is a docstring, not help text
@@ -368,7 +369,7 @@ mod when_parsing_function_cmd_attributes {
     #[test]
     fn should_parse_multiline_help_from_cmd_attribute() {
         let parsed = parse_cmd_attributes(
-            &syn::parse_str(
+            &parse_str(
                 r###"
                 #[cmd(name, help="Multiline help text\nFrom the cmd attribute")]
                 fn method() {}
@@ -387,7 +388,7 @@ mod when_parsing_function_cmd_attributes {
     #[test]
     fn should_set_missing_help_text_to_none() {
         let parsed = parse_cmd_attributes(
-            &syn::parse_str(
+            &parse_str(
                 r###"
                 #[cmd(name)]
                 fn method() {}
@@ -403,7 +404,7 @@ mod when_parsing_function_cmd_attributes {
     #[test]
     fn should_parse_alias_from_cmd_attribute() {
         let parsed = parse_cmd_attributes(
-            &syn::parse_str(
+            &parse_str(
                 r###"
                 #[cmd(name, alias("one", "two", three))]
                 fn method() {}

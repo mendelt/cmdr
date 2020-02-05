@@ -2,21 +2,55 @@ use itertools::Itertools;
 use proc_macro2::{Ident, TokenStream};
 use quote::{quote, ToTokens};
 use syn::{
-    Attribute, ImplItem, ItemImpl, Lit, Meta, MetaList, MetaNameValue, NestedMeta, TypePath,
+    Attribute, AttributeArgs, ImplItem, ItemImpl, Lit, Meta, MetaList, MetaNameValue, NestedMeta,
+    TypePath,
 };
 
-pub fn format_commands(input: &ItemImpl, self_type: &TypePath) -> TokenStream {
+pub fn format_commands(
+    input: &ItemImpl,
+    meta: &AttributeArgs,
+    self_type: &TypePath,
+) -> TokenStream {
+    let (help_text, help_command) = parse_cmdr_attributes(meta);
+    let doc_help_text = parse_help_text(&input.attrs);
+
     let command_methods = get_methods(&input);
-    let scope_help = quote_string_option(&parse_help_text(&input.attrs));
+    let quoted_help = quote_string_option(&help_text.or(doc_help_text));
+    let quoted_help_command = quote_string_option(&help_command);
+
     quote!(
         fn commands() -> ScopeDescription<#self_type> {
             ScopeDescription::new(
-                #scope_help,
-                None,
+                #quoted_help,
+                #quoted_help_command,
                 vec![#(#command_methods)*]
             )
         }
     )
+}
+
+/// Parses the help text and help command from the cmdr attribute
+fn parse_cmdr_attributes(meta: &AttributeArgs) -> (Option<String>, Option<String>) {
+    let mut help = None;
+    let mut help_command = None;
+
+    for meta_item in meta {
+        if let NestedMeta::Meta(Meta::NameValue(MetaNameValue {
+            path,
+            lit: Lit::Str(lit),
+            ..
+        })) = meta_item
+        {
+            if path.is_ident("help") {
+                help = Some(lit.value());
+            }
+            if path.is_ident("help_command") {
+                help_command = Some(lit.value());
+            }
+        }
+    }
+
+    (help, help_command)
 }
 
 fn quote_string_option(value: &Option<String>) -> TokenStream {

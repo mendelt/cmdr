@@ -28,7 +28,7 @@ use crate::overrides::format_overrides;
 use crate::util::parse_self_type;
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{parse_macro_input, ItemImpl};
+use syn::{parse_macro_input, AttributeArgs, ItemImpl};
 
 /// Implements the cmdr::Scope trait on any impl block.
 ///
@@ -38,14 +38,15 @@ use syn::{parse_macro_input, ItemImpl};
 /// Right now it will search the impl block for methods starting with do_ and call them in a
 /// generated Scope::command method when the right command is received.
 #[proc_macro_attribute]
-pub fn cmdr(_meta: TokenStream, code: TokenStream) -> TokenStream {
-    let input: ItemImpl = parse_macro_input!(code);
+pub fn cmdr(meta_stream: TokenStream, code_stream: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(code_stream as ItemImpl);
+    let meta = parse_macro_input!(meta_stream as AttributeArgs);
 
     let self_type = parse_self_type(&input).unwrap();
     let self_generics = &input.generics;
     let self_where = &self_generics.where_clause;
 
-    let commands = format_commands(&input, &self_type);
+    let commands = format_commands(&input, &meta, &self_type);
     let overrides = format_overrides(&input, &self_type);
 
     TokenStream::from(quote!(

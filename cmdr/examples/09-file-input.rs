@@ -1,4 +1,4 @@
-use cmdr::line_reader::EchoLineReader;
+use cmdr::line_reader::{EchoLineReader, FileLineReader};
 use cmdr::*;
 use std::fs::File;
 
@@ -37,9 +37,9 @@ impl SubScope {
 }
 
 fn main() {
-    let mut line_reader = EchoLineReader::new(FileLineReader::new(
+    let line_reader = EchoLineReader::new(FileLineReader::new(
         File::open("./examples/09-file-input.txt").unwrap(),
     ));
-    // TODO: This syntax will probably change before version 0.3.12
-    cmd_loop_from(&mut MainScope {}, &mut line_reader);
+
+    Runner::new(Box::new(line_reader), MainScope {}).run();
 }

@@ -10,6 +10,7 @@ pub trait LineReader {
 }
 
 /// Implementation of the LineReader trait using the rustyline library
+#[derive(Debug)]
 pub struct RustyLineReader {
     editor: Editor<()>,
 }
@@ -39,6 +40,7 @@ impl LineReader for RustyLineReader {
 }
 
 /// Wraps a LineReader and echoes all read lines
+#[derive(Debug)]
 pub struct EchoLineReader<W: LineReader> {
     wrapped: W,
 }
@@ -62,6 +64,7 @@ impl<W: LineReader> LineReader for EchoLineReader<W> {
 }
 
 /// Read commands from an io stream like a textfile or domain socket
+#[derive(Debug)]
 pub struct FileLineReader<R: Read> {
     reader: BufReader<R>,
 }

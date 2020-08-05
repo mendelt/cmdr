@@ -2,7 +2,7 @@ use crate::line::Line;
 use crate::result::CommandError;
 use crate::result::CommandResult;
 use crate::scope::Scope;
-use std::fmt::{Debug, Formatter};
+use std::fmt::{Debug, Error as FmtError, Formatter};
 
 /// Metadata describing a scope, is used to return help text and the list of commands that this
 /// scope exposes.
@@ -154,7 +154,7 @@ impl<T> Debug for ScopeCmdDescription<T>
 where
     T: Debug,
 {
-    fn fmt(&self, formatter: &mut Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> Result<(), FmtError> {
         formatter
             .debug_struct("ScopeCmdDescription")
             .field("name", &self.name)

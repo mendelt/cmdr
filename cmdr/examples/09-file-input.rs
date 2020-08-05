@@ -41,5 +41,5 @@ fn main() {
         File::open("./examples/09-file-input.txt").unwrap(),
     ));
 
-    Runner::new(Box::new(line_reader), MainScope {}).run();
+    Runner::new(line_reader, MainScope {}).run();
 }

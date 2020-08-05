@@ -49,8 +49,7 @@
 //! - [Release notes](https://github.com/mendelt/cmdr/releases)
 
 // Turn on warnings for some lints
-mod description;
-#[warn(
+#![warn(
     missing_debug_implementations,
     missing_copy_implementations,
     missing_docs,
@@ -60,6 +59,8 @@ mod description;
     unused_import_braces,
     unused_qualifications
 )]
+
+mod description;
 mod line;
 pub mod line_reader;
 mod result;

@@ -12,9 +12,6 @@ keywords = ["cmdr", "cli", "text", "command-line"]
 readme = "README.md"
 include = ["Cargo.toml", "src/**/*.rs", "README.md", "../LICENSE"]
 
-[badges]
-travis-ci = { repository = "mendelt/cmdr" }
-
 [lib]
 path = "src/lib.rs"  # Needed for cargo readme
 proc-macro = true

@@ -1,6 +1,6 @@
 use syn::{ItemImpl, Type, TypePath};
 
-pub fn parse_self_type(input: &ItemImpl) -> Option<TypePath> {
+pub(crate) fn parse_self_type(input: &ItemImpl) -> Option<TypePath> {
     match &*input.self_ty {
         Type::Path(self_type) => Some(self_type.to_owned()),
         _ => None,

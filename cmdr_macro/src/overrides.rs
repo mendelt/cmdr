@@ -2,7 +2,7 @@ use proc_macro2::TokenStream;
 use quote::quote;
 use syn::{ImplItem, ItemImpl, TypePath};
 
-pub fn format_overrides(input: &ItemImpl, self_type: &TypePath) -> TokenStream {
+pub(crate) fn format_overrides(input: &ItemImpl, self_type: &TypePath) -> TokenStream {
     let mut overrides = TokenStream::new();
 
     for item in &input.items {

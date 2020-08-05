@@ -6,7 +6,7 @@ use syn::{
     TypePath,
 };
 
-pub fn format_commands(
+pub(crate) fn format_commands(
     input: &ItemImpl,
     meta: &AttributeArgs,
     self_type: &TypePath,

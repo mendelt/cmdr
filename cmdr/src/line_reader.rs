@@ -1,3 +1,5 @@
+//! Contains the LineReader trait and several implementations to read lines from several sources
+
 use crate::CommandError;
 use rustyline::error::ReadlineError;
 use rustyline::Editor;

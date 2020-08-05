@@ -67,6 +67,7 @@ pub trait Scope {
         self.after_command(&line, result)
     }
 
+    /// Return a ScopeDescription with a set of commands that this scope supports
     fn commands() -> ScopeDescription<Self>
     where
         Self: Sized;

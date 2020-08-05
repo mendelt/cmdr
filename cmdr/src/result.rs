@@ -41,13 +41,22 @@ impl CommandResult {
 #[derive(Debug, PartialEq)]
 pub enum CommandError {
     /// Invalid command was entered
-    InvalidCommand { command: String },
+    InvalidCommand {
+        /// The command-string that caused the error
+        command: String,
+    },
 
     /// Invalid number of arguments
-    InvalidNumberOfArguments { command: String },
+    InvalidNumberOfArguments {
+        /// The command-string that caused the error
+        command: String,
+    },
 
     /// No help for the entered command
-    NoHelpForCommand { command: String },
+    NoHelpForCommand {
+        /// The command-string that caused the error
+        command: String,
+    },
 
     /// An unknown error occured reading a line
     LineReaderError,

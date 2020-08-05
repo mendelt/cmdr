@@ -14,7 +14,10 @@ pub struct Runner<S: Scope, R: LineReader> {
 impl<S: Scope, R: LineReader> Runner<S, R> {
     /// Create a new runner that takes lines from the `reader` and executes them using the `scope`
     pub fn new(reader: R, scope: S) -> Self {
-        Runner { reader: Box::new(reader), scope }
+        Runner {
+            reader: Box::new(reader),
+            scope,
+        }
     }
 
     /// Start reading lines and executing them

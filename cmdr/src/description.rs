@@ -46,6 +46,7 @@ where
             .next()
     }
 
+    /// Returns true if the passed in the command is equal to the configured help command
     pub fn is_help_command(&self, command: &str) -> bool {
         self.help_command == command
     }

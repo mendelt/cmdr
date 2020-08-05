@@ -8,6 +8,7 @@ use std::io::{BufRead, BufReader, Read};
 /// Linereader trait, a line reader gets lines from a user, for example from the command line and
 /// parses them.
 pub trait LineReader {
+    /// Blocks until a new line is entered
     fn read_line(&mut self, prompt: &str) -> Result<String, CommandError>;
 }
 
@@ -18,6 +19,7 @@ pub struct RustyLineReader {
 }
 
 impl RustyLineReader {
+    /// Construct and return an new `RustyLineReader`
     pub fn new() -> Self {
         RustyLineReader {
             editor: Editor::<()>::new(),
@@ -48,6 +50,7 @@ pub struct EchoLineReader<W: LineReader> {
 }
 
 impl<W: LineReader> EchoLineReader<W> {
+    /// Construct and return an new `EchoLineReader`
     pub fn new(wrapped: W) -> Self {
         EchoLineReader { wrapped }
     }

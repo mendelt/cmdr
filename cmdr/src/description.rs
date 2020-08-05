@@ -2,9 +2,11 @@ use crate::line::Line;
 use crate::result::CommandError;
 use crate::result::CommandResult;
 use crate::scope::Scope;
+use std::fmt::{Debug, Formatter};
 
 /// Metadata describing a scope, is used to return help text and the list of commands that this
 /// scope exposes.
+#[derive(Debug)]
 pub struct ScopeDescription<T>
 where
     T: Scope,
@@ -90,10 +92,7 @@ where
 }
 
 /// All information about a command method in one handy struct
-pub struct ScopeCmdDescription<T>
-where
-    T: Scope,
-{
+pub struct ScopeCmdDescription<T> {
     name: String,
     method: Box<dyn Fn(&mut T, &Line) -> CommandResult>,
     alias: Vec<String>,
@@ -148,6 +147,20 @@ where
     /// Execute this command
     pub fn execute(&self, scope: &mut T, command: &Line) -> CommandResult {
         (self.method)(scope, command)
+    }
+}
+
+impl<T> Debug for ScopeCmdDescription<T>
+where
+    T: Debug,
+{
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
+        formatter
+            .debug_struct("ScopeCmdDescription")
+            .field("name", &self.name)
+            .field("alias", &self.alias)
+            .field("help_text", &self.help_text)
+            .finish()
     }
 }
 

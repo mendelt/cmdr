@@ -17,4 +17,4 @@ travis-ci = { repository = "mendelt/cmdr" }
 
 [dependencies]
 cmdr_macro = { version="0.3.11", path="../cmdr_macro" }
-rustyline = "5.0.3"
+rustyline = "6.2.0"

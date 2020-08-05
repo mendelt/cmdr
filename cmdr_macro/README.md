@@ -1,4 +1,4 @@
-# cmdr_macro &emsp; [![Build Status](https://travis-ci.com/mendelt/cmdr.svg?branch=master)](https://travis-ci.com/mendelt/cmdr)
+# cmdr &emsp; [![Build Status](https://github.com/mendelt/cmdr/workflows/Build/badge.svg)](https://github.com/mendelt/cmdr/actions?query=workflow%3ABuild+event%3Apush+branch%3Amaster)
 
 **Cmdr_macro contains macro's for use with the cmdr crate.**
 
@@ -7,7 +7,7 @@ be found here:
 
 [Crates.io](https://crates.io/crates/cmdr)
 
-*version: 0.3.5*
+*version: 0.3.11*
 ## License
 
 Licensed under either of

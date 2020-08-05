@@ -1,4 +1,4 @@
-# {{crate}} &emsp; {{badges}}
+# cmdr &emsp; [![Build Status](https://github.com/mendelt/cmdr/workflows/Build/badge.svg)](https://github.com/mendelt/cmdr/actions?query=workflow%3ABuild+event%3Apush+branch%3Amaster)
 
 {{readme}}
 

@@ -1,4 +1,4 @@
-# cmdr &emsp; [![Build Status](https://travis-ci.com/mendelt/cmdr.svg?branch=master)](https://travis-ci.com/mendelt/cmdr)
+# cmdr &emsp; [![Build Status](https://github.com/mendelt/cmdr/workflows/Build/badge.svg)](https://github.com/mendelt/cmdr/actions?query=workflow%3ABuild+event%3Apush+branch%3Amaster)
 
 **Cmdr is a library for building line-oriented text-based user interfaces.**
 It lets you focus on writing the implementations of your commands while it handles user
@@ -50,7 +50,7 @@ fn main() {
 - [Crates.io](https://crates.io/crates/cmdr)
 - [Release notes](https://github.com/mendelt/cmdr/releases)
 
-*version: 0.3.5*
+*version: 0.3.11*
 ## License
 
 Licensed under either of

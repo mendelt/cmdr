@@ -55,10 +55,9 @@ pub trait Scope {
 
         self.after_loop();
 
-        if last_result == CommandResult::Exit {
-            CommandResult::Ok
-        } else {
-            last_result
+        match last_result {
+            CommandResult::Exit => CommandResult::Ok,
+            _ => last_result,
         }
     }
 

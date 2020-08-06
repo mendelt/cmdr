@@ -6,14 +6,14 @@ use std::fmt::Debug;
 /// Wraps a LineReader and a Scope and allows using the scope to interpret commands from the
 /// LineReader
 #[derive(Debug)]
-pub struct Runner<S: Scope, R: LineReader> {
+pub struct Runner<'a, S: Scope, R: LineReader> {
     reader: Box<R>,
-    scope: S,
+    scope: &'a mut S,
 }
 
-impl<S: Scope, R: LineReader> Runner<S, R> {
+impl<'a, S: Scope, R: LineReader> Runner<'a, S, R> {
     /// Create a new runner that takes lines from the `reader` and executes them using the `scope`
-    pub fn new(reader: R, scope: S) -> Self {
+    pub fn new(reader: R, scope: &'a mut S) -> Self {
         Runner {
             reader: Box::new(reader),
             scope,

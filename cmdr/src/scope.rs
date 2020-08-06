@@ -15,6 +15,8 @@ pub trait Scope {
         self.before_loop();
 
         let mut last_result = CommandResult::Ok;
+        let scope_meta = Self::commands();
+
         while last_result == CommandResult::Ok {
             last_result = match reader.read_line(self.prompt().as_ref()) {
                 Err(error) => CommandResult::Error(error),
@@ -22,7 +24,26 @@ pub trait Scope {
                     let line = Line::try_parse(line_string.as_ref());
                     match line {
                         Err(error) => CommandResult::Error(error),
-                        Ok(line) => self.run_line(line, reader),
+                        Ok(line) => {
+                            let line = self.before_command(line);
+
+                            let result = if scope_meta.is_help_command(&line.command) {
+                                self.help(&line.args)
+                            } else {
+                                match scope_meta.command_by_name(&line.command) {
+                                    Some(method) => method.execute(self, &line),
+                                    None => self.default(&line),
+                                }
+                            };
+
+                            let result = if let CommandResult::SubScope(scope_runner) = result {
+                                scope_runner.run_lines(reader)
+                            } else {
+                                result
+                            };
+
+                            self.after_command(&line, result)
+                        }
                     }
                 }
             };
@@ -39,32 +60,6 @@ pub trait Scope {
         } else {
             last_result
         }
-    }
-
-    /// Execute a single line
-    fn run_line(&mut self, line: Line, reader: &mut dyn LineReader) -> CommandResult
-    where
-        Self: Sized,
-    {
-        let line = self.before_command(line);
-        let scope_meta = Self::commands();
-
-        let result = if scope_meta.is_help_command(&line.command) {
-            self.help(&line.args)
-        } else {
-            match scope_meta.command_by_name(&line.command) {
-                Some(method) => method.execute(self, &line),
-                None => self.default(&line),
-            }
-        };
-
-        let result = if let CommandResult::SubScope(scope_runner) = result {
-            scope_runner.run_lines(reader)
-        } else {
-            result
-        };
-
-        self.after_command(&line, result)
     }
 
     /// Return a ScopeDescription with a set of commands that this scope supports

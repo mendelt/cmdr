@@ -69,7 +69,7 @@ mod scope;
 
 pub use crate::description::{ScopeCmdDescription, ScopeDescription};
 pub use crate::line::Line;
-use crate::line_reader::{LineReader, RustyLineReader};
+use crate::line_reader::RustyLineReader;
 pub use crate::result::{CommandError, CommandResult};
 pub use crate::runner::Runner;
 pub use crate::scope::Scope;
@@ -78,17 +78,5 @@ pub use cmdr_macro::{cmd, cmdr};
 /// This is the main entry-point to the cmdr library.
 /// Creates a LineReader and executes its command on the scope that is passed to it.
 pub fn cmd_loop<S: Scope>(scope: &mut S) -> CommandResult {
-    cmd_loop_from(scope, &mut RustyLineReader::new())
-}
-
-/// Use this as the entrypoint when using a different reader implementation.
-/// TODO: This syntax will probably change before version 0.3.12
-pub fn cmd_loop_from<S: Scope, R: LineReader>(scope: &mut S, reader: &mut R) -> CommandResult {
-    let mut result = scope.run_lines(reader);
-
-    while let CommandResult::NewScope(scope_runner) = result {
-        result = scope_runner.run_lines(reader);
-    }
-
-    result
+    Runner::new(RustyLineReader::new(), scope).run()
 }

@@ -78,5 +78,5 @@ pub use cmdr_macro::{cmd, cmdr};
 /// This is the main entry-point to the cmdr library.
 /// Creates a LineReader and executes its command on the scope that is passed to it.
 pub fn cmd_loop<S: Scope>(scope: &mut S) -> CommandResult {
-    Runner::new(RustyLineReader::new(), scope).run()
+    Runner::new(RustyLineReader::new()).run(scope)
 }

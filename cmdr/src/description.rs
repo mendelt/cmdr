@@ -57,20 +57,14 @@ where
             0 => Ok(self.format_scope_help()),
             1 => match self
                 .command_by_name(&args[0])
-                .ok_or(Error::InvalidCommand {
-                    command: args[0].to_owned(),
-                })?
+                .ok_or(Error::InvalidCommand(args[0].to_string()))?
                 .help_text
                 .clone()
             {
                 Some(help_text) => Ok(help_text),
-                None => Err(Error::NoHelpForCommand {
-                    command: args[0].to_owned(),
-                }),
+                None => Err(Error::NoHelpForCommand(args[0].to_string())),
             },
-            _ => Err(Error::InvalidNumberOfArguments {
-                command: self.help_command.clone(),
-            }),
+            _ => Err(Error::InvalidNumberOfArguments(self.help_command.clone())),
         }
     }
 

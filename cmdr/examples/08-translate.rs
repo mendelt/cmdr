@@ -11,15 +11,15 @@ impl TranslatedScope {
     /// Handle errors, output a translated error string for all known errors
     fn handle_error(&mut self, error: Error) -> CommandResult {
         match error {
-            Error::InvalidCommand { command } => {
+            Error::InvalidCommand(command) => {
                 println!("Onbekend commando: {}", command);
                 Ok(Action::Done)
             }
-            Error::InvalidNumberOfArguments { command } => {
+            Error::InvalidNumberOfArguments(command) => {
                 println!("Verkeerd aantal argumenten voor commando: {}", command);
                 Ok(Action::Done)
             }
-            Error::NoHelpForCommand { command } => {
+            Error::NoHelpForCommand(command) => {
                 println!("Geen hulp beschikbaar voor commando: {}", command);
                 Ok(Action::Done)
             }

@@ -47,22 +47,13 @@ impl Action {
 #[derive(Debug, PartialEq)]
 pub enum Error {
     /// Invalid command was entered
-    InvalidCommand {
-        /// The command-string that caused the error
-        command: String,
-    },
+    InvalidCommand(String),
 
     /// Invalid number of arguments
-    InvalidNumberOfArguments {
-        /// The command-string that caused the error
-        command: String,
-    },
+    InvalidNumberOfArguments(String),
 
     /// No help for the entered command
-    NoHelpForCommand {
-        /// The command-string that caused the error
-        command: String,
-    },
+    NoHelpForCommand(String),
 
     /// An unknown error occured reading a line
     LineReaderError,
@@ -79,48 +70,6 @@ pub enum Error {
     /// Fatal error, quit the application with an error code
     Fatal(i32),
 }
-
-// impl Error {
-//     /// Shortcut for constructing an invalid command error result
-//     pub fn invalid_command(command: String) -> CommandResult {
-//         Err(Error::InvalidCommand{command})
-//     }
-
-//     /// Shortcut for constructing an invalid command error result
-//     pub fn invalid_num_arguments(command: String) -> CommandResult {
-//         CommandResult::Err(Error::InvalidNumberOfArguments{command})
-//     }
-
-//     /// Shortcut for constructing a no help for command error result
-//     pub fn no_help(command: String) -> CommandResult {
-//         CommandResult::Err(Error::NoHelpForCommand{command})
-//     }
-
-//     /// Shortcut for constructing a linereader error result
-//     pub fn linereader() -> CommandResult {
-//         Err(Error::LineReaderError)
-//     }
-
-//     /// Shortcut for constructing an empty line error result
-//     pub fn empty_line() -> CommandResult {
-//         Err(Error::EmptyLine)
-//     }
-
-//     /// Shortcut for constructing a ctrl c error result
-//     pub fn ctrl_c() -> CommandResult {
-//         Err(Error::CtrlC)
-//     }
-
-//     /// Shortcut for constructing a ctrl d error result
-//     pub fn ctrl_d() -> CommandResult {
-//         Err(Error::CtrlD)
-//     }
-
-//     /// Shortcut for constructing a ctrl d error result
-//     pub fn fatal(code: i32) -> CommandResult {
-//         CommandResult::Err(Error::Fatal(code))
-//     }
-// }
 
 /// Wrap the scope to start on a CommandResult::NewScope or CommandResult::SubScope
 pub struct ScopeWrap {

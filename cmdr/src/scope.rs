@@ -93,9 +93,7 @@ pub trait Scope {
     /// The default implementation prints an error to the user and returns ok to go on. Can be
     /// overridden by a client-application to implement other behaviour
     fn default(&mut self, command_line: &Line) -> CommandResult {
-        CommandResult::Err(Error::InvalidCommand {
-            command: command_line.command.clone(),
-        })
+        CommandResult::Err(Error::InvalidCommand(command_line.command.clone()))
     }
 
     /// Error handling, first allow the user to handle the error, then handles or passes on
@@ -106,15 +104,15 @@ pub trait Scope {
             CommandResult::Err(error) => {
                 // Error was not handled by the user, handle it here
                 match error {
-                    Error::InvalidCommand { command } => {
+                    Error::InvalidCommand(command) => {
                         println!("Unknown command: {}", command);
                         Ok(Action::Done)
                     }
-                    Error::InvalidNumberOfArguments { command } => {
+                    Error::InvalidNumberOfArguments(command) => {
                         println!("Invalid number of arguments for command: {}", command);
                         Ok(Action::Done)
                     }
-                    Error::NoHelpForCommand { command } => {
+                    Error::NoHelpForCommand(command) => {
                         println!("No help available for command: {}", command);
                         Ok(Action::Done)
                     }

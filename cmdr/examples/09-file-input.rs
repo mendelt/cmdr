@@ -9,13 +9,13 @@ impl MainScope {
     #[cmd]
     fn command1(&mut self, args: &[String]) -> CommandResult {
         println!("command1 {}", args[0]);
-        CommandResult::Ok
+        Ok(Action::Done)
     }
 
     #[cmd]
     fn sub(&mut self, _: &[String]) -> CommandResult {
         println!("sub");
-        CommandResult::sub_scope(SubScope {})
+        Action::sub_scope(SubScope {})
     }
 }
 
@@ -26,20 +26,21 @@ impl SubScope {
     #[cmd]
     fn command2(&mut self, args: &[String]) -> CommandResult {
         println!("command2 {}", args[0]);
-        CommandResult::Ok
+        Ok(Action::Done)
     }
 
     #[cmd]
     fn up(&mut self, _: &[String]) -> CommandResult {
         println!("up");
-        CommandResult::Exit
+        Ok(Action::Exit)
     }
 }
 
-fn main() {
+fn main() -> Result<()> {
     let line_reader = EchoLineReader::new(FileLineReader::new(
         File::open("./examples/09-file-input.txt").unwrap(),
     ));
 
-    Runner::new(line_reader).run(&mut MainScope {});
+    Runner::new(line_reader).run(&mut MainScope {})?;
+    Ok(())
 }

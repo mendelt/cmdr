@@ -1,6 +1,6 @@
 use crate::description::ScopeDescription;
 use crate::line_reader::LineReader;
-use crate::result::{CommandError, CommandResult};
+use crate::result::{Action, CommandResult, Error};
 use crate::Line;
 
 /// Trait for implementing a Scope object. This trait can be implemented directly but will most
@@ -14,16 +14,16 @@ pub trait Scope {
     {
         self.before_loop();
 
-        let mut last_result = CommandResult::Ok;
+        let mut last_result = Ok(Action::Done);
         let scope_meta = Self::commands();
 
-        while last_result == CommandResult::Ok {
+        while last_result.is_ok() {
             last_result = match reader.read_line(self.prompt().as_ref()) {
-                Err(error) => CommandResult::Error(error),
+                Err(error) => CommandResult::Err(error),
                 Ok(line_string) => {
                     let line = Line::try_parse(line_string.as_ref());
                     match line {
-                        Err(error) => CommandResult::Error(error),
+                        Err(error) => CommandResult::Err(error),
                         Ok(line) => {
                             let line = self.before_command(line);
 
@@ -36,11 +36,12 @@ pub trait Scope {
                                 }
                             };
 
-                            let result = if let CommandResult::SubScope(scope_runner) = result {
-                                scope_runner.run_lines(reader)
-                            } else {
-                                result
-                            };
+                            let result =
+                                if let CommandResult::Ok(Action::SubScope(scope_runner)) = result {
+                                    scope_runner.run_lines(reader)
+                                } else {
+                                    result
+                                };
 
                             self.after_command(&line, result)
                         }
@@ -48,7 +49,7 @@ pub trait Scope {
                 }
             };
 
-            if let CommandResult::Error(error) = last_result {
+            if let CommandResult::Err(error) = last_result {
                 last_result = self.handle_error_internal(error)
             }
         }
@@ -56,7 +57,7 @@ pub trait Scope {
         self.after_loop();
 
         match last_result {
-            CommandResult::Exit => CommandResult::Ok,
+            CommandResult::Ok(Action::Exit) => Ok(Action::Done),
             _ => last_result,
         }
     }
@@ -82,9 +83,9 @@ pub trait Scope {
         match scope_meta.help(args) {
             Ok(help_text) => {
                 println!("\n{}", help_text);
-                CommandResult::Ok
+                Ok(Action::Done)
             }
-            Err(error) => CommandResult::Error(error),
+            Err(error) => CommandResult::Err(error),
         }
     }
 
@@ -92,35 +93,35 @@ pub trait Scope {
     /// The default implementation prints an error to the user and returns ok to go on. Can be
     /// overridden by a client-application to implement other behaviour
     fn default(&mut self, command_line: &Line) -> CommandResult {
-        CommandResult::Error(CommandError::InvalidCommand {
+        CommandResult::Err(Error::InvalidCommand {
             command: command_line.command.clone(),
         })
     }
 
     /// Error handling, first allow the user to handle the error, then handles or passes on
     /// unhandled errors
-    fn handle_error_internal(&mut self, error: CommandError) -> CommandResult {
+    fn handle_error_internal(&mut self, error: Error) -> CommandResult {
         // Allow user to handle error in overridable handle_error
         match self.handle_error(error) {
-            CommandResult::Error(error) => {
+            CommandResult::Err(error) => {
                 // Error was not handled by the user, handle it here
                 match error {
-                    CommandError::InvalidCommand { command } => {
+                    Error::InvalidCommand { command } => {
                         println!("Unknown command: {}", command);
-                        CommandResult::Ok
+                        Ok(Action::Done)
                     }
-                    CommandError::InvalidNumberOfArguments { command } => {
+                    Error::InvalidNumberOfArguments { command } => {
                         println!("Invalid number of arguments for command: {}", command);
-                        CommandResult::Ok
+                        Ok(Action::Done)
                     }
-                    CommandError::NoHelpForCommand { command } => {
+                    Error::NoHelpForCommand { command } => {
                         println!("No help available for command: {}", command);
-                        CommandResult::Ok
+                        Ok(Action::Done)
                     }
-                    CommandError::EmptyLine => CommandResult::Ok,
-                    CommandError::CtrlC => CommandResult::Quit,
-                    CommandError::CtrlD => CommandResult::Exit,
-                    _ => CommandResult::Error(error),
+                    Error::EmptyLine => Ok(Action::Done),
+                    Error::CtrlC => Ok(Action::Done),
+                    Error::CtrlD => Ok(Action::Done),
+                    _ => CommandResult::Err(error),
                 }
             }
             result => result,
@@ -128,8 +129,8 @@ pub trait Scope {
     }
 
     /// Handle errors, overridable by user
-    fn handle_error(&mut self, error: CommandError) -> CommandResult {
-        CommandResult::Error(error)
+    fn handle_error(&mut self, error: Error) -> CommandResult {
+        CommandResult::Err(error)
     }
 
     /// Hook that is called before the command loop starts, can be overridden

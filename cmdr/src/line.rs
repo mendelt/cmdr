@@ -1,4 +1,4 @@
-use crate::CommandError;
+use crate::Error;
 
 /// A parsed line from the user
 #[derive(Debug, PartialEq)]
@@ -12,13 +12,13 @@ pub struct Line {
 
 impl Line {
     /// Try to parse a Line from a String or return an error when unsuccesfull
-    pub fn try_parse(line: &str) -> Result<Line, CommandError> {
+    pub fn try_parse(line: &str) -> Result<Line, Error> {
         let mut parts = line.trim().split(' ').filter(|part| !part.is_empty());
 
         let first = parts.next();
 
         match first {
-            None => Err(CommandError::EmptyLine),
+            None => Err(Error::EmptyLine),
             Some(command) => Ok(Line {
                 command: command.to_string(),
                 args: parts.map(|arg| arg.to_string()).collect(),
@@ -36,7 +36,7 @@ mod tests {
     fn test_parse_empty_line() {
         let line = Line::try_parse("");
 
-        assert_eq!(line, Err(CommandError::EmptyLine));
+        assert_eq!(line, Err(Error::EmptyLine));
     }
 
     #[test]

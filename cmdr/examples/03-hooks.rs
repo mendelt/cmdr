@@ -12,7 +12,7 @@ impl ScopeWithHooks {
     fn stuff(&self, _args: &[String]) -> CommandResult {
         println!("Stuff done");
 
-        CommandResult::Ok
+        Ok(Action::Done)
     }
 
     fn before_loop(&mut self) {
@@ -33,7 +33,7 @@ impl ScopeWithHooks {
         println!("Code that gets executed after each command can go here.");
         println!("For example to change the command result to quit");
 
-        CommandResult::Quit
+        Ok(Action::Quit)
     }
 
     fn after_loop(&mut self) {
@@ -43,6 +43,7 @@ impl ScopeWithHooks {
 }
 
 /// Main function that creates the scope and starts a command loop for it
-fn main() {
-    cmd_loop(&mut ScopeWithHooks {});
+fn main() -> cmdr::Result<()> {
+    cmd_loop(&mut ScopeWithHooks {})?;
+    Ok(())
 }

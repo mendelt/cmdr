@@ -19,7 +19,7 @@ pub(crate) fn format_overrides(input: &ItemImpl, self_type: &TypePath) -> TokenS
                     }
                 ),
                 "handle_error" => quote!(
-                    fn handle_error(&mut self, error: CommandError) -> CommandResult {
+                    fn handle_error(&mut self, error: Error) -> CommandResult {
                         #self_type::handle_error(self, error)
                     }
                 ),
@@ -93,7 +93,7 @@ mod tests {
 
         assert_eq!(
             format_overrides(&source, &self_type).to_string(),
-            "fn handle_error ( & mut self , error : CommandError ) -> CommandResult { SomeImpl :: handle_error ( self , error ) }"
+            "fn handle_error ( & mut self , error : Error ) -> CommandResult { SomeImpl :: handle_error ( self , error ) }"
         );
     }
 

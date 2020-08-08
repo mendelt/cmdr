@@ -16,7 +16,7 @@ impl FirstScope {
     #[cmd]
     /// Switch to the second scope
     fn switch(&mut self, _args: &[String]) -> CommandResult {
-        CommandResult::new_scope(SecondScope {})
+        Action::new_scope(SecondScope {})
     }
 }
 
@@ -30,10 +30,11 @@ impl SecondScope {
 
     #[cmd]
     fn switch_back(&mut self, _args: &[String]) -> CommandResult {
-        CommandResult::new_scope(FirstScope {})
+        Action::new_scope(FirstScope {})
     }
 }
 
-fn main() {
-    cmd_loop(&mut FirstScope {});
+fn main() -> cmdr::Result<()> {
+    cmd_loop(&mut FirstScope {})?;
+    Ok(())
 }

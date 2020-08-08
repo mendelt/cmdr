@@ -15,7 +15,7 @@
 //! commands with the cmd annotation to provide useful metadata on your commands. Doc strings in
 //! your command will be picked up automatically and used as help text.
 //!
-//! ```rust
+//! ```ignore
 //! use cmdr::*;
 //! struct GreeterScope {}
 //!
@@ -26,20 +26,21 @@
 //!     #[cmd]
 //!     fn greet(&self, args: &[String]) -> CommandResult {
 //!         println!("Hello {}", args[0]);
-//!         CommandResult::Ok
+//!         Ok(Action::Done)
 //!     }
 //!
 //!     /// Cmdr command to quit the application by returning CommandResult::Quit
 //!     #[cmd]
 //!     fn quit(&self, _args: &[String]) -> CommandResult {
 //!         println!("Quitting");
-//!         CommandResult::Quit
+//!         Ok(Action::Quit)
 //!     }
 //! }
 //!
 //! /// Main function that creates the scope and starts a command loop for it
-//! fn main() {
-//!     cmd_loop(&mut GreeterScope {});
+//! fn main() -> cmdr::Result {
+//!     cmd_loop(&mut GreeterScope {})?;
+//!     Ok(())
 //! }
 //! ```
 //! ## More information
@@ -70,7 +71,7 @@ mod scope;
 pub use crate::description::{ScopeCmdDescription, ScopeDescription};
 pub use crate::line::Line;
 use crate::line_reader::RustyLineReader;
-pub use crate::result::{CommandError, CommandResult};
+pub use crate::result::{Action, CommandResult, Error, Result};
 pub use crate::runner::Runner;
 pub use crate::scope::Scope;
 pub use cmdr_macro::{cmd, cmdr};

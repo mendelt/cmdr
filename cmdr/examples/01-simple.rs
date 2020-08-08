@@ -13,18 +13,19 @@ impl GreeterScope {
     #[cmd(greet)]
     fn greet_method(&self, args: &[String]) -> CommandResult {
         println!("Hello {}", args[0]);
-        CommandResult::Ok
+        Ok(Action::Done)
     }
 
     /// Cmdr command to quit the application by returning CommandResult::Quit
     #[cmd(quit, help = "Quit the application", alias(exit, x, q))]
     fn quit_method(&self, _args: &[String]) -> CommandResult {
         println!("Quitting");
-        CommandResult::Quit
+        Ok(Action::Done)
     }
 }
 
 /// Main function that creates the scope and starts a command loop for it
-fn main() {
-    cmd_loop(&mut GreeterScope {});
+fn main() -> cmdr::Result<()> {
+    cmd_loop(&mut GreeterScope {})?;
+    Ok(())
 }

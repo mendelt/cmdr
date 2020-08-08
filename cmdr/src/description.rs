@@ -1,6 +1,6 @@
 use crate::line::Line;
-use crate::result::CommandError;
 use crate::result::CommandResult;
+use crate::result::Error;
 use crate::scope::Scope;
 use std::fmt::{Debug, Error as FmtError, Formatter};
 
@@ -52,23 +52,23 @@ where
     }
 
     /// Format help text for command
-    pub fn help(&self, args: &[String]) -> Result<String, CommandError> {
+    pub fn help(&self, args: &[String]) -> Result<String, Error> {
         match args.len() {
             0 => Ok(self.format_scope_help()),
             1 => match self
                 .command_by_name(&args[0])
-                .ok_or(CommandError::InvalidCommand {
+                .ok_or(Error::InvalidCommand {
                     command: args[0].to_owned(),
                 })?
                 .help_text
                 .clone()
             {
                 Some(help_text) => Ok(help_text),
-                None => Err(CommandError::NoHelpForCommand {
+                None => Err(Error::NoHelpForCommand {
                     command: args[0].to_owned(),
                 }),
             },
-            _ => Err(CommandError::InvalidNumberOfArguments {
+            _ => Err(Error::InvalidNumberOfArguments {
                 command: self.help_command.clone(),
             }),
         }
@@ -168,12 +168,13 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::Action;
 
     struct TestScope {}
 
     impl TestScope {
         fn test_method(&self, _args: &[String]) -> CommandResult {
-            CommandResult::Ok
+            Ok(Action::Done)
         }
     }
 

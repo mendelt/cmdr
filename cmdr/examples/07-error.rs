@@ -16,14 +16,14 @@ impl MainScope {
     #[cmd]
     /// Return a fatal error to quit the application with an error code
     fn error(&mut self, _args: &[String]) -> CommandResult {
-        CommandResult::Error(CommandError::Fatal(101))
+        Err(Error::Fatal(101))
     }
 }
 
 fn main() {
     std::process::exit(match cmd_loop(&mut MainScope {}) {
-        CommandResult::Ok => 0,
-        CommandResult::Error(CommandError::Fatal(error_code)) => error_code,
+        Ok(_) => 0,
+        Err(Error::Fatal(error_code)) => error_code,
         _ => -1, // This should not happen.
     })
 }

@@ -1,6 +1,6 @@
 use crate::line_reader::LineReader;
 use crate::scope::Scope;
-use crate::CommandResult;
+use crate::{result::Action, CommandResult};
 use std::fmt::Debug;
 
 /// Wraps a LineReader and a Scope and allows using the scope to interpret commands from the
@@ -20,7 +20,7 @@ impl<R: LineReader> Runner<R> {
     pub fn run<S: Scope + Sized>(&mut self, scope: &mut S) -> CommandResult {
         let mut result = scope.run_lines(&mut self.reader);
 
-        while let CommandResult::NewScope(scope_runner) = result {
+        while let CommandResult::Ok(Action::NewScope(scope_runner)) = result {
             result = scope_runner.run_lines(&mut self.reader);
         }
 

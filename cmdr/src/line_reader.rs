@@ -1,6 +1,6 @@
 //! Contains the LineReader trait and several implementations to read lines from several sources
 
-use crate::CommandError;
+use crate::Error;
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
 use std::io::{BufRead, BufReader, Read};
@@ -9,7 +9,7 @@ use std::io::{BufRead, BufReader, Read};
 /// parses them.
 pub trait LineReader {
     /// Blocks until a new line is entered
-    fn read_line(&mut self, prompt: &str) -> Result<String, CommandError>;
+    fn read_line(&mut self, prompt: &str) -> Result<String, Error>;
 }
 
 /// Implementation of the LineReader trait using the rustyline library
@@ -28,7 +28,7 @@ impl RustyLineReader {
 }
 
 impl LineReader for RustyLineReader {
-    fn read_line(&mut self, prompt: &str) -> Result<String, CommandError> {
+    fn read_line(&mut self, prompt: &str) -> Result<String, Error> {
         let input = self.editor.readline(format!("{} ", prompt).as_ref());
         match input {
             Ok(line_string) => {
@@ -36,9 +36,9 @@ impl LineReader for RustyLineReader {
                 self.editor.add_history_entry(string_ref);
                 Ok(line_string)
             }
-            Err(ReadlineError::Interrupted) => Err(CommandError::CtrlC),
-            Err(ReadlineError::Eof) => Err(CommandError::CtrlD),
-            Err(_) => Err(CommandError::LineReaderError),
+            Err(ReadlineError::Interrupted) => Err(Error::CtrlC),
+            Err(ReadlineError::Eof) => Err(Error::CtrlD),
+            Err(_) => Err(Error::LineReaderError),
         }
     }
 }
@@ -57,7 +57,7 @@ impl<W: LineReader> EchoLineReader<W> {
 }
 
 impl<W: LineReader> LineReader for EchoLineReader<W> {
-    fn read_line(&mut self, prompt: &str) -> Result<String, CommandError> {
+    fn read_line(&mut self, prompt: &str) -> Result<String, Error> {
         match self.wrapped.read_line(prompt) {
             Ok(line) => {
                 println!("{} {}", prompt, &line);
@@ -84,13 +84,13 @@ impl<R: Read> FileLineReader<R> {
 }
 
 impl<R: Read> LineReader for FileLineReader<R> {
-    fn read_line(&mut self, _: &str) -> Result<String, CommandError> {
+    fn read_line(&mut self, _: &str) -> Result<String, Error> {
         let mut line = String::new();
         let input = self.reader.read_line(&mut line);
         match input {
-            Ok(0) => Err(CommandError::CtrlD),
+            Ok(0) => Err(Error::CtrlD),
             Ok(_) => Ok(line),
-            Err(_) => Err(CommandError::LineReaderError),
+            Err(_) => Err(Error::LineReaderError),
         }
     }
 }

@@ -9,25 +9,26 @@ struct TranslatedScope {}
 #[cmdr(help_command = "?")]
 impl TranslatedScope {
     /// Handle errors, output a translated error string for all known errors
-    fn handle_error(&mut self, error: CommandError) -> CommandResult {
+    fn handle_error(&mut self, error: Error) -> CommandResult {
         match error {
-            CommandError::InvalidCommand { command } => {
+            Error::InvalidCommand { command } => {
                 println!("Onbekend commando: {}", command);
-                CommandResult::Ok
+                Ok(Action::Done)
             }
-            CommandError::InvalidNumberOfArguments { command } => {
+            Error::InvalidNumberOfArguments { command } => {
                 println!("Verkeerd aantal argumenten voor commando: {}", command);
-                CommandResult::Ok
+                Ok(Action::Done)
             }
-            CommandError::NoHelpForCommand { command } => {
+            Error::NoHelpForCommand { command } => {
                 println!("Geen hulp beschikbaar voor commando: {}", command);
-                CommandResult::Ok
+                Ok(Action::Done)
             }
-            _ => CommandResult::Error(error),
+            _ => Err(error),
         }
     }
 }
 
-fn main() {
-    cmd_loop(&mut TranslatedScope {});
+fn main() -> cmdr::Result<()> {
+    cmd_loop(&mut TranslatedScope {})?;
+    Ok(())
 }

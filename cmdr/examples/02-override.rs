@@ -25,16 +25,16 @@ impl OverrideScope {
             }
         }
 
-        CommandResult::Ok
+        Ok(Action::Done)
     }
 
     /// Handle empty line here, pass other error up to be handled by cmdr
-    fn handle_error(&mut self, error: CommandError) -> CommandResult {
-        if let CommandError::EmptyLine = error {
+    fn handle_error(&mut self, error: Error) -> CommandResult {
+        if let Error::EmptyLine = error {
             println!("Quitting because empty");
-            CommandResult::Quit
+            Ok(Action::Quit)
         } else {
-            CommandResult::Error(error)
+            Result::Err(error)
         }
     }
 
@@ -42,11 +42,12 @@ impl OverrideScope {
     fn default(&mut self, command: &Line) -> CommandResult {
         println!("{}? What does that even mean?", command.command);
 
-        CommandResult::Ok
+        Ok(Action::Done)
     }
 }
 
 /// Main function that creates the scope and starts a command loop for it
-fn main() {
-    cmd_loop(&mut OverrideScope {});
+fn main() -> cmdr::Result<()> {
+    cmd_loop(&mut OverrideScope {})?;
+    Ok(())
 }

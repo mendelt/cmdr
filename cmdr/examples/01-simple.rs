@@ -20,7 +20,7 @@ impl GreeterScope {
     #[cmd(quit, help = "Quit the application", alias(exit, x, q))]
     fn quit_method(&self, _args: &[String]) -> CommandResult {
         println!("Quitting");
-        Ok(Action::Done)
+        Ok(Action::Quit)
     }
 }
 

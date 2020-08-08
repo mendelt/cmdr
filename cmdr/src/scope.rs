@@ -17,7 +17,7 @@ pub trait Scope {
         let mut last_result = Ok(Action::Done);
         let scope_meta = Self::commands();
 
-        while last_result.is_ok() {
+        while last_result == Ok(Action::Done) {
             last_result = match reader.read_line(self.prompt().as_ref()) {
                 Err(error) => CommandResult::Err(error),
                 Ok(line_string) => {

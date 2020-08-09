@@ -27,13 +27,9 @@ pub trait Scope {
                         Ok(line) => {
                             let line = self.before_command(line);
 
-                            let result = if scope_meta.is_help_command(&line.command) {
-                                self.help(&line.args)
-                            } else {
-                                match scope_meta.command_by_name(&line.command) {
-                                    Some(method) => method.execute(self, &line),
-                                    None => self.default(&line),
-                                }
+                            let result = match scope_meta.command_by_name(&line.command) {
+                                Some(method) => method.execute(self, &line),
+                                None => self.default(&line),
                             };
 
                             let result =

@@ -41,8 +41,8 @@ pub(crate) fn format_commands(
 
 /// Parses the help text and help command from the cmdr attribute
 fn parse_cmdr_attributes(meta: &AttributeArgs) -> (Option<String>, Option<String>) {
-    let mut help = None;
-    let mut help_command = None;
+    let mut help_text = None;
+    let mut help_command = Some("help".to_string());
 
     for meta_item in meta {
         if let NestedMeta::Meta(Meta::NameValue(MetaNameValue {
@@ -52,7 +52,7 @@ fn parse_cmdr_attributes(meta: &AttributeArgs) -> (Option<String>, Option<String
         })) = meta_item
         {
             if path.is_ident("help") {
-                help = Some(lit.value());
+                help_text = Some(lit.value());
             }
             if path.is_ident("help_command") {
                 help_command = Some(lit.value());
@@ -60,7 +60,7 @@ fn parse_cmdr_attributes(meta: &AttributeArgs) -> (Option<String>, Option<String
         }
     }
 
-    (help, help_command)
+    (help_text, help_command)
 }
 
 fn quote_string_option(value: &Option<String>) -> TokenStream {

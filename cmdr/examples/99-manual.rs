@@ -27,7 +27,6 @@ impl Scope for GreeterScope {
     fn commands() -> ScopeDescription<GreeterScope> {
         ScopeDescription::new(
             Some("Manual greeter scope".to_string()),
-            Some("help!".to_string()),
             vec![
                 ScopeCmdDescription::new(
                     "greet".to_string(),

@@ -74,15 +74,11 @@ pub trait Scope {
     where
         Self: Sized,
     {
-        let scope_meta = Self::commands();
+        let command = args.get(0).map(|stuff| stuff.as_ref());
+        let help_text = Self::commands().format_help_text(command)?;
 
-        match scope_meta.format_help_text(args) {
-            Ok(help_text) => {
-                println!("\n{}", help_text);
-                Ok(Action::Done)
-            }
-            Err(error) => CommandResult::Err(error),
-        }
+        println!("\n{}", help_text);
+        Ok(Action::Done)
     }
 
     /// A user entered an unknown command.

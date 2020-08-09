@@ -11,7 +11,6 @@ where
     T: Scope,
 {
     scope_help: Option<String>,
-    help_command: String,
     methods: Vec<ScopeCmdDescription<T>>,
 }
 
@@ -20,14 +19,9 @@ where
     T: Scope,
 {
     /// Construct a command method list
-    pub fn new(
-        scope_help: Option<String>,
-        help_command: Option<String>,
-        methods: Vec<ScopeCmdDescription<T>>,
-    ) -> Self {
+    pub fn new(scope_help: Option<String>, methods: Vec<ScopeCmdDescription<T>>) -> Self {
         ScopeDescription {
             scope_help,
-            help_command: help_command.unwrap_or("help".to_string()),
             methods,
         }
     }
@@ -46,19 +40,16 @@ where
     }
 
     /// Format help text for command
-    pub fn format_help_text(&self, args: &[String]) -> Result<String, Error> {
-        match args.len() {
-            0 => Ok(self.format_scope_help()),
-            1 => match self
-                .command_by_name(&args[0])
-                .ok_or(Error::InvalidCommand(args[0].to_string()))?
+    pub fn format_help_text(&self, command: Option<&str>) -> Result<String, Error> {
+        if let Some(command) = command {
+            Ok(self
+                .command_by_name(command)
+                .ok_or(Error::InvalidCommand(command.to_string()))?
                 .help_text
                 .clone()
-            {
-                Some(help_text) => Ok(help_text),
-                None => Err(Error::NoHelpForCommand(args[0].to_string())),
-            },
-            _ => Err(Error::InvalidNumberOfArguments(self.help_command.clone())),
+                .ok_or(Error::NoHelpForCommand(command.to_string()))?)
+        } else {
+            Ok(self.format_scope_help())
         }
     }
 

@@ -11,18 +11,16 @@ pub(crate) fn format_commands(
     meta: &AttributeArgs,
     self_type: &TypePath,
 ) -> TokenStream {
-    let (help_text, help_command) = parse_cmdr_attributes(meta);
+    let (help_text, _) = parse_cmdr_attributes(meta);
     let doc_help_text = parse_help_text(&input.attrs);
 
     let command_methods = parse_commands(&input);
     let quoted_help = quote_string_option(&help_text.or(doc_help_text));
-    let quoted_help_command = quote_string_option(&help_command);
 
     quote!(
         fn commands() -> ScopeDescription<#self_type> {
             ScopeDescription::new(
                 #quoted_help,
-                #quoted_help_command,
                 vec![#(#command_methods)*]
             )
         }

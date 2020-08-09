@@ -45,18 +45,25 @@ fn parse_cmdr_attributes(meta: &AttributeArgs) -> (Option<String>, Option<String
     let mut help_command = Some("help".to_string());
 
     for meta_item in meta {
-        if let NestedMeta::Meta(Meta::NameValue(MetaNameValue {
-            path,
-            lit: Lit::Str(lit),
-            ..
-        })) = meta_item
-        {
-            if path.is_ident("help") {
-                help_text = Some(lit.value());
+        match meta_item {
+            NestedMeta::Meta(Meta::NameValue(MetaNameValue {
+                path,
+                lit: Lit::Str(lit),
+                ..
+            })) => {
+                if path.is_ident("help") {
+                    help_text = Some(lit.value());
+                }
+                if path.is_ident("help_command") & help_command.is_some() {
+                    help_command = Some(lit.value());
+                }
             }
-            if path.is_ident("help_command") {
-                help_command = Some(lit.value());
+            NestedMeta::Meta(Meta::Path(path)) => {
+                if path.is_ident("nohelp") | path.is_ident("no_help") {
+                    help_command = None
+                }
             }
+            _ => (),
         }
     }
 

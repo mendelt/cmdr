@@ -1,6 +1,5 @@
 use crate::line::Line;
-use crate::result::CommandResult;
-use crate::result::Error;
+use crate::result::{CommandResult, Error};
 use crate::scope::Scope;
 use std::fmt::{Debug, Error as FmtError, Formatter};
 
@@ -52,7 +51,7 @@ where
     }
 
     /// Format help text for command
-    pub fn help(&self, args: &[String]) -> Result<String, Error> {
+    pub fn format_help_text(&self, args: &[String]) -> Result<String, Error> {
         match args.len() {
             0 => Ok(self.format_scope_help()),
             1 => match self

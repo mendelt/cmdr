@@ -80,7 +80,7 @@ pub trait Scope {
     {
         let scope_meta = Self::commands();
 
-        match scope_meta.help(args) {
+        match scope_meta.format_help_text(args) {
             Ok(help_text) => {
                 println!("\n{}", help_text);
                 Ok(Action::Done)

@@ -29,6 +29,12 @@ impl Scope for GreeterScope {
             Some("Manual greeter scope".to_string()),
             vec![
                 ScopeCmdDescription::new(
+                    "help".to_string(),
+                    Box::new(|scope, cmd_line| scope.help(&cmd_line.args)),
+                    Vec::new(),
+                    None,
+                ),
+                ScopeCmdDescription::new(
                     "greet".to_string(),
                     Box::new(|scope, cmd_line| scope.greet(&cmd_line.args)),
                     Vec::new(),

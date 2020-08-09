@@ -14,7 +14,7 @@ pub(crate) fn format_commands(
     let (help_text, help_command) = parse_cmdr_attributes(meta);
     let doc_help_text = parse_help_text(&input.attrs);
 
-    let command_methods = get_methods(&input);
+    let command_methods = parse_commands(&input);
     let quoted_help = quote_string_option(&help_text.or(doc_help_text));
     let quoted_help_command = quote_string_option(&help_command);
 
@@ -60,7 +60,8 @@ fn quote_string_option(value: &Option<String>) -> TokenStream {
     }
 }
 
-fn get_methods(input: &ItemImpl) -> Vec<CmdMeta> {
+/// Parse attributes for several commands
+fn parse_commands(input: &ItemImpl) -> Vec<CmdAttributes> {
     input
         .items
         .iter()
@@ -68,7 +69,8 @@ fn get_methods(input: &ItemImpl) -> Vec<CmdMeta> {
         .collect()
 }
 
-fn parse_cmd_attributes(item: &ImplItem) -> Option<CmdMeta> {
+/// Parse attributes for a single command
+fn parse_cmd_attributes(item: &ImplItem) -> Option<CmdAttributes> {
     if let ImplItem::Method(method) = item {
         let attributes = &method.attrs;
 
@@ -130,7 +132,7 @@ fn parse_cmd_attributes(item: &ImplItem) -> Option<CmdMeta> {
                 }
             }
 
-            Some(CmdMeta {
+            Some(CmdAttributes {
                 command: command_name,
                 method: method_ident,
                 alias: aliasses,
@@ -177,14 +179,14 @@ fn parse_doc_string(meta: Meta) -> Option<String> {
 
 /// Contains all metadata for a command
 #[derive(Debug, PartialEq)]
-struct CmdMeta {
+struct CmdAttributes {
     command: String,
     method: Ident,
     alias: Vec<String>,
     help: Option<String>,
 }
 
-impl ToTokens for CmdMeta {
+impl ToTokens for CmdAttributes {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let command = &self.command;
         let method = &self.method;

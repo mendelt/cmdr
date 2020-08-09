@@ -1,5 +1,5 @@
 use itertools::Itertools;
-use proc_macro2::{Ident, TokenStream};
+use proc_macro2::{Ident, Span, TokenStream};
 use quote::{quote, ToTokens};
 use syn::{
     Attribute, AttributeArgs, ImplItem, ItemImpl, Lit, Meta, MetaList, MetaNameValue, NestedMeta,
@@ -11,10 +11,22 @@ pub(crate) fn format_commands(
     meta: &AttributeArgs,
     self_type: &TypePath,
 ) -> TokenStream {
-    let (help_text, _) = parse_cmdr_attributes(meta);
+    let (help_text, help_command) = parse_cmdr_attributes(meta);
     let doc_help_text = parse_help_text(&input.attrs);
 
-    let command_methods = parse_commands(&input);
+    let mut command_methods = parse_commands(&input);
+    if let Some(command) = help_command {
+        command_methods.insert(
+            0,
+            CmdAttributes {
+                command: command.clone(),
+                method: Ident::new("help", Span::call_site()),
+                alias: vec![],
+                help: None,
+            },
+        )
+    }
+
     let quoted_help = quote_string_option(&help_text.or(doc_help_text));
 
     quote!(

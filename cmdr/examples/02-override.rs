@@ -15,10 +15,8 @@ impl OverrideScope {
 
     /// All the help, all the time
     fn help(&self, _args: &[String]) -> CommandResult {
-        let scope_metadata = Self::commands();
-
         println!("Help Stuff");
-        for command in scope_metadata.all_commands() {
+        for command in self.commands().all_commands() {
             println!("- {}", command.name());
             if let Some(help_text) = &command.help_text() {
                 println!("{}", help_text)

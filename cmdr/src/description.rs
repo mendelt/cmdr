@@ -1,25 +1,18 @@
 use crate::line::Line;
 use crate::result::{CommandResult, Error};
-use crate::scope::Scope;
 use std::fmt::{Debug, Error as FmtError, Formatter};
 
 /// Metadata describing a scope, is used to return help text and the list of commands that this
 /// scope exposes.
 #[derive(Debug)]
-pub struct ScopeDescription<T>
-where
-    T: Scope,
-{
+pub struct ScopeDescription<'a> {
     scope_help: Option<String>,
-    methods: Vec<ScopeCmdDescription<T>>,
+    methods: Vec<ScopeCmdDescription<'a>>,
 }
 
-impl<T> ScopeDescription<T>
-where
-    T: Scope,
-{
+impl<'a> ScopeDescription<'a> {
     /// Construct a command method list
-    pub fn new(scope_help: Option<String>, methods: Vec<ScopeCmdDescription<T>>) -> Self {
+    pub fn new(scope_help: Option<String>, methods: Vec<ScopeCmdDescription<'a>>) -> Self {
         ScopeDescription {
             scope_help,
             methods,
@@ -27,12 +20,12 @@ where
     }
 
     /// Get all scope commands
-    pub fn all_commands(&self) -> impl Iterator<Item = &ScopeCmdDescription<T>> {
+    pub fn all_commands(&self) -> impl Iterator<Item = &ScopeCmdDescription> {
         self.methods.iter()
     }
 
     /// Find a command method by its command name or alias
-    pub fn command_by_name(&self, name: &str) -> Option<&ScopeCmdDescription<T>> {
+    pub fn command_by_name(&self, name: &str) -> Option<&ScopeCmdDescription> {
         self.methods
             .iter()
             .filter(|method| method.handles(name))
@@ -72,21 +65,18 @@ where
 }
 
 /// All information about a command method in one handy struct
-pub struct ScopeCmdDescription<T> {
+pub struct ScopeCmdDescription<'a> {
     name: String,
-    method: Box<dyn Fn(&mut T, &Line) -> CommandResult>,
+    method: Box<dyn Fn(&Line) -> CommandResult + 'a>,
     alias: Vec<String>,
     help_text: Option<String>,
 }
 
-impl<T> ScopeCmdDescription<T>
-where
-    T: Scope,
-{
+impl<'a> ScopeCmdDescription<'a> {
     /// Construct a CmdMethod from a command name and a command closure
     pub fn new(
         name: String,
-        method: Box<dyn Fn(&mut T, &Line) -> CommandResult>,
+        method: Box<dyn Fn(&Line) -> CommandResult + 'a>,
         alias: Vec<String>,
         help_text: Option<String>,
     ) -> Self {
@@ -125,15 +115,12 @@ where
     }
 
     /// Execute this command
-    pub fn execute(&self, scope: &mut T, command: &Line) -> CommandResult {
-        (self.method)(scope, command)
+    pub fn execute(&self, command: &Line) -> CommandResult {
+        (self.method)(command)
     }
 }
 
-impl<T> Debug for ScopeCmdDescription<T>
-where
-    T: Debug,
-{
+impl<'a> Debug for ScopeCmdDescription<'a> {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> Result<(), FmtError> {
         formatter
             .debug_struct("ScopeCmdDescription")
@@ -149,24 +136,14 @@ mod tests {
     use super::*;
     use crate::Action;
 
-    struct TestScope {}
-
-    impl TestScope {
-        fn test_method(&self, _args: &[String]) -> CommandResult {
-            Ok(Action::Done)
-        }
+    fn test_method(_args: &[String]) -> CommandResult {
+        Ok(Action::Done)
     }
 
-    impl Scope for TestScope {
-        fn commands() -> ScopeDescription<Self> {
-            unimplemented!()
-        }
-    }
-
-    fn get_test_command() -> ScopeCmdDescription<TestScope> {
+    fn get_test_command<'a>() -> ScopeCmdDescription<'a> {
         ScopeCmdDescription::new(
             "test".to_string(),
-            Box::new(|scope, cmd_line| scope.test_method(&cmd_line.args)),
+            Box::new(|cmd_line| test_method(&cmd_line.args)),
             vec!["alias1".to_string(), "alias2".to_string()],
             Some("Help text\nMore lines".to_string()),
         )

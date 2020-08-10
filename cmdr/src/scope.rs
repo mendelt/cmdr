@@ -8,14 +8,10 @@ use crate::Line;
 pub trait Scope {
     /// Execute commands in this scope. Uses a LineReader to get commands and executes them one by
     /// one until a command returns CommandResult::Quit
-    fn run_lines(&mut self, reader: &mut dyn LineReader) -> CommandResult
-    where
-        Self: Sized,
-    {
+    fn run_lines(&mut self, reader: &mut dyn LineReader) -> CommandResult {
         self.before_loop();
 
         let mut last_result = Ok(Action::Done);
-        let scope_meta = Self::commands();
 
         while last_result == Ok(Action::Done) {
             last_result = match reader.read_line(self.prompt().as_ref()) {
@@ -27,10 +23,12 @@ pub trait Scope {
                         Ok(line) => {
                             let line = self.before_command(line);
 
-                            let result = match scope_meta.command_by_name(&line.command) {
-                                Some(method) => method.execute(self, &line),
-                                None => self.default(&line),
-                            };
+                            let result = self
+                                .commands()
+                                .command_by_name(&line.command)
+                                .map(|method| method.execute(&line));
+
+                            let result = result.unwrap_or(self.default(&line));
 
                             let result =
                                 if let CommandResult::Ok(Action::SubScope(scope_runner)) = result {
@@ -59,9 +57,7 @@ pub trait Scope {
     }
 
     /// Return a ScopeDescription with a set of commands that this scope supports
-    fn commands() -> ScopeDescription<Self>
-    where
-        Self: Sized;
+    fn commands<'a>(&'a self) -> ScopeDescription<'a>;
 
     /// Return the prompt for this scope. The default implementation returns > as the prompt but
     /// this can be overridden to return other strings or implement dynamically generated prompts
@@ -70,12 +66,9 @@ pub trait Scope {
     }
 
     /// Execute a help command
-    fn help(&self, args: &[String]) -> CommandResult
-    where
-        Self: Sized,
-    {
+    fn help(&self, args: &[String]) -> CommandResult {
         let command = args.get(0).map(|stuff| stuff.as_ref());
-        let help_text = Self::commands().format_help_text(command)?;
+        let help_text = self.commands().format_help_text(command)?;
 
         println!("\n{}", help_text);
         Ok(Action::Done)

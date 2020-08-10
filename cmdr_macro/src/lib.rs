@@ -47,7 +47,7 @@ pub fn cmdr(meta_stream: TokenStream, code_stream: TokenStream) -> TokenStream {
     let self_generics = &input.generics;
     let self_where = &self_generics.where_clause;
 
-    let commands = format_commands(&input, &meta, &self_type);
+    let commands = format_commands(&input, &meta);
     let overrides = format_overrides(&input, &self_type);
 
     TokenStream::from(quote!(

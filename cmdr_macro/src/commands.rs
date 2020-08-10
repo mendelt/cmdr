@@ -3,13 +3,11 @@ use proc_macro2::{Ident, Span, TokenStream};
 use quote::{quote, ToTokens};
 use syn::{
     Attribute, AttributeArgs, ImplItem, ItemImpl, Lit, Meta, MetaList, MetaNameValue, NestedMeta,
-    TypePath,
 };
 
 pub(crate) fn format_commands(
     input: &ItemImpl,
     meta: &AttributeArgs,
-    self_type: &TypePath,
 ) -> TokenStream {
     let (help_text, help_command) = parse_cmdr_attributes(meta);
     let doc_help_text = parse_help_text(&input.attrs);

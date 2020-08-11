@@ -47,8 +47,13 @@ impl Scope for GreeterScope {
         )
     }
 
-    fn run_command(&mut self, _: &ScopeCmdDescription, _: &[String]) -> CommandResult {
-        Ok(Action::Done)
+    fn run_command(&mut self, command: &ScopeCmdDescription, args: &[String]) -> CommandResult {
+        match command.name() {
+            "help" => self.help(args),
+            "greet" => self.greet(args),
+            "quit" => self.quit(args),
+            _ => Err(Error::InvalidCommand(command.name().to_string()))
+        }
     }
 }
 

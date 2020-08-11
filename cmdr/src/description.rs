@@ -1,18 +1,17 @@
-use crate::line::Line;
-use crate::result::{CommandResult, Error};
+use crate::result::Error;
 use std::fmt::{Debug, Error as FmtError, Formatter};
 
 /// Metadata describing a scope, is used to return help text and the list of commands that this
 /// scope exposes.
 #[derive(Debug)]
-pub struct ScopeDescription<'a> {
+pub struct ScopeDescription {
     scope_help: Option<String>,
-    methods: Vec<ScopeCmdDescription<'a>>,
+    methods: Vec<ScopeCmdDescription>,
 }
 
-impl<'a> ScopeDescription<'a> {
+impl<'a> ScopeDescription {
     /// Construct a command method list
-    pub fn new(scope_help: Option<String>, methods: Vec<ScopeCmdDescription<'a>>) -> Self {
+    pub fn new(scope_help: Option<String>, methods: Vec<ScopeCmdDescription>) -> Self {
         ScopeDescription {
             scope_help,
             methods,
@@ -65,24 +64,21 @@ impl<'a> ScopeDescription<'a> {
 }
 
 /// All information about a command method in one handy struct
-pub struct ScopeCmdDescription<'a> {
+pub struct ScopeCmdDescription {
     name: String,
-    method: Box<dyn Fn(&Line) -> CommandResult + 'a>,
     alias: Vec<String>,
     help_text: Option<String>,
 }
 
-impl<'a> ScopeCmdDescription<'a> {
+impl ScopeCmdDescription {
     /// Construct a CmdMethod from a command name and a command closure
     pub fn new(
         name: String,
-        method: Box<dyn Fn(&Line) -> CommandResult + 'a>,
         alias: Vec<String>,
         help_text: Option<String>,
     ) -> Self {
         ScopeCmdDescription {
             name,
-            method,
             alias,
             help_text,
         }
@@ -113,14 +109,9 @@ impl<'a> ScopeCmdDescription<'a> {
             false
         }
     }
-
-    /// Execute this command
-    pub fn execute(&self, command: &Line) -> CommandResult {
-        (self.method)(command)
-    }
 }
 
-impl<'a> Debug for ScopeCmdDescription<'a> {
+impl<'a> Debug for ScopeCmdDescription {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> Result<(), FmtError> {
         formatter
             .debug_struct("ScopeCmdDescription")
@@ -134,16 +125,10 @@ impl<'a> Debug for ScopeCmdDescription<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::Action;
 
-    fn test_method(_args: &[String]) -> CommandResult {
-        Ok(Action::Done)
-    }
-
-    fn get_test_command<'a>() -> ScopeCmdDescription<'a> {
+    fn get_test_command() -> ScopeCmdDescription {
         ScopeCmdDescription::new(
             "test".to_string(),
-            Box::new(|cmd_line| test_method(&cmd_line.args)),
             vec!["alias1".to_string(), "alias2".to_string()],
             Some("Help text\nMore lines".to_string()),
         )

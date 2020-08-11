@@ -24,30 +24,31 @@ impl GreeterScope {
 /// Manual scope implementation for Cmdr. Normally you'd use the cmdr macro for this. Implements
 /// the command method that dispatches commands to functions implemented above.
 impl Scope for GreeterScope {
-    fn commands<'a>(&'a self) -> ScopeDescription<'a> {
+    fn commands(&self) -> ScopeDescription {
         ScopeDescription::new(
             Some("Manual greeter scope".to_string()),
             vec![
                 ScopeCmdDescription::new(
                     "help".to_string(),
-                    Box::new(move |cmd_line| self.help(&cmd_line.args)),
                     Vec::new(),
                     None,
                 ),
                 ScopeCmdDescription::new(
                     "greet".to_string(),
-                    Box::new(move |cmd_line| self.greet(&cmd_line.args)),
                     Vec::new(),
                     Some("Show a greeting.".to_string()),
                 ),
                 ScopeCmdDescription::new(
                     "quit".to_string(),
-                    Box::new(move |cmd_line| self.quit(&cmd_line.args)),
                     Vec::new(),
                     Some("Quit the application.".to_string()),
                 ),
             ],
         )
+    }
+
+    fn run_command(&mut self, _: &Line) -> CommandResult {
+        Ok(Action::Done)
     }
 }
 

@@ -23,12 +23,8 @@ pub trait Scope {
                         Ok(line) => {
                             let line = self.before_command(line);
 
-                            let result = self
-                                .commands()
-                                .command_by_name(&line.command)
-                                .map(|method| method.execute(&line));
-
-                            let result = result.unwrap_or(self.default(&line));
+                            let result = self.run_command(&line);
+                            let result = result.or(self.default(&line));
 
                             let result =
                                 if let CommandResult::Ok(Action::SubScope(scope_runner)) = result {
@@ -56,8 +52,12 @@ pub trait Scope {
         }
     }
 
-    /// Return a ScopeDescription with a set of commands that this scope supports
-    fn commands<'a>(&'a self) -> ScopeDescription<'a>;
+    /// Return a ScopeDescription with a set of commands that this scope supports. This is used by
+    /// the help function and maybe in the future by tab completion.
+    fn commands(&self) -> ScopeDescription;
+
+    /// Run an entered command and return the result
+    fn run_command(&mut self, line: &Line) -> CommandResult;
 
     /// Return the prompt for this scope. The default implementation returns > as the prompt but
     /// this can be overridden to return other strings or implement dynamically generated prompts

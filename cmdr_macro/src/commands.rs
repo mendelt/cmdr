@@ -28,11 +28,15 @@ pub(crate) fn format_commands(
     let quoted_help = quote_string_option(&help_text.or(doc_help_text));
 
     quote!(
-        fn commands<'a>(&'a self) -> ScopeDescription<'a> {
+        fn commands(&self) -> ScopeDescription {
             ScopeDescription::new(
                 #quoted_help,
                 vec![#(#command_methods)*]
             )
+        }
+
+        fn run_command(&mut self, _: &Line) -> CommandResult {
+            Ok(Action::Done)
         }
     )
 }
@@ -204,7 +208,6 @@ struct CmdAttributes {
 impl ToTokens for CmdAttributes {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let command = &self.command;
-        let method = &self.method;
         let help_text = quote_string_option(&self.help);
         let alias_list: Vec<TokenStream> = self
             .alias
@@ -216,7 +219,6 @@ impl ToTokens for CmdAttributes {
         tokens.extend(quote!(
             ScopeCmdDescription::new(
                 #command.to_string(),
-                Box::new(move |cmd_line| self.#method(&cmd_line.args)),
                 #alias_quote,
                 #help_text,
             ),

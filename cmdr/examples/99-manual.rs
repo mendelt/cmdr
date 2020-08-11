@@ -47,7 +47,7 @@ impl Scope for GreeterScope {
         )
     }
 
-    fn run_command(&mut self, _: &Line) -> CommandResult {
+    fn run_command(&mut self, _: &ScopeCmdDescription, _: &[String]) -> CommandResult {
         Ok(Action::Done)
     }
 }

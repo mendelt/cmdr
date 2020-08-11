@@ -1,4 +1,4 @@
-use crate::result::Error;
+use crate::{Line, result::Error};
 use std::fmt::{Debug, Error as FmtError, Formatter};
 
 /// Metadata describing a scope, is used to return help text and the list of commands that this
@@ -24,11 +24,17 @@ impl<'a> ScopeDescription {
     }
 
     /// Find a command method by its command name or alias
-    pub fn command_by_name(&self, name: &str) -> Option<&ScopeCmdDescription> {
+    fn command_by_name(&self, name: &str) -> Option<&ScopeCmdDescription> {
         self.methods
             .iter()
             .filter(|method| method.handles(name))
             .next()
+    }
+
+    /// Return a command for an entered line
+    pub fn command_for_line(&self, line: &Line) -> Option<&ScopeCmdDescription> {
+        self.command_by_name(&line.command)
+        // TODO: Check type and number of arguments
     }
 
     /// Format help text for command

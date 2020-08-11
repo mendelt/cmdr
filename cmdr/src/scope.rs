@@ -1,7 +1,7 @@
 use crate::description::ScopeDescription;
 use crate::line_reader::LineReader;
 use crate::result::{Action, CommandResult, Error};
-use crate::Line;
+use crate::{ScopeCmdDescription, Line};
 
 /// Trait for implementing a Scope object. This trait can be implemented directly but will most
 /// likely be implemented for you by the cmdr macro.
@@ -12,6 +12,7 @@ pub trait Scope {
         self.before_loop();
 
         let mut last_result = Ok(Action::Done);
+        let commands = self.commands();
 
         while last_result == Ok(Action::Done) {
             last_result = match reader.read_line(self.prompt().as_ref()) {
@@ -23,8 +24,10 @@ pub trait Scope {
                         Ok(line) => {
                             let line = self.before_command(line);
 
-                            let result = self.run_command(&line);
-                            let result = result.or(self.default(&line));
+                            let result = match commands.command_for_line(&line) {
+                                Some(command) => self.run_command(&command, &line.args),
+                                None => self.default(&line)
+                            };
 
                             let result =
                                 if let CommandResult::Ok(Action::SubScope(scope_runner)) = result {
@@ -57,7 +60,7 @@ pub trait Scope {
     fn commands(&self) -> ScopeDescription;
 
     /// Run an entered command and return the result
-    fn run_command(&mut self, line: &Line) -> CommandResult;
+    fn run_command(&mut self, line: &ScopeCmdDescription, args: &[String]) -> CommandResult;
 
     /// Return the prompt for this scope. The default implementation returns > as the prompt but
     /// this can be overridden to return other strings or implement dynamically generated prompts

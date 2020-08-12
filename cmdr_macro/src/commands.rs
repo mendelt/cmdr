@@ -287,7 +287,7 @@ mod when_parsing_function_cmd_attributes {
             &parse_str(
                 r###"
                 #[cmd]
-                fn method() {}
+                fn method(&self, args: &[String]) {}
                 "###,
             )
             .unwrap(),
@@ -304,7 +304,7 @@ mod when_parsing_function_cmd_attributes {
             &parse_str(
                 r###"
                 #[cmd(command)]
-                fn method() {}
+                fn method(&self, args: &[String]) {}
                 "###,
             )
             .unwrap(),
@@ -321,7 +321,7 @@ mod when_parsing_function_cmd_attributes {
             &parse_str(
                 r###"
                 #[cmd(name="command")]
-                fn method() {}
+                fn method(&self, args: &[String]) {}
                 "###,
             )
             .unwrap(),
@@ -339,7 +339,7 @@ mod when_parsing_function_cmd_attributes {
                 r###"
                 #[cmd]
                 #[cmd(command)]
-                fn method() {}
+                fn method(&self, args: &[String]) {}
                 "###,
             )
             .unwrap(),
@@ -357,7 +357,7 @@ mod when_parsing_function_cmd_attributes {
                 r###"
                 #[cmd]
                 ///Help text
-                fn method() {}
+                fn method(&self, args: &[String]) {}
                 "###,
             )
             .unwrap(),
@@ -372,7 +372,7 @@ mod when_parsing_function_cmd_attributes {
             &parse_str(
                 r###"
                 #[cmd]
-                fn method() {
+                fn method(&self, args: &[String]) {
                     //!Help text
                 }
                 "###,
@@ -391,7 +391,7 @@ mod when_parsing_function_cmd_attributes {
                 r###"
                 #[cmd]
                 ///     Help text
-                fn method() {}
+                fn method(&self, args: &[String]) {}
                 "###,
             )
             .unwrap(),
@@ -408,7 +408,7 @@ mod when_parsing_function_cmd_attributes {
                 r###"
                 #[cmd(name, help="Help text from the cmd attribute")]
                 /// This is a docstring, not help text
-                fn method() {}
+                fn method(&self, args: &[String]) {}
                 "###,
             )
             .unwrap(),
@@ -427,7 +427,7 @@ mod when_parsing_function_cmd_attributes {
             &parse_str(
                 r###"
                 #[cmd(name, help="Multiline help text\nFrom the cmd attribute")]
-                fn method() {}
+                fn method(&self, args: &[String]) {}
                 "###,
             )
             .unwrap(),
@@ -446,7 +446,7 @@ mod when_parsing_function_cmd_attributes {
             &parse_str(
                 r###"
                 #[cmd(name)]
-                fn method() {}
+                fn method(&self, args: &[String]) {}
                 "###,
             )
             .unwrap(),
@@ -462,7 +462,7 @@ mod when_parsing_function_cmd_attributes {
             &parse_str(
                 r###"
                 #[cmd(name, alias("one", "two", three))]
-                fn method() {}
+                fn method(&self, args: &[String]) {}
                 "###,
             )
             .unwrap(),

@@ -5,10 +5,7 @@ use syn::{
     Attribute, AttributeArgs, ImplItem, ItemImpl, Lit, Meta, MetaList, MetaNameValue, NestedMeta,
 };
 
-pub(crate) fn format_commands(
-    input: &ItemImpl,
-    meta: &AttributeArgs,
-) -> TokenStream {
+pub(crate) fn format_commands(input: &ItemImpl, meta: &AttributeArgs) -> TokenStream {
     let (help_text, help_command) = parse_cmdr_attributes(meta);
     let doc_help_text = parse_help_text(&input.attrs);
 
@@ -212,7 +209,10 @@ struct CmdAttributes {
 
 impl CmdAttributes {
     pub(crate) fn to_call(&self) -> CmdCall {
-        CmdCall {command: self.command.clone(), method: self.method.clone()}
+        CmdCall {
+            command: self.command.clone(),
+            method: self.method.clone(),
+        }
     }
 }
 

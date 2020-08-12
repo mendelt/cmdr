@@ -1,7 +1,7 @@
 use crate::description::ScopeDescription;
 use crate::line_reader::LineReader;
 use crate::result::{Action, CommandResult, Error};
-use crate::{ScopeCmdDescription, Line};
+use crate::{Line, ScopeCmdDescription};
 
 /// Trait for implementing a Scope object. This trait can be implemented directly but will most
 /// likely be implemented for you by the cmdr macro.
@@ -26,7 +26,7 @@ pub trait Scope {
 
                             let result = match commands.command_for_line(&line) {
                                 Some(command) => self.run_command(&command, &line.args),
-                                None => self.default(&line)
+                                None => self.default(&line),
                             };
 
                             let result =

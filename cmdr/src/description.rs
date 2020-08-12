@@ -1,4 +1,4 @@
-use crate::{Line, result::Error};
+use crate::{result::Error, Line};
 use std::fmt::{Debug, Error as FmtError, Formatter};
 
 /// Metadata describing a scope, is used to return help text and the list of commands that this
@@ -78,11 +78,7 @@ pub struct ScopeCmdDescription {
 
 impl ScopeCmdDescription {
     /// Construct a CmdMethod from a command name and a command closure
-    pub fn new(
-        name: String,
-        alias: Vec<String>,
-        help_text: Option<String>,
-    ) -> Self {
+    pub fn new(name: String, alias: Vec<String>, help_text: Option<String>) -> Self {
         ScopeCmdDescription {
             name,
             alias,

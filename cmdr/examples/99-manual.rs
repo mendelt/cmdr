@@ -28,11 +28,7 @@ impl Scope for GreeterScope {
         ScopeDescription::new(
             Some("Manual greeter scope".to_string()),
             vec![
-                ScopeCmdDescription::new(
-                    "help".to_string(),
-                    Vec::new(),
-                    None,
-                ),
+                ScopeCmdDescription::new("help".to_string(), Vec::new(), None),
                 ScopeCmdDescription::new(
                     "greet".to_string(),
                     Vec::new(),
@@ -52,7 +48,7 @@ impl Scope for GreeterScope {
             "help" => self.help(args),
             "greet" => self.greet(args),
             "quit" => self.quit(args),
-            _ => Err(Error::InvalidCommand(command.name().to_string()))
+            _ => Err(Error::InvalidCommand(command.name().to_string())),
         }
     }
 }

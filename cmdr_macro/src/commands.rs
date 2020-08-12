@@ -13,6 +13,7 @@ pub(crate) fn format_commands(
     let doc_help_text = parse_help_text(&input.attrs);
 
     let mut command_methods = parse_commands(&input);
+
     if let Some(command) = help_command {
         command_methods.insert(
             0,
@@ -24,6 +25,7 @@ pub(crate) fn format_commands(
             },
         )
     }
+    let command_calls: Vec<_> = command_methods.iter().map(CmdAttributes::to_call).collect();
 
     let quoted_help = quote_string_option(&help_text.or(doc_help_text));
 
@@ -35,8 +37,11 @@ pub(crate) fn format_commands(
             )
         }
 
-        fn run_command(&mut self, _: &ScopeCmdDescription, _: &[String]) -> CommandResult {
-            Ok(Action::Done)
+        fn run_command(&mut self, command: &ScopeCmdDescription, args: &[String]) -> CommandResult {
+            match command.name() {
+                #(#command_calls)*
+                _ => Err(Error::InvalidCommand(command.name().to_string()))
+            }
         }
     )
 }
@@ -205,6 +210,12 @@ struct CmdAttributes {
     help: Option<String>,
 }
 
+impl CmdAttributes {
+    pub(crate) fn to_call(&self) -> CmdCall {
+        CmdCall {command: self.command.clone(), method: self.method.clone()}
+    }
+}
+
 impl ToTokens for CmdAttributes {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let command = &self.command;
@@ -223,6 +234,24 @@ impl ToTokens for CmdAttributes {
                 #help_text,
             ),
         ))
+    }
+}
+
+/// Contains all metadata for generating a command call
+#[derive(Debug, PartialEq)]
+struct CmdCall {
+    command: String,
+    method: Ident,
+}
+
+impl ToTokens for CmdCall {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let command = &self.command;
+        let method = &self.method;
+
+        tokens.extend(quote!(
+            #command => self.#method(args),
+        ));
     }
 }
 

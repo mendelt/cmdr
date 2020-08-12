@@ -109,6 +109,13 @@ fn parse_cmd_attributes(item: &ImplItem) -> Option<CmdAttributes> {
             let mut command_name = method_ident.to_string();
             let mut aliasses = Vec::new();
 
+            // Get method parameters and check that they are the right type
+            let ins: Vec<_> = method.sig.inputs.iter().collect();
+            assert_eq!(ins.len(), 2, "Invalid signature");
+
+            let out = method.sig.output.clone();
+            println!("{:?}", out);
+
             // Parse cmd fields
             for meta in cmd_attributes {
                 // Parse command name if it is different from method name

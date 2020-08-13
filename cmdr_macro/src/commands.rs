@@ -3,6 +3,7 @@ use proc_macro2::{Ident, Span, TokenStream};
 use quote::{quote, ToTokens};
 use syn::{
     Attribute, AttributeArgs, ImplItem, ItemImpl, Lit, Meta, MetaList, MetaNameValue, NestedMeta,
+    ReturnType, Type,
 };
 
 pub(crate) fn format_commands(input: &ItemImpl, meta: &AttributeArgs) -> TokenStream {
@@ -113,8 +114,16 @@ fn parse_cmd_attributes(item: &ImplItem) -> Option<CmdAttributes> {
             let ins: Vec<_> = method.sig.inputs.iter().collect();
             assert_eq!(ins.len(), 2, "Invalid signature");
 
-            let out = method.sig.output.clone();
-            println!("{:?}", out);
+            // Check method return type
+            if let ReturnType::Type(_, tpy) = method.sig.output.clone() {
+                if let Type::Path(tpy2) = tpy.as_ref() {
+                    assert!(
+                        tpy2.path
+                            .is_ident(&Ident::new("CommandResult", Span::call_site())),
+                        "Wrong return type"
+                    );
+                }
+            }
 
             // Parse cmd fields
             for meta in cmd_attributes {

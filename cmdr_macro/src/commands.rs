@@ -120,7 +120,7 @@ fn parse_cmd_attributes(item: &ImplItem) -> Option<CmdAttributes> {
                     assert!(
                         tpy2.path
                             .is_ident(&Ident::new("CommandResult", Span::call_site())),
-                        "Wrong return type"
+                        format!("Wrong return type for command {}, should be CommandReult", method_ident)
                     );
                 }
             }

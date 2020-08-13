@@ -112,7 +112,14 @@ fn parse_cmd_attributes(item: &ImplItem) -> Option<CmdAttributes> {
 
             // Get method parameters and check that they are the right type
             let ins: Vec<_> = method.sig.inputs.iter().collect();
-            assert_eq!(ins.len(), 2, "Invalid signature");
+            assert_eq!(
+                ins.len(),
+                2,
+                format!(
+                    "Invalid signature for command {}, expected 'args: &[String]",
+                    method_ident
+                )
+            );
 
             // Check method return type
             if let ReturnType::Type(_, tpy) = method.sig.output.clone() {
@@ -120,7 +127,10 @@ fn parse_cmd_attributes(item: &ImplItem) -> Option<CmdAttributes> {
                     assert!(
                         tpy2.path
                             .is_ident(&Ident::new("CommandResult", Span::call_site())),
-                        format!("Wrong return type for command {}, should be CommandReult", method_ident)
+                        format!(
+                            "Wrong return type for command {}, should be CommandReult",
+                            method_ident
+                        )
                     );
                 }
             }

@@ -115,10 +115,8 @@ fn parse_cmd_attributes(item: &ImplItem) -> Option<CmdAttributes> {
             assert_eq!(
                 ins.len(),
                 2,
-                format!(
-                    "Invalid signature for command {}, expected 'args: &[String]",
-                    method_ident
-                )
+                "Invalid signature for command {}, expected '&mut self, args &[String]'",
+                method_ident
             );
 
             // Check method return type

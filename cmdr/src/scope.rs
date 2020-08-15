@@ -1,5 +1,6 @@
 use crate::description::ScopeDescription;
 use crate::line_reader::LineReader;
+use crate::line_writer::LineWriter;
 use crate::result::{Action, CommandResult, Error};
 use crate::{Line, ScopeCmdDescription};
 
@@ -8,7 +9,11 @@ use crate::{Line, ScopeCmdDescription};
 pub trait Scope {
     /// Execute commands in this scope. Uses a LineReader to get commands and executes them one by
     /// one until a command returns CommandResult::Quit
-    fn run_lines(&mut self, reader: &mut dyn LineReader) -> CommandResult {
+    fn run_lines(
+        &mut self,
+        reader: &mut dyn LineReader,
+        writer: &mut dyn LineWriter,
+    ) -> CommandResult {
         self.before_loop();
 
         let mut last_result = Ok(Action::Done);
@@ -25,13 +30,13 @@ pub trait Scope {
                             let line = self.before_command(line);
 
                             let result = match commands.command_for_line(&line) {
-                                Some(command) => self.run_command(&command, &line.args),
+                                Some(command) => self.run_command(&command, &line.args, writer),
                                 None => self.default(&line),
                             };
 
                             let result =
                                 if let CommandResult::Ok(Action::SubScope(scope_runner)) = result {
-                                    scope_runner.run_lines(reader)
+                                    scope_runner.run_lines(reader, writer)
                                 } else {
                                     result
                                 };
@@ -60,7 +65,12 @@ pub trait Scope {
     fn commands(&self) -> ScopeDescription;
 
     /// Run an entered command and return the result
-    fn run_command(&mut self, line: &ScopeCmdDescription, args: &[String]) -> CommandResult;
+    fn run_command(
+        &mut self,
+        command: &ScopeCmdDescription,
+        args: &[String],
+        writer: &mut dyn LineWriter,
+    ) -> CommandResult;
 
     /// Return the prompt for this scope. The default implementation returns > as the prompt but
     /// this can be overridden to return other strings or implement dynamically generated prompts

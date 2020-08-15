@@ -1,5 +1,5 @@
 use crate::line_reader::LineReader;
-use crate::Scope;
+use crate::{line_writer::LineWriter, Scope};
 use std::fmt::{Debug, Error as StdError, Formatter};
 use std::ptr;
 use std::result::Result as StdResult;
@@ -73,18 +73,22 @@ pub enum Error {
 
 /// Wrap the scope to start on a CommandResult::NewScope or CommandResult::SubScope
 pub struct ScopeWrap {
-    runner: Box<dyn (FnOnce(&mut dyn LineReader) -> CommandResult)>,
+    runner: Box<dyn (FnOnce(&mut dyn LineReader, &mut dyn LineWriter) -> CommandResult)>,
 }
 
 impl ScopeWrap {
     pub fn new<S: Sized + Scope + 'static>(mut scope: S) -> Self {
         ScopeWrap {
-            runner: Box::new(move |reader| scope.run_lines(reader)),
+            runner: Box::new(move |reader, writer| scope.run_lines(reader, writer)),
         }
     }
 
-    pub fn run_lines(self, reader: &mut dyn LineReader) -> CommandResult {
-        (self.runner)(reader)
+    pub fn run_lines(
+        self,
+        reader: &mut dyn LineReader,
+        writer: &mut dyn LineWriter,
+    ) -> CommandResult {
+        (self.runner)(reader, writer)
     }
 }
 

@@ -2,6 +2,7 @@
 //! This example shows how to implement the Scope trait by hand. Normally you'd use the cmdr macro
 //! to do the heavy lifting. This shows what the macro does under water.
 
+use crate::line_writer::LineWriter;
 use cmdr::*;
 
 /// Example Cmdr scope
@@ -43,7 +44,12 @@ impl Scope for GreeterScope {
         )
     }
 
-    fn run_command(&mut self, command: &ScopeCmdDescription, args: &[String]) -> CommandResult {
+    fn run_command(
+        &mut self,
+        command: &ScopeCmdDescription,
+        args: &[String],
+        _: &mut dyn LineWriter,
+    ) -> CommandResult {
         match command.name() {
             "help" => self.help(args),
             "greet" => self.greet(args),

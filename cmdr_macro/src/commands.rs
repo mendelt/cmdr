@@ -35,7 +35,7 @@ pub(crate) fn format_commands(input: &ItemImpl, meta: &AttributeArgs) -> TokenSt
             )
         }
 
-        fn run_command(&mut self, command: &ScopeCmdDescription, args: &[String]) -> CommandResult {
+        fn run_command(&mut self, command: &ScopeCmdDescription, args: &[String], writer: &mut dyn LineWriter) -> CommandResult {
             match command.name() {
                 #(#command_calls)*
                 _ => Err(Error::InvalidCommand(command.name().to_string()))

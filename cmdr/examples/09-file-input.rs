@@ -1,4 +1,5 @@
 use cmdr::line_reader::{EchoLineReader, FileLineReader};
+use cmdr::line_writer::PrintlnWriter;
 use cmdr::*;
 use std::fs::File;
 
@@ -41,6 +42,8 @@ fn main() -> Result<()> {
         File::open("./examples/09-file-input.txt").unwrap(),
     ));
 
-    Runner::new(line_reader).run(&mut MainScope {})?;
+    let line_writer = PrintlnWriter {};
+
+    Runner::new(line_reader, line_writer).run(&mut MainScope {})?;
     Ok(())
 }

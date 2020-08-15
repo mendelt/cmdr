@@ -35,7 +35,9 @@ pub trait Scope {
                             };
 
                             let result =
-                                if let CommandResult::Ok(Action::SubScope(scope_runner)) = result {
+                                if let CommandResult::Ok(Action::SubScope(mut scope_runner)) =
+                                    result
+                                {
                                     scope_runner.run_lines(reader, writer)
                                 } else {
                                     result

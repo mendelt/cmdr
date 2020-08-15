@@ -73,22 +73,22 @@ pub enum Error {
 
 /// Wrap the scope to start on a CommandResult::NewScope or CommandResult::SubScope
 pub struct ScopeWrap {
-    runner: Box<dyn (FnOnce(&mut dyn LineReader, &mut dyn LineWriter) -> CommandResult)>,
+    scope: Box<dyn Scope>,
 }
 
 impl ScopeWrap {
-    pub fn new<S: Scope + 'static>(mut scope: S) -> Self {
+    pub fn new<S: Scope + 'static>(scope: S) -> Self {
         ScopeWrap {
-            runner: Box::new(move |reader, writer| scope.run_lines(reader, writer)),
+            scope: Box::new(scope),
         }
     }
 
     pub fn run_lines(
-        self,
+        &mut self,
         reader: &mut dyn LineReader,
         writer: &mut dyn LineWriter,
     ) -> CommandResult {
-        (self.runner)(reader, writer)
+        self.scope.run_lines(reader, writer)
     }
 }
 

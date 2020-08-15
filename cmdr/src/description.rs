@@ -9,7 +9,7 @@ pub struct ScopeDescription {
     methods: Vec<ScopeCmdDescription>,
 }
 
-impl<'a> ScopeDescription {
+impl ScopeDescription {
     /// Construct a command method list
     pub fn new(scope_help: Option<String>, methods: Vec<ScopeCmdDescription>) -> Self {
         ScopeDescription {

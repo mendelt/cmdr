@@ -11,7 +11,7 @@ pub type Result<T> = StdResult<T, Error>;
 pub type CommandResult = Result<Action>;
 
 /// Returned by one of the client-implemented command methods to indicate what needs to happen next
-#[derive(Debug, PartialEq)]
+#[derive(Debug)]
 pub enum Action {
     /// Result Ok, ready to go on to the next command
     Done,

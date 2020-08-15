@@ -32,13 +32,13 @@ pub enum Action {
 impl Action {
     /// Shortcut to construct a NewScope action to return from a command
     /// This ends the current scope and starts a new scope
-    pub fn new_scope<S: Scope + Sized + 'static>(scope: S) -> CommandResult {
+    pub fn new_scope<S: Scope + 'static>(scope: S) -> CommandResult {
         CommandResult::Ok(Action::NewScope(ScopeWrap::new(scope)))
     }
 
     /// Shortcut to construct a SubScope action to return from a command
     /// This recursively starts a subscope that will return to the current scope when done
-    pub fn sub_scope<S: Scope + Sized + 'static>(scope: S) -> CommandResult {
+    pub fn sub_scope<S: Scope + 'static>(scope: S) -> CommandResult {
         CommandResult::Ok(Action::SubScope(ScopeWrap::new(scope)))
     }
 }
@@ -77,7 +77,7 @@ pub struct ScopeWrap {
 }
 
 impl ScopeWrap {
-    pub fn new<S: Sized + Scope + 'static>(mut scope: S) -> Self {
+    pub fn new<S: Scope + 'static>(mut scope: S) -> Self {
         ScopeWrap {
             runner: Box::new(move |reader, writer| scope.run_lines(reader, writer)),
         }

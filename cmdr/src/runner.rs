@@ -18,7 +18,7 @@ impl<R: LineReader, W: LineWriter> Runner<R, W> {
     }
 
     /// Start reading lines and executing them
-    pub fn run<S: Scope + Sized>(&mut self, scope: &mut S) -> CommandResult {
+    pub fn run<S: Scope>(&mut self, scope: &mut S) -> CommandResult {
         let mut result = scope.run_lines(&mut self.reader, &mut self.writer);
 
         while let CommandResult::Ok(Action::NewScope(scope_runner)) = result {

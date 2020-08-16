@@ -73,7 +73,7 @@ pub enum Error {
 
 /// Wrap the scope to start on a CommandResult::NewScope or CommandResult::SubScope
 pub struct ScopeWrap {
-    scope: Box<dyn Scope>,
+    pub scope: Box<dyn Scope>,
 }
 
 impl ScopeWrap {

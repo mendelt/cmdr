@@ -98,10 +98,3 @@ impl Debug for ScopeWrap {
         write!(formatter, "NewScopeResult")
     }
 }
-
-/// Different instances of ScopeRunner are never equal
-impl PartialEq for ScopeWrap {
-    fn eq(&self, other: &ScopeWrap) -> bool {
-        ptr::eq(self, other)
-    }
-}

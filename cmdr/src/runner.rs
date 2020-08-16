@@ -22,7 +22,7 @@ impl<R: LineReader, W: LineWriter> Runner<R, W> {
         let mut result = scope.run_lines(&mut self.reader, &mut self.writer);
 
         while let CommandResult::Ok(Action::NewScope(mut scope_runner)) = result {
-            result = scope_runner.run_lines(&mut self.reader, &mut self.writer);
+            result = scope_runner.scope.run_lines(&mut self.reader, &mut self.writer);
         }
 
         result

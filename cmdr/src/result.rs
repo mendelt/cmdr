@@ -1,7 +1,5 @@
-use crate::line_reader::LineReader;
-use crate::{line_writer::LineWriter, Scope};
+use crate::Scope;
 use std::fmt::{Debug, Error as StdError, Formatter};
-use std::ptr;
 use std::result::Result as StdResult;
 
 /// Default cmdr Result type
@@ -81,14 +79,6 @@ impl ScopeWrap {
         ScopeWrap {
             scope: Box::new(scope),
         }
-    }
-
-    pub fn run_lines(
-        &mut self,
-        reader: &mut dyn LineReader,
-        writer: &mut dyn LineWriter,
-    ) -> CommandResult {
-        self.scope.run_lines(reader, writer)
     }
 }
 

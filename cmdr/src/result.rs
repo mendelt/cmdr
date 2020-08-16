@@ -9,7 +9,6 @@ pub type Result<T> = StdResult<T, Error>;
 pub type CommandResult = Result<Action>;
 
 /// Returned by one of the client-implemented command methods to indicate what needs to happen next
-#[derive(Debug)]
 pub enum Action {
     /// Result Ok, ready to go on to the next command
     Done,
@@ -25,6 +24,18 @@ pub enum Action {
 
     /// Result Quit, close the application and stop
     Quit,
+}
+
+impl Debug for Action {
+    fn fmt(&self, formatter: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
+        match self {
+            Action::Done => formatter.debug_tuple("Done").finish(),
+            Action::NewScope(_) => formatter.debug_tuple("NewScope").finish(),
+            Action::SubScope(_) => formatter.debug_tuple("SubScope").finish(),
+            Action::Exit => formatter.debug_tuple("Exit").finish(),
+            Action::Quit => formatter.debug_tuple("Quit").finish(),
+        }
+    }
 }
 
 impl Action {

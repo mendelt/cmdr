@@ -34,14 +34,13 @@ pub trait Scope {
                                 None => self.default(&line),
                             };
 
-                            let result =
-                                if let CommandResult::Ok(Action::SubScope(mut scope_runner)) =
-                                    result
-                                {
-                                    scope_runner.scope.run_lines(reader, writer)
-                                } else {
-                                    result
-                                };
+                            let result = if let CommandResult::Ok(Action::SubScope(mut sub_scope)) =
+                                result
+                            {
+                                sub_scope.run_lines(reader, writer)
+                            } else {
+                                result
+                            };
 
                             self.after_command(&line, result)
                         }

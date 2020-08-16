@@ -1,5 +1,5 @@
 use crate::Scope;
-use std::fmt::{Debug, Error as StdError, Formatter};
+use std::fmt::Debug;
 use std::result::Result as StdResult;
 
 /// Default cmdr Result type
@@ -14,10 +14,10 @@ pub enum Action {
     Done,
 
     /// Switch to a new scope
-    NewScope(ScopeWrap),
+    NewScope(Box<dyn Scope>),
 
     /// Switch to a sub scope,
-    SubScope(ScopeWrap),
+    SubScope(Box<dyn Scope>),
 
     /// Result Exit, exit the current scope and return to the parent scope if available
     Exit,
@@ -42,13 +42,13 @@ impl Action {
     /// Shortcut to construct a NewScope action to return from a command
     /// This ends the current scope and starts a new scope
     pub fn new_scope<S: Scope + 'static>(scope: S) -> CommandResult {
-        CommandResult::Ok(Action::NewScope(ScopeWrap::new(scope)))
+        CommandResult::Ok(Action::NewScope(Box::new(scope)))
     }
 
     /// Shortcut to construct a SubScope action to return from a command
     /// This recursively starts a subscope that will return to the current scope when done
     pub fn sub_scope<S: Scope + 'static>(scope: S) -> CommandResult {
-        CommandResult::Ok(Action::SubScope(ScopeWrap::new(scope)))
+        CommandResult::Ok(Action::SubScope(Box::new(scope)))
     }
 }
 
@@ -78,24 +78,4 @@ pub enum Error {
 
     /// Fatal error, quit the application with an error code
     Fatal(i32),
-}
-
-/// Wrap the scope to start on a CommandResult::NewScope or CommandResult::SubScope
-pub struct ScopeWrap {
-    pub scope: Box<dyn Scope>,
-}
-
-impl ScopeWrap {
-    pub fn new<S: Scope + 'static>(scope: S) -> Self {
-        ScopeWrap {
-            scope: Box::new(scope),
-        }
-    }
-}
-
-/// Do not attempt to print anything about the ScopeRunner, just show that this is a ScopeRunner
-impl Debug for ScopeWrap {
-    fn fmt(&self, formatter: &mut Formatter) -> StdResult<(), StdError> {
-        write!(formatter, "NewScopeResult")
-    }
 }

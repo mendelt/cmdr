@@ -2,8 +2,8 @@ use itertools::Itertools;
 use proc_macro2::{Ident, Span, TokenStream};
 use quote::{quote, ToTokens};
 use syn::{
-    Attribute, AttributeArgs, ImplItem, ItemImpl, Lit, Meta, MetaList, MetaNameValue, NestedMeta,
-    ReturnType, Type,
+    Attribute, AttributeArgs, ImplItem, ImplItemMethod, ItemImpl, Lit, Meta, MetaList,
+    MetaNameValue, NestedMeta, ReturnType, Type,
 };
 
 pub(crate) fn format_commands(input: &ItemImpl, meta: &AttributeArgs) -> TokenStream {
@@ -91,6 +91,32 @@ fn parse_commands(input: &ItemImpl) -> Vec<CmdAttributes> {
         .collect()
 }
 
+/// Check if this method has the right signature to be a cmd, panics if it doesnt
+fn check_cmd_signature(method: &ImplItemMethod) {
+    let method_ident = method.sig.ident.to_owned();
+
+    // Get method parameters and check that they are the right type
+    let ins: Vec<_> = method.sig.inputs.iter().collect();
+
+    if ins.len() != 2 {
+        panic!("Invalid signature for command {}, expected '&mut self, args &[String]'")
+    }
+
+    // Check method return type
+    if let ReturnType::Type(_, tpy) = method.sig.output.clone() {
+        if let Type::Path(tpy2) = tpy.as_ref() {
+            assert!(
+                tpy2.path
+                    .is_ident(&Ident::new("CommandResult", Span::call_site())),
+                format!(
+                    "Wrong return type for command {}, should be CommandReult",
+                    method_ident
+                )
+            );
+        }
+    }
+}
+
 /// Parse attributes for a single command
 fn parse_cmd_attributes(item: &ImplItem) -> Option<CmdAttributes> {
     if let ImplItem::Method(method) = item {
@@ -106,32 +132,11 @@ fn parse_cmd_attributes(item: &ImplItem) -> Option<CmdAttributes> {
         if !cmd_attributes.is_empty() {
             let method_ident = method.sig.ident.to_owned();
 
+            check_cmd_signature(method);
+
             let mut help_text = parse_help_text(attributes);
             let mut command_name = method_ident.to_string();
             let mut aliasses = Vec::new();
-
-            // Get method parameters and check that they are the right type
-            let ins: Vec<_> = method.sig.inputs.iter().collect();
-            assert_eq!(
-                ins.len(),
-                2,
-                "Invalid signature for command {}, expected '&mut self, args &[String]'",
-                method_ident
-            );
-
-            // Check method return type
-            if let ReturnType::Type(_, tpy) = method.sig.output.clone() {
-                if let Type::Path(tpy2) = tpy.as_ref() {
-                    assert!(
-                        tpy2.path
-                            .is_ident(&Ident::new("CommandResult", Span::call_site())),
-                        format!(
-                            "Wrong return type for command {}, should be CommandReult",
-                            method_ident
-                        )
-                    );
-                }
-            }
 
             // Parse cmd fields
             for meta in cmd_attributes {

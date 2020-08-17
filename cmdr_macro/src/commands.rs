@@ -99,20 +99,23 @@ fn check_cmd_signature(method: &ImplItemMethod) {
     let ins: Vec<_> = method.sig.inputs.iter().collect();
 
     if ins.len() != 2 {
-        panic!("Invalid signature for command {}, expected '&mut self, args &[String]'")
+        panic!(format!(
+            "Invalid signature for command {}, expected '&mut self, args &[String]'", method_ident
+        ));
     }
 
     // Check method return type
     if let ReturnType::Type(_, tpy) = method.sig.output.clone() {
         if let Type::Path(tpy2) = tpy.as_ref() {
-            assert!(
-                tpy2.path
-                    .is_ident(&Ident::new("CommandResult", Span::call_site())),
-                format!(
+            if !tpy2
+                .path
+                .is_ident(&Ident::new("CommandResult", Span::call_site()))
+            {
+                panic!(format!(
                     "Wrong return type for command {}, should be CommandReult",
                     method_ident
-                )
-            );
+                ));
+            }
         }
     }
 }

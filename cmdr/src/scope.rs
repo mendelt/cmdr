@@ -1,5 +1,4 @@
 use crate::description::ScopeDescription;
-use crate::line_reader::LineReader;
 use crate::line_writer::LineWriter;
 use crate::result::{Action, CommandResult, Error};
 use crate::{Line, ScopeCmdDescription};
@@ -7,60 +6,6 @@ use crate::{Line, ScopeCmdDescription};
 /// Trait for implementing a Scope object. This trait can be implemented directly but will most
 /// likely be implemented for you by the cmdr macro.
 pub trait Scope {
-    /// Execute commands in this scope. Uses a LineReader to get commands and executes them one by
-    /// one until a command returns CommandResult::Quit
-    fn run_lines(
-        &mut self,
-        reader: &mut dyn LineReader,
-        writer: &mut dyn LineWriter,
-    ) -> CommandResult {
-        self.before_loop();
-
-        let mut last_result = Ok(Action::Done);
-        let commands = self.commands();
-
-        while let Ok(Action::Done) = last_result {
-            last_result = match reader.read_line(self.prompt().as_ref()) {
-                Err(error) => CommandResult::Err(error),
-                Ok(line_string) => {
-                    let line = Line::try_parse(line_string.as_ref());
-                    match line {
-                        Err(error) => CommandResult::Err(error),
-                        Ok(line) => {
-                            let line = self.before_command(line);
-
-                            let result = match commands.command_for_line(&line) {
-                                Some(command) => self.run_command(&command, &line.args, writer),
-                                None => self.default(&line),
-                            };
-
-                            let result = if let CommandResult::Ok(Action::SubScope(mut sub_scope)) =
-                                result
-                            {
-                                sub_scope.run_lines(reader, writer)
-                            } else {
-                                result
-                            };
-
-                            self.after_command(&line, result)
-                        }
-                    }
-                }
-            };
-
-            if let CommandResult::Err(error) = last_result {
-                last_result = self.handle_error_internal(error)
-            }
-        }
-
-        self.after_loop();
-
-        match last_result {
-            CommandResult::Ok(Action::Exit) => Ok(Action::Done),
-            _ => last_result,
-        }
-    }
-
     /// Return a ScopeDescription with a set of commands that this scope supports. This is used by
     /// the help function and maybe in the future by tab completion.
     fn commands(&self) -> ScopeDescription;

@@ -10,14 +10,13 @@ struct GreeterScope {}
 
 impl GreeterScope {
     /// Cmdr command to greet someone.
-    fn greet(&mut self, args: &[String]) -> CommandResult {
-        println!("Hello {}", args[0]);
+    fn greet(&mut self, writer: &mut dyn LineWriter, args: &[String]) -> CommandResult {
+        writer.write_line(format!("Hello {}", args[0]).as_ref());
         Ok(Action::Done)
     }
 
     /// Cmdr command to quit the application by returning CommandResult::Quit
-    fn quit(&mut self, _args: &[String]) -> CommandResult {
-        println!("Quitting");
+    fn quit(&mut self) -> CommandResult {
         Ok(Action::Quit)
     }
 }
@@ -48,12 +47,12 @@ impl Scope for GreeterScope {
         &mut self,
         command: &ScopeCmdDescription,
         args: &[String],
-        _: &mut dyn LineWriter,
+        writer: &mut dyn LineWriter,
     ) -> CommandResult {
         match command.name() {
             "help" => self.help(args),
-            "greet" => self.greet(args),
-            "quit" => self.quit(args),
+            "greet" => self.greet(writer, args),
+            "quit" => self.quit(),
             _ => Err(Error::InvalidCommand(command.name().to_string())),
         }
     }

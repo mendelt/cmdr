@@ -20,6 +20,7 @@ pub(crate) fn format_commands(input: &ItemImpl, meta: &AttributeArgs) -> TokenSt
                 method: Ident::new("help", Span::call_site()),
                 alias: vec![],
                 help: None,
+                arguments: Vec::new(),
             },
         )
     }
@@ -95,15 +96,6 @@ fn parse_commands(input: &ItemImpl) -> Vec<CmdAttributes> {
 fn check_cmd_signature(method: &ImplItemMethod) {
     let method_ident = method.sig.ident.to_owned();
 
-    // Get method parameters and check that they are the right type
-    let ins: Vec<_> = method.sig.inputs.iter().collect();
-
-    if ins.len() != 2 {
-        panic!(format!(
-            "Invalid signature for command {}, expected '&mut self, args &[String]'", method_ident
-        ));
-    }
-
     // Check method return type
     if let ReturnType::Type(_, tpy) = method.sig.output.clone() {
         if let Type::Path(tpy2) = tpy.as_ref() {
@@ -117,6 +109,16 @@ fn check_cmd_signature(method: &ImplItemMethod) {
                 ));
             }
         }
+    }
+
+    // Get method parameters and check that they are the right type
+    let ins: Vec<_> = method.sig.inputs.iter().collect();
+
+    if ins.len() != 2 {
+        panic!(format!(
+            "Invalid signature for command {}, expected '&mut self, args &[String]'",
+            method_ident
+        ));
     }
 }
 
@@ -190,6 +192,7 @@ fn parse_cmd_attributes(item: &ImplItem) -> Option<CmdAttributes> {
                 method: method_ident,
                 alias: aliasses,
                 help: help_text,
+                arguments: Vec::new(),
             })
         } else {
             // Method has no cmd attribute so is not a command
@@ -237,6 +240,14 @@ struct CmdAttributes {
     method: Ident,
     alias: Vec<String>,
     help: Option<String>,
+    arguments: Vec<CmdArgument>,
+}
+
+/// Single cmd method argument type
+#[derive(Debug, PartialEq)]
+enum CmdArgument {
+    Writer,
+    Args,
 }
 
 impl CmdAttributes {

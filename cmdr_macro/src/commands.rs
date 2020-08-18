@@ -93,7 +93,7 @@ fn parse_commands(input: &ItemImpl) -> Vec<CmdAttributes> {
 }
 
 /// Check if this method has the right signature to be a cmd, panics if it doesnt
-fn check_cmd_signature(method: &ImplItemMethod) {
+fn parse_cmd_signature(method: &ImplItemMethod) -> Vec<CmdArgument> {
     let method_ident = method.sig.ident.to_owned();
 
     // Check method return type
@@ -114,11 +114,19 @@ fn check_cmd_signature(method: &ImplItemMethod) {
     // Get method parameters and check that they are the right type
     let ins: Vec<_> = method.sig.inputs.iter().collect();
 
-    if ins.len() != 2 {
-        panic!(format!(
+    // Todo:
+    //  - check if first argument is &self or &mut self
+    //  - parse writer argument, should be reference, mutable, dyn and type Writer
+    //  - parse arg slice
+    //  - allow different argument order
+
+    match ins.len() {
+        2 => vec![CmdArgument::Args],
+        3 => vec![CmdArgument::Writer, CmdArgument::Args],
+        _ => panic!(format!(
             "Invalid signature for command {}, expected '&mut self, args &[String]'",
             method_ident
-        ));
+        )),
     }
 }
 
@@ -136,8 +144,6 @@ fn parse_cmd_attributes(item: &ImplItem) -> Option<CmdAttributes> {
 
         if !cmd_attributes.is_empty() {
             let method_ident = method.sig.ident.to_owned();
-
-            check_cmd_signature(method);
 
             let mut help_text = parse_help_text(attributes);
             let mut command_name = method_ident.to_string();
@@ -192,7 +198,7 @@ fn parse_cmd_attributes(item: &ImplItem) -> Option<CmdAttributes> {
                 method: method_ident,
                 alias: aliasses,
                 help: help_text,
-                arguments: Vec::new(),
+                arguments: parse_cmd_signature(method),
             })
         } else {
             // Method has no cmd attribute so is not a command
@@ -246,7 +252,10 @@ struct CmdAttributes {
 /// Single cmd method argument type
 #[derive(Debug, PartialEq)]
 enum CmdArgument {
+    /// Writer argument
     Writer,
+
+    /// Arguments slice
     Args,
 }
 

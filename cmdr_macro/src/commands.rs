@@ -20,7 +20,7 @@ pub(crate) fn format_commands(input: &ItemImpl, meta: &AttributeArgs) -> TokenSt
                 method: Ident::new("help", Span::call_site()),
                 alias: vec![],
                 help: None,
-                arguments: Vec::new(),
+                arguments: vec![CmdArgument::Args],
             },
         )
     }

@@ -1,6 +1,6 @@
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::{ImplItem, ItemImpl, TypePath};
+use syn::{ImplItem, ItemImpl, TypePath, ImplItemMethod};
 
 /// Checks the cmdr type to see if any override methods are available. Override methods
 /// are methods that override a method that has a default implementation in the Scope trait.
@@ -12,11 +12,14 @@ pub(crate) fn format_overrides(input: &ItemImpl, self_type: &TypePath) -> TokenS
     for item in &input.items {
         if let ImplItem::Method(method) = item {
             overrides.extend(match method.sig.ident.to_string().as_ref() {
-                "prompt" => quote!(
-                    fn prompt(&self) -> String {
-                        #self_type::prompt(&self)
-                    }
-                ),
+                "prompt" => {
+                    check_signature(method, "fn prompt(&self) -> String {}");
+                    quote!(
+                        fn prompt(&self) -> String {
+                            #self_type::prompt(&self)
+                        }
+                    )
+                }
                 "help" => quote!(
                     fn help(&self, args: &[String]) -> CommandResult {
                         #self_type::help(&self, args)
@@ -58,6 +61,12 @@ pub(crate) fn format_overrides(input: &ItemImpl, self_type: &TypePath) -> TokenS
     }
 
     overrides
+}
+
+fn check_signature(method: &ImplItemMethod, signature: &str) {
+    let expected: ImplItemMethod = syn::parse_str(signature).unwrap();
+
+    assert_eq!(method.sig, expected.sig);
 }
 
 #[cfg(test)]

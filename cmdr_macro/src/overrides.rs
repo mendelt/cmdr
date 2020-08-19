@@ -2,6 +2,10 @@ use proc_macro2::TokenStream;
 use quote::quote;
 use syn::{ImplItem, ItemImpl, TypePath};
 
+/// Checks the cmdr type to see if any override methods are available. Override methods
+/// are methods that override a method that has a default implementation in the Scope trait.
+/// When an override is available in the type we're implementing Scope for we generate a method
+/// that calls the user supplied functionality.
 pub(crate) fn format_overrides(input: &ItemImpl, self_type: &TypePath) -> TokenStream {
     let mut overrides = TokenStream::new();
 

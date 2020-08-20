@@ -91,6 +91,15 @@ mod tests {
     }
 
     #[test]
+    #[should_panic]
+    fn should_panic_when_overriding_prompt_wrong_signature() {
+        let source = syn::parse_str("impl SomeImpl {fn prompt(&self) -> bool { }}").unwrap();
+        let self_type = util::parse_self_type(&source).unwrap();
+
+        format_overrides(&source, &self_type).to_string();
+    }
+
+    #[test]
     fn should_override_help_when_available() {
         let source = syn::parse_str(
             "impl SomeImpl {fn help(args: &[String]) -> CommandResult { CommandResult::Ok }}",

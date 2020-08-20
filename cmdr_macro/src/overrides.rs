@@ -66,7 +66,12 @@ pub(crate) fn format_overrides(input: &ItemImpl, self_type: &TypePath) -> TokenS
 fn check_signature(method: &ImplItemMethod, signature: &str) {
     let expected: ImplItemMethod = syn::parse_str(signature).unwrap();
 
-    assert_eq!(method.sig, expected.sig);
+    if method.sig != expected.sig {
+        panic!(
+            "Unable to override method \"{}\". Invalid method signature, expected: {}",
+            method.sig.ident, signature
+        );
+    }
 }
 
 #[cfg(test)]

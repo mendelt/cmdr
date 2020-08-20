@@ -1,6 +1,6 @@
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::{ImplItem, ItemImpl, TypePath, ImplItemMethod};
+use syn::{ImplItem, ImplItemMethod, ItemImpl, TypePath};
 
 /// Checks the cmdr type to see if any override methods are available. Override methods
 /// are methods that override a method that has a default implementation in the Scope trait.
@@ -76,7 +76,7 @@ mod tests {
 
     #[test]
     fn should_override_prompt_when_available() {
-        let source = syn::parse_str("impl SomeImpl {fn prompt() { }}").unwrap();
+        let source = syn::parse_str("impl SomeImpl {fn prompt(&self) -> String { }}").unwrap();
         let self_type = util::parse_self_type(&source).unwrap();
 
         assert_eq!(
@@ -167,7 +167,9 @@ mod tests {
 
     #[test]
     fn should_override_multiple_commands_when_available() {
-        let source = syn::parse_str("impl SomeImpl {fn prompt() { } fn after_loop() { }}").unwrap();
+        let source =
+            syn::parse_str("impl SomeImpl {fn prompt(&self) -> String { } fn after_loop() { }}")
+                .unwrap();
         let self_type = util::parse_self_type(&source).unwrap();
 
         assert_eq!(

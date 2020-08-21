@@ -17,9 +17,10 @@
 //!
 //! ```ignore
 //! use cmdr::*;
-//! struct GreeterScope {}
 //!
 //! /// Example scope that implements two commands, greet and quit
+//! struct GreeterScope {}
+//!
 //! #[cmdr]
 //! impl GreeterScope {
 //!     /// Cmdr command to greet someone. Takes one parameter and prints a greeting

@@ -61,8 +61,8 @@ pub trait Scope {
                         Ok(Action::Done)
                     }
                     Error::EmptyLine => Ok(Action::Done),
-                    Error::CtrlC => Ok(Action::Done),
-                    Error::CtrlD => Ok(Action::Done),
+                    Error::CtrlC => Ok(Action::Quit),
+                    Error::CtrlD => Ok(Action::Exit),
                     _ => CommandResult::Err(error),
                 }
             }

@@ -3,9 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Cmdr</title>
-        
-        <meta name="robots" content="noindex" />
+        <title>Rerouting input - Cmdr</title>
         
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
@@ -83,7 +81,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div id="sidebar-scrollbox" class="sidebar-scrollbox">
-                <ol class="chapter"><li class="expanded "><a href="getting_started.html"><strong aria-hidden="true">1.</strong> Getting Started</a></li><li class="expanded "><a href="structure.html"><strong aria-hidden="true">2.</strong> Cmdr application structure</a></li><li><ol class="section"><li class="expanded "><a href="scope.html"><strong aria-hidden="true">2.1.</strong> Scopes</a></li><li class="expanded "><a href="commands.html"><strong aria-hidden="true">2.2.</strong> Commands</a></li><li class="expanded "><a href="multiple_scopes.html"><strong aria-hidden="true">2.3.</strong> Using multiple scopes</a></li><li class="expanded "><a href="overriding_cmdr.html"><strong aria-hidden="true">2.4.</strong> Overriding Cmdr</a></li><li class="expanded "><a href="hooks.html"><strong aria-hidden="true">2.5.</strong> Hooks</a></li></ol></li><li class="expanded "><a href="advanced.html"><strong aria-hidden="true">3.</strong> Advanced topics</a></li><li><ol class="section"><li class="expanded "><a href="rerouting_input.html"><strong aria-hidden="true">3.1.</strong> Rerouting input</a></li></ol></li></ol>
+                <ol class="chapter"><li class="expanded "><a href="getting_started.html"><strong aria-hidden="true">1.</strong> Getting Started</a></li><li class="expanded "><a href="structure.html"><strong aria-hidden="true">2.</strong> Cmdr application structure</a></li><li><ol class="section"><li class="expanded "><a href="scope.html"><strong aria-hidden="true">2.1.</strong> Scopes</a></li><li class="expanded "><a href="commands.html"><strong aria-hidden="true">2.2.</strong> Commands</a></li><li class="expanded "><a href="multiple_scopes.html"><strong aria-hidden="true">2.3.</strong> Using multiple scopes</a></li><li class="expanded "><a href="overriding_cmdr.html"><strong aria-hidden="true">2.4.</strong> Overriding Cmdr</a></li><li class="expanded "><a href="hooks.html"><strong aria-hidden="true">2.5.</strong> Hooks</a></li></ol></li><li class="expanded "><a href="advanced.html"><strong aria-hidden="true">3.</strong> Advanced topics</a></li><li><ol class="section"><li class="expanded "><a href="rerouting_input.html" class="active"><strong aria-hidden="true">3.1.</strong> Rerouting input</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -150,66 +148,16 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1><a class="header" href="#getting-started" id="getting-started">Getting started</a></h1>
-<p>Cmdr is a library for writing simple interactive command line applications. Instead of trying to
-explain what I mean by that, let's just write one.</p>
-<p>Start a new project;</p>
-<pre><code>&gt; cargo new my_cli_app
-</code></pre>
-<p>Add a dependency to cmdr to Cargo.toml;</p>
-<pre><code>[dependencies]
-cmdr = &quot;0.3.11&quot;
-</code></pre>
-<p>and enter the following code in <code>src/main.rs</code></p>
-<pre><pre class="playpen"><code class="language-rust">use cmdr::*;
-
-/// Example scope that implements two commands, greet and quit
-struct GreeterScope {}
-
-#[cmdr]
-impl GreeterScope {
-    /// Cmdr command to greet someone. Takes one parameter and prints a greeting
-    #[cmd]
-    fn greet(&amp;self, args: &amp;[String]) -&gt; CommandResult {
-        println!(&quot;Hello {}&quot;, args[0]);
-        CommandResult::Ok
-    }
-
-    /// Cmdr command to quit the application by returning CommandResult::Quit
-    #[cmd]
-    fn quit(&amp;self, _args: &amp;[String]) -&gt; CommandResult {
-        println!(&quot;Quitting&quot;);
-        CommandResult::Quit
-    }
-}
-
-/// Main function that creates the scope and starts a command loop for it
-fn main() {
-    cmd_loop(&amp;mut GreeterScope {});
-}
-</code></pre></pre>
-<p>If you run this code with</p>
-<pre><code>&gt; cargo run
-</code></pre>
-<p>It will present you with a command prompt <code>&gt;</code> and a blinking cursor. Typing</p>
-<pre><code>&gt; help
-</code></pre>
-<p>will tell you what commands are available. You can greet someone by typing <code>greet</code> followed by the
-name of the person you'd like to extend a greeting to. You can exit the application by typing
-<code>quit</code>.</p>
-<h1><a class="header" href="#cmdr-application-structure" id="cmdr-application-structure">Cmdr application structure</a></h1>
-<h1><a class="header" href="#the-scope" id="the-scope">The scope</a></h1>
-<h1><a class="header" href="#commands" id="commands">Commands</a></h1>
-<h1><a class="header" href="#using-multiple-scopes" id="using-multiple-scopes">Using multiple scopes</a></h1>
-<h1><a class="header" href="#overriding-cmdr" id="overriding-cmdr">Overriding Cmdr</a></h1>
-<h1><a class="header" href="#hooks" id="hooks">Hooks</a></h1>
-<h1><a class="header" href="#advanced-topics" id="advanced-topics">Advanced topics</a></h1>
-<h1><a class="header" href="#rerouting-input" id="rerouting-input">Rerouting input</a></h1>
+                        <h1><a class="header" href="#rerouting-input" id="rerouting-input">Rerouting input</a></h1>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="advanced.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
                         
 
                         
@@ -220,6 +168,10 @@ name of the person you'd like to extend a greeting to. You can exit the applicat
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a href="advanced.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
                 
 
                 
@@ -254,14 +206,6 @@ name of the person you'd like to extend a greeting to. You can exit the applicat
         <!-- Custom JS scripts -->
         
 
-        
-        
-        <script type="text/javascript">
-        window.addEventListener('load', function() {
-            window.setTimeout(window.print, 100);
-        });
-        </script>
-        
         
 
     </body>

@@ -22,6 +22,12 @@
 //! struct GreeterScope {}
 //!
 //! #[cmdr]
+//! use cmdr::*;
+//!
+//! /// Example scope that implements two commands, greet and quit
+//! struct GreeterScope {}
+//!
+//! #[cmdr]
 //! impl GreeterScope {
 //!     /// Cmdr command to greet someone. Takes one parameter and prints a greeting
 //!     #[cmd]
@@ -39,7 +45,7 @@
 //! }
 //!
 //! /// Main function that creates the scope and starts a command loop for it
-//! fn main() -> cmdr::Result {
+//! fn main() -> cmdr::Result<()> {
 //!     cmd_loop(&mut GreeterScope {})?;
 //!     Ok(())
 //! }

@@ -3,9 +3,9 @@
 
 use cmdr::*;
 
+/// Example scope that implements two commands, greet and quit
 struct GreeterScope {}
 
-/// Example scope that implements two commands, greet and quit
 #[cmdr(help = "Example scope", help_command = "hlp")]
 impl GreeterScope {
     /// Cmdr command to greet someone.

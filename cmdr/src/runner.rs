@@ -22,7 +22,7 @@ impl<R: LineReader, W: LineWriter> Runner<R, W> {
     pub fn run<S: Scope>(&mut self, scope: &mut S) -> CommandResult {
         let mut result = self.run_scope(scope);
 
-        while let CommandResult::Ok(Action::NewScope(mut sub_scope)) = result {
+        while let Ok(Action::NewScope(mut sub_scope)) = result {
             result = self.run_scope(sub_scope.as_mut());
         }
 
@@ -39,11 +39,11 @@ impl<R: LineReader, W: LineWriter> Runner<R, W> {
 
         while let Ok(Action::Done) = last_result {
             last_result = match self.reader.read_line(scope.prompt().as_ref()) {
-                Err(error) => CommandResult::Err(error),
+                Err(error) => Err(error),
                 Ok(line_string) => {
                     let line = Line::try_parse(line_string.as_ref());
                     match line {
-                        Err(error) => CommandResult::Err(error),
+                        Err(error) => Err(error),
                         Ok(line) => {
                             let line = scope.before_command(line);
 
@@ -54,9 +54,7 @@ impl<R: LineReader, W: LineWriter> Runner<R, W> {
                                 None => scope.default(&line),
                             };
 
-                            let result = if let CommandResult::Ok(Action::SubScope(mut sub_scope)) =
-                                result
-                            {
+                            let result = if let Ok(Action::SubScope(mut sub_scope)) = result {
                                 self.run_scope(sub_scope.as_mut())
                             } else {
                                 result
@@ -68,7 +66,7 @@ impl<R: LineReader, W: LineWriter> Runner<R, W> {
                 }
             };
 
-            if let CommandResult::Err(error) = last_result {
+            if let Err(error) = last_result {
                 last_result = scope.handle_error_internal(error)
             }
         }
@@ -76,7 +74,7 @@ impl<R: LineReader, W: LineWriter> Runner<R, W> {
         scope.after_loop();
 
         match last_result {
-            CommandResult::Ok(Action::Exit) => Ok(Action::Done),
+            Ok(Action::Exit) => Ok(Action::Done),
             _ => last_result,
         }
     }

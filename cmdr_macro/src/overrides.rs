@@ -1,6 +1,6 @@
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::{ImplItem, ImplItemMethod, ItemImpl, TypePath};
+use syn::{ImplItem, ImplItemMethod, ItemImpl, TypePath, Signature};
 
 /// Checks the cmdr type to see if any override methods are available. Override methods
 /// are methods that override a method that has a default implementation in the Scope trait.
@@ -73,6 +73,39 @@ fn check_signature(method: &ImplItemMethod, signature: &str) {
         );
     }
 }
+
+/// Compare signatures to see if they're compatible, not equal
+fn compare_signatures(first: Signature, second: Signature) -> bool {
+    if first.generics != second.generics { return false }
+    if first.ident != second.ident {return false}
+    if first.unsafety != second.unsafety {return false}
+    if first.variadic != second.variadic {return false}
+
+    return true
+}
+
+#[cfg(test)]
+mod when_comparing_signatures {
+    use super::*;
+
+    fn compare_signatures_of(first: &str, second: &str) -> bool {
+        compare_signatures(
+        syn::parse_str::<ImplItemMethod>(first).unwrap().sig,
+        syn::parse_str::<ImplItemMethod>(second).unwrap().sig
+        )
+    }
+
+    #[test]
+    fn should_return_true_for_same_function() {
+        assert!(
+            compare_signatures_of(
+                "fn func(&mut self, param: i64) -> bool {}", 
+                "fn func(&mut self, param: i64) -> bool {}"
+            )
+        );
+    }
+}
+
 
 #[cfg(test)]
 mod tests {

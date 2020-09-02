@@ -88,6 +88,9 @@ fn compare_signatures(first: Signature, second: Signature) -> bool {
     if first.variadic != second.variadic {
         return false;
     }
+    if first.output != second.output {
+        return false;
+    }
 
     return true;
 }
@@ -128,10 +131,26 @@ mod when_comparing_signatures {
     }
 
     #[test]
-    fn should_fail_for_invalid_name() {
+    fn should_fail_for_different_name() {
         assert!(!compare_signatures_of(
             "fn func(&mut self, param: i64) -> bool {}",
             "fn different_func(&mut self, param: i64) -> bool {}"
+        ));
+    }
+
+    #[test]
+    fn should_fail_for_different_unsafety() {
+        assert!(!compare_signatures_of(
+            "fn func(&mut self, param: i64) -> bool {}",
+            "unsafe fn func(&mut self, param: i64) -> bool {}"
+        ));
+    }
+
+    #[test]
+    fn should_fail_for_different_return_type() {
+        assert!(!compare_signatures_of(
+            "fn func(&mut self, param: i64) -> u16 {}",
+            "fn func(&mut self, param: i64) -> bool {}"
         ));
     }
 }

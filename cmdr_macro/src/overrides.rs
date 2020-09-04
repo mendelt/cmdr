@@ -13,7 +13,7 @@ pub(crate) fn format_overrides(input: &ItemImpl, self_type: &TypePath) -> TokenS
         if let ImplItem::Method(method) = item {
             overrides.extend(match method.sig.ident.to_string().as_ref() {
                 "prompt" => {
-                    check_signature(method, "fn prompt(&self) -> String {}");
+                    check_signature(&method, "fn prompt(&self) -> String {}");
                     quote!(
                         fn prompt(&self) -> String {
                             #self_type::prompt(&self)
@@ -63,36 +63,28 @@ pub(crate) fn format_overrides(input: &ItemImpl, self_type: &TypePath) -> TokenS
     overrides
 }
 
-fn check_signature(method: &ImplItemMethod, signature: &str) {
-    let expected: ImplItemMethod = syn::parse_str(signature).unwrap();
+fn check_signature(method: &ImplItemMethod, expected: &str) {
+    let expected_sig: ImplItemMethod = syn::parse_str(expected).unwrap();
 
-    if method.sig != expected.sig {
+    if !compare_signatures(&method.sig, &expected_sig.sig) {
         panic!(
             "Unable to override method \"{}\". Invalid method signature, expected: {}",
-            method.sig.ident, signature
+            method.sig.ident, expected
         );
     }
 }
 
 /// Compare signatures to see if they're compatible, not equal
-fn compare_signatures(first: Signature, second: Signature) -> bool {
-    if first.generics != second.generics {
-        return false;
-    }
-    if first.ident != second.ident {
-        return false;
-    }
-    if first.unsafety != second.unsafety {
-        return false;
-    }
-    if first.variadic != second.variadic {
-        return false;
-    }
-    if first.output != second.output {
-        return false;
+fn compare_signatures(signature: &Signature, expected: &Signature) -> bool {
+
+    fn normalize_signature(sig: Signature) -> Signature {
+        Signature {
+            inputs: sig.inputs,
+            .. sig
+        }
     }
 
-    return true;
+    return normalize_signature(signature.clone()) == normalize_signature(expected.clone());
 }
 
 #[cfg(test)]
@@ -101,8 +93,8 @@ mod when_comparing_signatures {
 
     fn compare_signatures_of(first: &str, second: &str) -> bool {
         compare_signatures(
-            syn::parse_str::<ImplItemMethod>(first).unwrap().sig,
-            syn::parse_str::<ImplItemMethod>(second).unwrap().sig,
+            &syn::parse_str::<ImplItemMethod>(first).unwrap().sig,
+            &syn::parse_str::<ImplItemMethod>(second).unwrap().sig,
         )
     }
 
@@ -115,42 +107,10 @@ mod when_comparing_signatures {
     }
 
     #[test]
-    fn should_fail_for_different_generics() {
+    fn should_fail_for_different_functions() {
         assert!(!compare_signatures_of(
             "fn func(&mut self, param: i64) -> bool {}",
-            "fn func<T>(&mut self, param: i64) -> bool {}"
-        ));
-    }
-
-    #[test]
-    fn should_fail_for_different_lifetimes() {
-        assert!(!compare_signatures_of(
-            "fn func(&mut self, param: i64) -> bool {}",
-            "fn func<'a>(&mut self, param: i64) -> bool {}"
-        ));
-    }
-
-    #[test]
-    fn should_fail_for_different_name() {
-        assert!(!compare_signatures_of(
-            "fn func(&mut self, param: i64) -> bool {}",
-            "fn different_func(&mut self, param: i64) -> bool {}"
-        ));
-    }
-
-    #[test]
-    fn should_fail_for_different_unsafety() {
-        assert!(!compare_signatures_of(
-            "fn func(&mut self, param: i64) -> bool {}",
-            "unsafe fn func(&mut self, param: i64) -> bool {}"
-        ));
-    }
-
-    #[test]
-    fn should_fail_for_different_return_type() {
-        assert!(!compare_signatures_of(
-            "fn func(&mut self, param: i64) -> u16 {}",
-            "fn func(&mut self, param: i64) -> bool {}"
+            "fn func(&mut self, param: bool) -> i64 {}"
         ));
     }
 }

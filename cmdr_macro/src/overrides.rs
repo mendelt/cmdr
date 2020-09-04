@@ -1,6 +1,7 @@
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::{ImplItem, ImplItemMethod, ItemImpl, Signature, TypePath};
+use syn::{ImplItem, ImplItemMethod, ItemImpl, Signature, TypePath, FnArg, PatType, Pat, PatIdent, Ident};
+use syn::punctuated::{Pair, Punctuated};
 
 /// Checks the cmdr type to see if any override methods are available. Override methods
 /// are methods that override a method that has a default implementation in the Scope trait.
@@ -79,8 +80,37 @@ fn compare_signatures(signature: &Signature, expected: &Signature) -> bool {
 
     fn normalize_signature(sig: Signature) -> Signature {
         Signature {
-            inputs: sig.inputs,
+            inputs: sig.inputs.into_pairs().map(normalize_pair).collect(),
             .. sig
+        }
+    }
+
+    fn normalize_pair<T>(pair: Pair<FnArg, T>) -> Pair<FnArg, T> {
+        match pair {
+            Pair::Punctuated(arg, token) => Pair::Punctuated(normalize_argument(arg), token),
+            Pair::End(arg) => Pair::End(normalize_argument(arg))
+        }
+    }
+
+    fn normalize_argument(arg: FnArg) -> FnArg {
+        match arg {
+            FnArg::Receiver(_) => arg,
+            FnArg::Typed(pat_type) => FnArg::Typed(
+                PatType{
+                    pat: normalize_ident(pat_type.pat),
+                    .. pat_type
+                }),
+        }
+    }
+
+    fn normalize_ident(pat: Box<Pat>) -> Box<Pat> {
+        match pat.as_ref() {
+            Pat::Ident(ident) => Box::new(Pat::Ident(
+                PatIdent{
+                    ident: Ident::new("_", ident.ident.span()), 
+                    .. ident.clone()
+                })),
+            _ => pat
         }
     }
 
@@ -111,6 +141,14 @@ mod when_comparing_signatures {
         assert!(!compare_signatures_of(
             "fn func(&mut self, param: i64) -> bool {}",
             "fn func(&mut self, param: bool) -> i64 {}"
+        ));
+    }
+
+    #[test]
+    fn should_succeed_for_different_parameter_names() {
+        assert!(compare_signatures_of(
+            "fn func(&mut self, param1: i64, param2: String) -> bool {}",
+            "fn func(&mut self, pArAm1: i64, parAM2: String) -> bool {}"
         ));
     }
 }

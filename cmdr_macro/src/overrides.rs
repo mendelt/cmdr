@@ -17,47 +17,76 @@ pub(crate) fn format_overrides(input: &ItemImpl, self_type: &TypePath) -> TokenS
             overrides.extend(match method.sig.ident.to_string().as_ref() {
                 "prompt" => {
                     check_signature(&method, "fn prompt(&self) -> String {}");
+
                     quote!(
                         fn prompt(&self) -> String {
                             #self_type::prompt(&self)
                         }
                     )
                 }
-                "help" => quote!(
-                    fn help(&self, args: &[String]) -> CommandResult {
-                        #self_type::help(&self, args)
-                    }
-                ),
-                "handle_error" => quote!(
-                    fn handle_error(&mut self, error: Error) -> CommandResult {
-                        #self_type::handle_error(self, error)
-                    }
-                ),
-                "default" => quote!(
-                    fn default(&mut self, command: &Line) -> CommandResult {
-                        #self_type::default(self, command)
-                    }
-                ),
-                "before_loop" => quote!(
-                    fn before_loop(&mut self) {
-                        #self_type::before_loop(self)
-                    }
-                ),
-                "before_command" => quote!(
-                    fn before_command(&mut self, line: Line) -> Line {
-                        #self_type::before_command(self, line)
-                    }
-                ),
-                "after_command" => quote!(
-                    fn after_command(&mut self, line: &Line, result: CommandResult) -> CommandResult {
-                       #self_type::after_command(self, line, result)
-                    }
-                ),
-                "after_loop" => quote!(
-                    fn after_loop(&mut self) {
-                       #self_type::after_loop(self)
-                    }
-                ),
+                "help" => {
+                    check_signature(&method, "fn help(&self, args: &[String]) -> CommandResult {}");
+
+                    quote!(
+                        fn help(&self, args: &[String]) -> CommandResult {
+                            #self_type::help(&self, args)
+                        }
+                    )
+                }
+                "handle_error" => {
+                    check_signature(&method, "fn handle_error(&mut self, error: Error) -> CommandResult {}");
+
+                    quote!(
+                        fn handle_error(&mut self, error: Error) -> CommandResult {
+                            #self_type::handle_error(self, error)
+                        }
+                    )
+                },
+                "default" => {
+                    check_signature(&method, "fn default(&mut self, command: &Line) -> CommandResult {}");
+
+                    quote!(
+                        fn default(&mut self, command: &Line) -> CommandResult {
+                            #self_type::default(self, command)
+                        }
+                    )
+                },
+                "before_loop" => {
+                    check_signature(&method, "fn before_loop(&mut self) {}");
+
+                    quote!(
+                        fn before_loop(&mut self) {
+                            #self_type::before_loop(self)
+                        }
+                    )
+                }
+                "before_command" => {
+                    check_signature(&method, "fn before_command(&mut self, line: Line) -> Line {}");
+
+                    quote!(
+                        fn before_command(&mut self, line: Line) -> Line {
+                            #self_type::before_command(self, line)
+                        }
+                    )
+                }
+                "after_command" => {
+                    check_signature(&method, "fn after_command(&mut self, line: &Line, result: CommandResult) -> CommandResult {}");
+
+                    quote!(
+                        fn after_command(&mut self, line: &Line, result: CommandResult) -> CommandResult {
+                            #self_type::after_command(self, line, result)
+                        }
+                    )
+                }
+                "after_loop" => { 
+                    check_signature(&method, "fn after_loop(&mut self) {}");
+
+                    quote!(
+                        fn after_loop(&mut self) {
+                            #self_type::after_loop(self)
+                        }
+                    )
+                }
                 _ => quote!()
             });
         }
@@ -68,7 +97,6 @@ pub(crate) fn format_overrides(input: &ItemImpl, self_type: &TypePath) -> TokenS
 
 fn check_signature(method: &ImplItemMethod, expected: &str) {
     let expected_sig: ImplItemMethod = syn::parse_str(expected).unwrap();
-
     if !compare_signatures(&method.sig, &expected_sig.sig) {
         panic!(
             "Unable to override method \"{}\". Invalid method signature, expected: {}",

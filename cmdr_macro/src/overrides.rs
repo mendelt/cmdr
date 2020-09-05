@@ -157,14 +157,22 @@ mod tests {
     use super::*;
     use crate::util;
 
+    /// Normalized test to see if generated tokens are equal to expected code
+    fn tokens_eq(generated_tokens: TokenStream, expected: &str) {
+        assert_eq!(
+            generated_tokens.to_string(),
+            syn::parse_str::<TokenStream>(expected).unwrap().to_string()
+        );
+    }
+
     #[test]
     fn should_override_prompt_when_available() {
         let source = syn::parse_str("impl SomeImpl {fn prompt(&self) -> String { }}").unwrap();
         let self_type = util::parse_self_type(&source).unwrap();
 
-        assert_eq!(
-            format_overrides(&source, &self_type).to_string(),
-            "fn prompt ( & self ) -> String { SomeImpl :: prompt ( & self ) }"
+        tokens_eq(
+            format_overrides(&source, &self_type),
+            "fn prompt(&self) -> String { SomeImpl::prompt(&self) }",
         );
     }
 
@@ -185,9 +193,9 @@ mod tests {
         .unwrap();
         let self_type = util::parse_self_type(&source).unwrap();
 
-        assert_eq!(
-            format_overrides(&source, &self_type).to_string(),
-            "fn help ( & self , args : & [ String ] ) -> CommandResult { SomeImpl :: help ( & self , args ) }"
+        tokens_eq(
+            format_overrides(&source, &self_type),
+            "fn help(& self, args: &[String]) -> CommandResult { SomeImpl::help(&self, args) }",
         );
     }
 
@@ -196,9 +204,9 @@ mod tests {
         let source = syn::parse_str("impl SomeImpl {fn handle_error() { }}").unwrap();
         let self_type = util::parse_self_type(&source).unwrap();
 
-        assert_eq!(
-            format_overrides(&source, &self_type).to_string(),
-            "fn handle_error ( & mut self , error : Error ) -> CommandResult { SomeImpl :: handle_error ( self , error ) }"
+        tokens_eq(
+            format_overrides(&source, &self_type),
+            "fn handle_error(&mut self, error: Error) -> CommandResult { SomeImpl::handle_error(self, error) }"
         );
     }
 
@@ -207,9 +215,9 @@ mod tests {
         let source = syn::parse_str("impl SomeImpl {fn default() { }}").unwrap();
         let self_type = util::parse_self_type(&source).unwrap();
 
-        assert_eq!(
-            format_overrides(&source, &self_type).to_string(),
-            "fn default ( & mut self , command : & Line ) -> CommandResult { SomeImpl :: default ( self , command ) }"
+        tokens_eq(
+            format_overrides(&source, &self_type),
+            "fn default(&mut self, command: &Line) -> CommandResult { SomeImpl::default(self, command) }"
         );
     }
 
@@ -218,9 +226,9 @@ mod tests {
         let source = syn::parse_str("impl SomeImpl {fn before_loop() { }}").unwrap();
         let self_type = util::parse_self_type(&source).unwrap();
 
-        assert_eq!(
-            format_overrides(&source, &self_type).to_string(),
-            "fn before_loop ( & mut self ) { SomeImpl :: before_loop ( self ) }"
+        tokens_eq(
+            format_overrides(&source, &self_type),
+            "fn before_loop(&mut self) { SomeImpl::before_loop(self) }",
         );
     }
 
@@ -229,9 +237,9 @@ mod tests {
         let source = syn::parse_str("impl SomeImpl {fn before_command() { }}").unwrap();
         let self_type = util::parse_self_type(&source).unwrap();
 
-        assert_eq!(
-            format_overrides(&source, &self_type).to_string(),
-            "fn before_command ( & mut self , line : Line ) -> Line { SomeImpl :: before_command ( self , line ) }"
+        tokens_eq(
+            format_overrides(&source, &self_type),
+            "fn before_command(&mut self, line: Line) -> Line { SomeImpl::before_command(self, line) }"
         );
     }
 
@@ -240,9 +248,9 @@ mod tests {
         let source = syn::parse_str("impl SomeImpl {fn after_command() { }}").unwrap();
         let self_type = util::parse_self_type(&source).unwrap();
 
-        assert_eq!(
-            format_overrides(&source, &self_type).to_string(),
-            "fn after_command ( & mut self , line : & Line , result : CommandResult ) -> CommandResult { SomeImpl :: after_command ( self , line , result ) }"
+        tokens_eq(
+            format_overrides(&source, &self_type),
+            "fn after_command(&mut self, line: &Line, result: CommandResult) -> CommandResult { SomeImpl::after_command(self, line, result) }"
         );
     }
 
@@ -251,9 +259,9 @@ mod tests {
         let source = syn::parse_str("impl SomeImpl {fn after_loop() { }}").unwrap();
         let self_type = util::parse_self_type(&source).unwrap();
 
-        assert_eq!(
-            format_overrides(&source, &self_type).to_string(),
-            "fn after_loop ( & mut self ) { SomeImpl :: after_loop ( self ) }"
+        tokens_eq(
+            format_overrides(&source, &self_type),
+            "fn after_loop(&mut self) { SomeImpl::after_loop(self) }",
         );
     }
 
@@ -264,9 +272,9 @@ mod tests {
                 .unwrap();
         let self_type = util::parse_self_type(&source).unwrap();
 
-        assert_eq!(
-            format_overrides(&source, &self_type).to_string(),
-            "fn prompt ( & self ) -> String { SomeImpl :: prompt ( & self ) } fn after_loop ( & mut self ) { SomeImpl :: after_loop ( self ) }"
+        tokens_eq(
+            format_overrides(&source, &self_type),
+            "fn prompt(&self) -> String { SomeImpl::prompt(&self) } fn after_loop(&mut self) { SomeImpl::after_loop(self) }"
         );
     }
 
@@ -275,6 +283,6 @@ mod tests {
         let source = syn::parse_str("impl SomeImpl {fn some_other_method() { }}").unwrap();
         let self_type = util::parse_self_type(&source).unwrap();
 
-        assert_eq!(format_overrides(&source, &self_type).to_string(), "");
+        tokens_eq(format_overrides(&source, &self_type), "");
     }
 }

@@ -206,7 +206,7 @@ mod tests {
 
     #[test]
     #[should_panic]
-    fn should_panic_when_overriding_prompt_wrong_signature() {
+    fn should_panic_when_overriding_prompt_with_wrong_signature() {
         let source = syn::parse_str("impl SomeImpl {fn prompt(&self) -> bool { }}").unwrap();
         let self_type = util::parse_self_type(&source).unwrap();
 
@@ -215,21 +215,23 @@ mod tests {
 
     #[test]
     fn should_override_help_when_available() {
-        let source = syn::parse_str(
-            "impl SomeImpl {fn help(args: &[String]) -> CommandResult { CommandResult::Ok }}",
-        )
-        .unwrap();
+        let source =
+            syn::parse_str("impl SomeImpl {fn help(&self, args: &[String]) -> CommandResult { }}")
+                .unwrap();
         let self_type = util::parse_self_type(&source).unwrap();
 
         tokens_eq(
             format_overrides(&source, &self_type),
-            "fn help(& self, args: &[String]) -> CommandResult { SomeImpl::help(&self, args) }",
+            "fn help(&self, args: &[String]) -> CommandResult { SomeImpl::help(&self, args) }",
         );
     }
 
     #[test]
     fn should_override_handle_error_when_available() {
-        let source = syn::parse_str("impl SomeImpl {fn handle_error() { }}").unwrap();
+        let source = syn::parse_str(
+            "impl SomeImpl {fn handle_error(&mut self, error: Error) -> CommandResult { }}",
+        )
+        .unwrap();
         let self_type = util::parse_self_type(&source).unwrap();
 
         tokens_eq(
@@ -240,7 +242,10 @@ mod tests {
 
     #[test]
     fn should_override_default_when_available() {
-        let source = syn::parse_str("impl SomeImpl {fn default() { }}").unwrap();
+        let source = syn::parse_str(
+            "impl SomeImpl {fn default(&mut self, command: &Line) -> CommandResult { }}",
+        )
+        .unwrap();
         let self_type = util::parse_self_type(&source).unwrap();
 
         tokens_eq(
@@ -251,7 +256,7 @@ mod tests {
 
     #[test]
     fn should_override_before_loop_when_available() {
-        let source = syn::parse_str("impl SomeImpl {fn before_loop() { }}").unwrap();
+        let source = syn::parse_str("impl SomeImpl {fn before_loop(&mut self) { }}").unwrap();
         let self_type = util::parse_self_type(&source).unwrap();
 
         tokens_eq(
@@ -262,7 +267,9 @@ mod tests {
 
     #[test]
     fn should_override_before_command_when_available() {
-        let source = syn::parse_str("impl SomeImpl {fn before_command() { }}").unwrap();
+        let source =
+            syn::parse_str("impl SomeImpl {fn before_command(&mut self, line: Line) -> Line { }}")
+                .unwrap();
         let self_type = util::parse_self_type(&source).unwrap();
 
         tokens_eq(
@@ -273,7 +280,7 @@ mod tests {
 
     #[test]
     fn should_override_after_command_when_available() {
-        let source = syn::parse_str("impl SomeImpl {fn after_command() { }}").unwrap();
+        let source = syn::parse_str("impl SomeImpl {fn after_command(&mut self, line: &Line, result: CommandResult) -> CommandResult { }}").unwrap();
         let self_type = util::parse_self_type(&source).unwrap();
 
         tokens_eq(
@@ -284,7 +291,7 @@ mod tests {
 
     #[test]
     fn should_override_after_loop_when_available() {
-        let source = syn::parse_str("impl SomeImpl {fn after_loop() { }}").unwrap();
+        let source = syn::parse_str("impl SomeImpl {fn after_loop(&mut self) { }}").unwrap();
         let self_type = util::parse_self_type(&source).unwrap();
 
         tokens_eq(
@@ -295,14 +302,17 @@ mod tests {
 
     #[test]
     fn should_override_multiple_commands_when_available() {
-        let source =
-            syn::parse_str("impl SomeImpl {fn prompt(&self) -> String { } fn after_loop() { }}")
-                .unwrap();
+        let source = syn::parse_str(
+            "impl SomeImpl {fn prompt(&self) -> String { } fn after_loop(&mut self) { }}",
+        )
+        .unwrap();
         let self_type = util::parse_self_type(&source).unwrap();
 
         tokens_eq(
             format_overrides(&source, &self_type),
-            "fn prompt(&self) -> String { SomeImpl::prompt(&self) } fn after_loop(&mut self) { SomeImpl::after_loop(self) }"
+            r#"
+                fn prompt(&self) -> String { SomeImpl::prompt(&self) } 
+                fn after_loop(&mut self) { SomeImpl::after_loop(self) }"#,
         );
     }
 

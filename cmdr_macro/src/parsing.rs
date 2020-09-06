@@ -1,6 +1,28 @@
 //! Helper methods for parsing rust code using syn
 use syn::punctuated::Pair;
-use syn::{FnArg, Ident, Pat, PatIdent, PatType, Signature};
+use syn::{FnArg, Ident, ItemImpl, Pat, PatIdent, PatType, Signature, Type, TypePath};
+
+pub(crate) fn parse_self_type(input: &ItemImpl) -> Option<TypePath> {
+    match &*input.self_ty {
+        Type::Path(self_type) => Some(self_type.to_owned()),
+        _ => None,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn should_return_impl_self_type() {
+        let source = &syn::parse_str("impl SomeImpl {}").unwrap();
+
+        assert_eq!(
+            parse_self_type(source),
+            Some(syn::parse_str("SomeImpl").unwrap())
+        );
+    }
+}
 
 /// Compare signatures to see if they're compatible, not equal
 pub(crate) fn compare_signatures(signature: &Signature, expected: &Signature) -> bool {

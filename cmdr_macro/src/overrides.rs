@@ -1,7 +1,7 @@
+use crate::parsing::compare_signatures;
 use proc_macro2::TokenStream;
 use quote::quote;
 use syn::{ImplItem, ImplItemMethod, ItemImpl, TypePath};
-use crate::parsing::compare_signatures;
 
 /// Checks the cmdr type to see if any override methods are available. Override methods
 /// are methods that override a method that has a default implementation in the Scope trait.
@@ -107,7 +107,7 @@ fn check_signature(method: &ImplItemMethod, expected: &str) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::util;
+    use crate::parsing::parse_self_type;
 
     /// Normalized test to see if generated tokens are equal to expected code
     fn tokens_eq(generated_tokens: TokenStream, expected: &str) {
@@ -120,7 +120,7 @@ mod tests {
     #[test]
     fn should_override_prompt_when_available() {
         let source = syn::parse_str("impl SomeImpl {fn prompt(&self) -> String { }}").unwrap();
-        let self_type = util::parse_self_type(&source).unwrap();
+        let self_type = parse_self_type(&source).unwrap();
 
         tokens_eq(
             format_overrides(&source, &self_type),
@@ -132,7 +132,7 @@ mod tests {
     #[should_panic]
     fn should_panic_when_overriding_prompt_with_wrong_signature() {
         let source = syn::parse_str("impl SomeImpl {fn prompt(&self) -> bool { }}").unwrap();
-        let self_type = util::parse_self_type(&source).unwrap();
+        let self_type = parse_self_type(&source).unwrap();
 
         format_overrides(&source, &self_type).to_string();
     }
@@ -142,7 +142,7 @@ mod tests {
         let source =
             syn::parse_str("impl SomeImpl {fn help(&self, args: &[String]) -> CommandResult { }}")
                 .unwrap();
-        let self_type = util::parse_self_type(&source).unwrap();
+        let self_type = parse_self_type(&source).unwrap();
 
         tokens_eq(
             format_overrides(&source, &self_type),
@@ -156,7 +156,7 @@ mod tests {
             "impl SomeImpl {fn handle_error(&mut self, error: Error) -> CommandResult { }}",
         )
         .unwrap();
-        let self_type = util::parse_self_type(&source).unwrap();
+        let self_type = parse_self_type(&source).unwrap();
 
         tokens_eq(
             format_overrides(&source, &self_type),
@@ -170,7 +170,7 @@ mod tests {
             "impl SomeImpl {fn default(&mut self, command: &Line) -> CommandResult { }}",
         )
         .unwrap();
-        let self_type = util::parse_self_type(&source).unwrap();
+        let self_type = parse_self_type(&source).unwrap();
 
         tokens_eq(
             format_overrides(&source, &self_type),
@@ -181,7 +181,7 @@ mod tests {
     #[test]
     fn should_override_before_loop_when_available() {
         let source = syn::parse_str("impl SomeImpl {fn before_loop(&mut self) { }}").unwrap();
-        let self_type = util::parse_self_type(&source).unwrap();
+        let self_type = parse_self_type(&source).unwrap();
 
         tokens_eq(
             format_overrides(&source, &self_type),
@@ -194,7 +194,7 @@ mod tests {
         let source =
             syn::parse_str("impl SomeImpl {fn before_command(&mut self, line: Line) -> Line { }}")
                 .unwrap();
-        let self_type = util::parse_self_type(&source).unwrap();
+        let self_type = parse_self_type(&source).unwrap();
 
         tokens_eq(
             format_overrides(&source, &self_type),
@@ -205,7 +205,7 @@ mod tests {
     #[test]
     fn should_override_after_command_when_available() {
         let source = syn::parse_str("impl SomeImpl {fn after_command(&mut self, line: &Line, result: CommandResult) -> CommandResult { }}").unwrap();
-        let self_type = util::parse_self_type(&source).unwrap();
+        let self_type = parse_self_type(&source).unwrap();
 
         tokens_eq(
             format_overrides(&source, &self_type),
@@ -216,7 +216,7 @@ mod tests {
     #[test]
     fn should_override_after_loop_when_available() {
         let source = syn::parse_str("impl SomeImpl {fn after_loop(&mut self) { }}").unwrap();
-        let self_type = util::parse_self_type(&source).unwrap();
+        let self_type = parse_self_type(&source).unwrap();
 
         tokens_eq(
             format_overrides(&source, &self_type),
@@ -230,7 +230,7 @@ mod tests {
             "impl SomeImpl {fn prompt(&self) -> String { } fn after_loop(&mut self) { }}",
         )
         .unwrap();
-        let self_type = util::parse_self_type(&source).unwrap();
+        let self_type = parse_self_type(&source).unwrap();
 
         tokens_eq(
             format_overrides(&source, &self_type),
@@ -243,7 +243,7 @@ mod tests {
     #[test]
     fn should_override_nothing_when_no_overridable_methods() {
         let source = syn::parse_str("impl SomeImpl {fn some_other_method() { }}").unwrap();
-        let self_type = util::parse_self_type(&source).unwrap();
+        let self_type = parse_self_type(&source).unwrap();
 
         tokens_eq(format_overrides(&source, &self_type), "");
     }

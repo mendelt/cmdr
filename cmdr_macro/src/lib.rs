@@ -22,6 +22,7 @@ extern crate proc_macro2;
 
 mod commands;
 mod overrides;
+mod parsing;
 mod util;
 
 use crate::commands::format_commands;

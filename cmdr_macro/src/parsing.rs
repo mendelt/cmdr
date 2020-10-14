@@ -60,7 +60,7 @@ pub(crate) fn compare_signatures(signature: &Signature, expected: &Signature) ->
         }
     }
 
-    return normalize_signature(signature.clone()) == normalize_signature(expected.clone());
+    normalize_signature(signature.clone()) == normalize_signature(expected.clone())
 }
 
 #[cfg(test)]

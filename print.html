@@ -226,6 +226,8 @@ We can do this in the main function;</p>
     cmd_loop(&amp;mut GreeterScope {});
 }
 </code></pre></pre>
+<h1><a class="header" href="#application-structure" id="application-structure">Application structure</a></h1>
+<p>Cmdr makes it very easy to write interactive command line applications. An application consists of one or more <code>scope</code>s and each scope defines one or more commands. Any type can be a scope by annotating its impl block with the #[cmdr] macro. The impl block can then contain one or more functions that will act as commands.</p>
 <h1><a class="header" href="#the-scope" id="the-scope">The scope</a></h1>
 <p>Cmdr applications can be modal. An application can accept different commands in diferent modes. The mode the application is in is determined by the <code>scope</code> it is in. Each scope has commands defined on it that are available to the user when that <code>scope</code> is active.</p>
 <p>The getting started example had the <code>GreeterScope</code> as its single scope. But multiple scopes can be defined. Any type annotated with the <code>#[cmdr]</code> macro can act as a scope. The scope can hold state that can be accessed by the commands.</p>

@@ -1,0 +1,2 @@
+# Application structure
+Cmdr makes it very easy to write interactive command line applications. An application consists of one or more `scope`s and each scope defines one or more commands. Any type can be a scope by annotating its impl block with the #[cmdr] macro. The impl block can then contain one or more functions that will act as commands.

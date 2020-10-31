@@ -1,6 +1,6 @@
 [package]
 name = "cmdr"
-version = "0.3.11"
+version = "0.3.12"
 edition = "2018"
 
 authors = ["Mendelt Siebenga <msiebenga@gmail.com>"]
@@ -13,5 +13,5 @@ readme = "../README.md"
 include = ["Cargo.toml", "src/**/*.rs", "../README.md", "../LICENSE"]
 
 [dependencies]
-cmdr_macro = { version="0.3.11", path="../cmdr_macro" }
+cmdr_macro = { version="0.3.12", path="../cmdr_macro" }
 rustyline = "6.2.0"

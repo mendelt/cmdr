@@ -103,10 +103,10 @@ fn parse_cmd_signature(method: &ImplItemMethod) -> Vec<CmdArgument> {
                 .path
                 .is_ident(&Ident::new("CommandResult", Span::call_site()))
             {
-                panic!(format!(
+                panic!(
                     "Wrong return type for command {}, should be CommandReult",
                     method_ident
-                ));
+                );
             }
         }
     }
@@ -123,10 +123,10 @@ fn parse_cmd_signature(method: &ImplItemMethod) -> Vec<CmdArgument> {
     match ins.len() {
         2 => vec![CmdArgument::Args],
         3 => vec![CmdArgument::Writer, CmdArgument::Args],
-        _ => panic!(format!(
+        _ => panic!(
             "Invalid signature for command {}, expected '&mut self, args &[String]'",
             method_ident
-        )),
+        ),
     }
 }
 

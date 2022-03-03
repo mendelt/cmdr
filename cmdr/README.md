@@ -24,6 +24,12 @@ use cmdr::*;
 struct GreeterScope {}
 
 #[cmdr]
+use cmdr::*;
+
+/// Example scope that implements two commands, greet and quit
+struct GreeterScope {}
+
+#[cmdr]
 impl GreeterScope {
     /// Cmdr command to greet someone. Takes one parameter and prints a greeting
     #[cmd]
@@ -52,7 +58,7 @@ fn main() -> cmdr::Result<()> {
 - [Crates.io](https://crates.io/crates/cmdr)
 - [Release notes](https://github.com/mendelt/cmdr/releases)
 
-*version: 0.3.11*
+*version: 0.3.12*
 ## License
 
 Licensed under either of

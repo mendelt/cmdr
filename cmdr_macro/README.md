@@ -7,7 +7,7 @@ be found here:
 
 [Crates.io](https://crates.io/crates/cmdr)
 
-*version: 0.3.11*
+*version: 0.3.12*
 ## License
 
 Licensed under either of
